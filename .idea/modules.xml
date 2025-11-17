@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/chatbox.iml" filepath="$PROJECT_DIR$/.idea/chatbox.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/ChatBoxApp_Java_Springboot.iml" filepath="$PROJECT_DIR$/.idea/ChatBoxApp_Java_Springboot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/backend/chatbox.iml" filepath="$PROJECT_DIR$/backend/chatbox.iml" />
     </modules>
   </component>
 </project>
