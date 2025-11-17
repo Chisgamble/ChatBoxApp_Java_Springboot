@@ -1,4 +1,4 @@
-package app.chatbox.frontend.components;
+package components;
 import java.awt.*;
 import javax.swing.border.Border;
 
