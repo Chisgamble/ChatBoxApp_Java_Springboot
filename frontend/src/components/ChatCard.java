@@ -5,19 +5,32 @@ import java.awt.*;
 
 public class ChatCard extends JPanel {
 
-    public ChatCard(String senderInitials, String message) {
-        setLayout(new BorderLayout(10, 0));
-        setBackground(new Color(240, 240, 240));
-        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    public ChatCard(String senderInitials, String name, String message, int width, int height) {
+        this.setLayout(new BorderLayout(10, 0));
+        this.setOpaque(false);
+        this.setPreferredSize(new Dimension(width, 60));
+        this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
         Avatar avatar = new Avatar(senderInitials);
+        JPanel westWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        westWrapper.setOpaque(false); // optional, to be transparent
+        westWrapper.add(avatar);
 
-        JLabel msgLabel = new JLabel("<html><body style='width:200px;'>" + message + "</body></html>");
-        msgLabel.setOpaque(true);
-        msgLabel.setBackground(Color.WHITE);
-        msgLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JLabel nameLabel = new JLabel(name);
+        nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD,16f));
 
-        add(avatar, BorderLayout.WEST);
-        add(msgLabel, BorderLayout.CENTER);
+        JLabel msgLabel = new JLabel(message);
+        msgLabel.setForeground(Color.GRAY);
+        msgLabel.setOpaque(false);
+        msgLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+
+        JPanel centerContainer = new JPanel(new BorderLayout());
+        centerContainer.setOpaque(false);
+        centerContainer.add(nameLabel, BorderLayout.NORTH);
+        centerContainer.add(msgLabel, BorderLayout.SOUTH);
+
+        this.add(westWrapper, BorderLayout.WEST);
+        this.add(centerContainer, BorderLayout.CENTER);
+
     }
 }
