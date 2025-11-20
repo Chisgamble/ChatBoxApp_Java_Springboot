@@ -1,16 +1,19 @@
 import components.MsgBubble;
+import components.MsgCardList;
 import components.RoundedTextArea;
+import model.Msg;
 import ui.ChatScreen;
 import ui.Login;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args){
         SwingUtilities.invokeLater(() ->{
             ChatScreen cs = new ChatScreen();
-
         });
 
 //        new Login();

@@ -4,14 +4,24 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Avatar extends JComponent {
-
     private String text;
+    private float textSize = 16f;
 
     public Avatar(String text) {
         this.text = text;
+        this.textSize = 16f;
         setPreferredSize(new Dimension(40, 40)); // Circle size
         setMaximumSize(new Dimension(40, 40));
         setMinimumSize(new Dimension(40, 40));
+        setOpaque(false);
+    }
+
+    public Avatar(String text, int size) {
+        this.text = text;
+        textSize = textSize / 40 * size;
+        setPreferredSize(new Dimension(size, size)); // Circle size
+        setMaximumSize(new Dimension(size, size));
+        setMinimumSize(new Dimension(size, size));
         setOpaque(false);
     }
 
@@ -30,7 +40,7 @@ public class Avatar extends JComponent {
 
         // Text
         g2.setColor(Color.WHITE);
-        g2.setFont(getFont().deriveFont(Font.BOLD, 14f));
+        g2.setFont(getFont().deriveFont(Font.BOLD, textSize));
 
         FontMetrics fm = g2.getFontMetrics();
         int textWidth = fm.stringWidth(text);

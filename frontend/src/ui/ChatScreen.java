@@ -20,7 +20,7 @@ public class ChatScreen extends JFrame {
         int height = screen.height;
 
         this.add(new ChatPanel(width * 5, height), BorderLayout.CENTER);
-        this.add(new ChatUtilPanel(width * 2, height), BorderLayout.EAST);
+        this.add(new ChatUtilPanel(width * 2, height, false, false), BorderLayout.EAST);
         this.add(new UserUtilPanel(width * 2, height), BorderLayout.WEST);
 
         this.setVisible(true);

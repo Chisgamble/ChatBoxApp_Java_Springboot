@@ -9,7 +9,7 @@ import java.awt.*;
 
 public class FriendCard extends JPanel {
 
-    public FriendCard(User user, int width) {
+    public FriendCard(String initials, String name, String content, int width) {
         this.setLayout(new BorderLayout(10, 0));
         this.setOpaque(false);
         this.setPreferredSize(new Dimension(width, 60));
@@ -20,16 +20,16 @@ public class FriendCard extends JPanel {
                 new EmptyBorder(5,5,5,5)  // EmptyBorder for padding (10px on all sides)
         ));
 
-        Avatar avatar = new Avatar(user.getInitials());
+        Avatar avatar = new Avatar(initials);
 
         JPanel westWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
         westWrapper.setOpaque(false); // optional, to be transparent
         westWrapper.add(avatar);
 
-        JLabel nameLabel = new JLabel(user.getName());
+        JLabel nameLabel = new JLabel(name);
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD,16f));
 
-        JLabel msgLabel = new JLabel(user.getLastMsg());
+        JLabel msgLabel = new JLabel(content);
         msgLabel.setForeground(Color.GRAY);
         msgLabel.setOpaque(false);
         msgLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));

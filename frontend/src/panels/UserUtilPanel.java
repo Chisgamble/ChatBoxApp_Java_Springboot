@@ -60,7 +60,7 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     }
 
     void addFriendCard(User user, int width){
-        FriendCard card = new FriendCard(user, width-5);
+        FriendCard card = new FriendCard(user.getInitials(),user.getName(), user.getLastMsg(), width-5);
         card.setAlignmentX(Component.LEFT_ALIGNMENT);
         list.add(card);
     }
@@ -90,34 +90,12 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     public void onMenuOptionSelected(String option) {
         // Clear the current cards
         list.removeAll();
+        cur_option = option;
 
         // Add cards based on the selected option
-        switch (option) {
-            case "Profile":
-                cur_option = "Profile";
-                break;
-            case "Inbox":
-                for (int i = 0; i < 5; i++) {
-                    addFriendCard(new User(), getWidth());
-                }
-                break;
-            case "Friend request":
-                // Add friend request cards
-                for (int i = 0; i < 5; i++) {
-                    addRequestCard(new User(), getWidth());
-                }
-                break;
-//            case "Settings":
-//                break;
-//            case "Logout":
-//                break;
-            default:
-                break;
+        if (option.equals("Friend request") || option.equals("Inbox")){
+            updateUserList(allUsers);
         }
-
-        // Revalidate and repaint the list to reflect changes
-        list.revalidate();
-        list.repaint();
     }
 
     // Add the users to the list (JPanel)
