@@ -1,11 +1,15 @@
 package panels;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 
 import components.MsgBubble;
+import components.RoundedButton;
+import components.RoundedTextArea;
 import components.SendMsg;
 
 public class ChatPanel extends JPanel{
@@ -36,9 +40,36 @@ public class ChatPanel extends JPanel{
             addMessage(chatArea, "Hello! How are you?", i%2 == 0, width, "A");
         }
 
+        JPanel inputArea = new JPanel(new FlowLayout( FlowLayout.LEFT, 5,5));
+        inputArea.setPreferredSize(new Dimension(width - 10, 50 ));
+
+        RoundedButton sendButton = new RoundedButton(20);
+        sendButton.setText("send");
+        RoundedTextArea inputField = new RoundedTextArea(10, 7);
+
+        sendButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String message = inputField.getText().trim();
+                if (!message.isEmpty()) {
+                    addMessage(chatArea, message, true, width, "A");  // Add the message to the chat
+                    inputField.setText("");  // Clear the input field
+                }
+            }
+        });
+
+        Dimension buttonSize = sendButton.getPreferredSize();
+
+        inputField.setPreferredSize(new Dimension(width - buttonSize.width - 20, 30));
+//        textArea.setMinimumSize(new Dimension(0, 5));
+//        textArea.setMaximumSize(new Dimension(Integer.MAX_VALUE, 5));
+
+        inputArea.add(inputField);
+        inputArea.add(sendButton);
+
 
         scrollToBottom(this.scrollPane);
-        this.add(new SendMsg(width, 50), BorderLayout.SOUTH);
+        this.add(inputArea, BorderLayout.SOUTH);
         this.add(this.scrollPane, BorderLayout.CENTER);
     }
 
@@ -76,4 +107,5 @@ public class ChatPanel extends JPanel{
             verticalScrollBar.setValue(verticalScrollBar.getMaximum());
         });
     }
+
 }
