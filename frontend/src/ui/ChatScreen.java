@@ -18,8 +18,6 @@ public class ChatScreen extends JFrame {
         int width = screen.width / 9;
         int height = screen.height;
 
-        System.out.println(width + " " + height);
-
         this.add(new ChatPanel(width * 5, height), BorderLayout.CENTER);
         this.add(new ChatUtilPanel(width * 2, height), BorderLayout.EAST);
         this.add(new UserUtilPanel(width * 2, height), BorderLayout.WEST);

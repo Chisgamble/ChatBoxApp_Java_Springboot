@@ -44,9 +44,11 @@ public class User {
     @Column(unique=true, nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private boolean is_active;
 
     //user / admin
+    @Column(nullable = false)
     private String role;
 
     private boolean is_locked = false;

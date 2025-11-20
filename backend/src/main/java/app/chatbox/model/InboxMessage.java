@@ -24,14 +24,18 @@ public class InboxMessage{
     @JoinColumn(name = "inboxID", nullable = false)
     private Inbox inbox;
 
-    @Column(name = "senderID", nullable = false)
-    private int senderID;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "senderID", nullable = false)
+    private User sender;
 
     //sending (loading) / sent / seen
+    @Column(length = 30)
     private String status;
 
+    @Column(length = 500)
     private String content;
 
+    @Column(name = "created_at", updatable = false)
     private Instant created_at = Instant.now();
     private Instant updated_at = Instant.now();
 }

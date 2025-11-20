@@ -4,12 +4,12 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-import components.RoundedTextField;
+import components.RoundedTextArea;
 import java.awt.event.ActionEvent;
 
 public class SendMsg extends JPanel implements ActionListener {
     private final JButton sendButton = new JButton("send");
-    private final RoundedTextField textField = new RoundedTextField(10, 7);
+    private final RoundedTextArea textArea = new RoundedTextArea(10, 7);
 
     public SendMsg(int width, int height){
         this.setLayout(new FlowLayout( FlowLayout.LEFT, 5,5));
@@ -18,23 +18,23 @@ public class SendMsg extends JPanel implements ActionListener {
         sendButton.addActionListener(this);
         Dimension buttonSize = sendButton.getPreferredSize();
 
-        textField.setPreferredSize(new Dimension(width - buttonSize.width - 20, 30));
-//        textField.setMinimumSize(new Dimension(0, 5));
-//        textField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 5));
+        textArea.setPreferredSize(new Dimension(width - buttonSize.width - 20, 30));
+//        textArea.setMinimumSize(new Dimension(0, 5));
+//        textArea.setMaximumSize(new Dimension(Integer.MAX_VALUE, 5));
 
-        this.add(textField);
+        this.add(textArea);
         this.add(sendButton);
     }
 
     @Override
     public void actionPerformed(ActionEvent e){
         if (e.getSource() == sendButton){
-            String text = textField.getText().trim();
+            String text = textArea.getText().trim();
             if (text.isEmpty()) return;
 
-            System.out.println(textField.getText());
-            textField.setText("");   // Clear field after sending
-            textField.requestFocus();
+            System.out.println(textArea.getText());
+            textArea.setText("");   // Clear field after sending
+            textArea.requestFocus();
 
         }
     }

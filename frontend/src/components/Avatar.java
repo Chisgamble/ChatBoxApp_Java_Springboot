@@ -10,6 +10,8 @@ public class Avatar extends JComponent {
     public Avatar(String text) {
         this.text = text;
         setPreferredSize(new Dimension(40, 40)); // Circle size
+        setMaximumSize(new Dimension(40, 40));
+        setMinimumSize(new Dimension(40, 40));
         setOpaque(false);
     }
 
