@@ -51,8 +51,7 @@ public class MsgBubble extends JPanel {
 //        textArea.setForeground(textColor);
 
         // Calculate preferred size
-//        FontMetrics fm = textArea.getFontMetrics(textArea.getFont());
-//        int textWidth = Math.min(fm.stringWidth(message), maxWidth);
+
 //        textArea.setSize(textWidth + 1, Short.MAX_VALUE);
 //        int textHeight = textArea.getPreferredSize().height;
 //
@@ -65,16 +64,23 @@ public class MsgBubble extends JPanel {
 //        Dimension pref = textArea.getPreferredSize();
 //        textArea.setPreferredSize(pref);
 
-        JLabel textArea = new JLabel("<html>" + message + "</html>");
+        RoundedLabel textArea = new RoundedLabel(20,10);
+
         textArea.setFont(new Font("Arial", Font.PLAIN, 14));
-        textArea.setOpaque(true);
+        FontMetrics fm = textArea.getFontMetrics(textArea.getFont());
+        if (fm.stringWidth(message) < maxWidth){
+            textArea.setText("<html>" + message + "</html>");
+        }else
+            textArea.setText("<html><body style='width: " + maxWidth + "px'>" + message + "</body></html>");
+
+        textArea.setOpaque(false);
         textArea.setBackground(bubbleColor);
         textArea.setForeground(textColor);
-        textArea.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
+//        textArea.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
 
 
         this.setMaximumSize(new Dimension(maxWidth, textArea.getPreferredSize().height));
-        this.add(textArea, BorderLayout.CENTER);
+        this.add(textArea);
 
         // Set alignment based on sender
         this.setAlignmentX(isUser ? Component.RIGHT_ALIGNMENT : Component.LEFT_ALIGNMENT);
