@@ -15,6 +15,14 @@ public class User {
         this.last_msg = "Hello";
     }
 
+    public User(String name){
+        this.initials = name.substring(0,1).toUpperCase();
+        this.name = name;
+        this.role = "user";
+        this.is_active = false;
+        this.last_msg = "Hello, my name is" + name;
+    }
+
     public String getInitials(){
         return this.initials;
     }

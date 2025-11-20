@@ -1,21 +1,26 @@
 package panels;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 
 import components.*;
+import listener.SearchBarListener;
 import listener.UserMenuListener;
 import model.User;
 
-public class UserUtilPanel extends JPanel implements UserMenuListener {
+public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBarListener {
     Border border = BorderFactory.createLineBorder(Color.black);
     JPanel list = new JPanel();
-    int chat_cnt = 4;
+    List<User> allUsers = new ArrayList<>();
+    List<User> filteredUsers = new ArrayList<>();
+    String cur_option;
 
     public UserUtilPanel(int width, int height) {
+        this.cur_option = "Inbox";
         this.setPreferredSize(new Dimension(width, height));
         this.setLayout(new BorderLayout());
         this.setBorder(border);
@@ -26,25 +31,21 @@ public class UserUtilPanel extends JPanel implements UserMenuListener {
         topContainer.setOpaque(true);
         topContainer.setBackground(Color.YELLOW);
         topContainer.add(new UserMenu(20, 20, this));
-        topContainer.add(new SearchBar(20, 7, width - 10, 30));
+        topContainer.add(new SearchBar(20, 7, width - 10, 30, this));
 
         JPanel centerContainer = new JPanel(new BorderLayout());
         centerContainer.setPreferredSize(new Dimension(width - 10, height - 60));
         centerContainer.setOpaque(false);
 
-//        List<User> demoUsers = List.of(
-//                new User(),
-//                new User(),
-//                new User()
-//        );
-
-//        FriendList friendList = new FriendList(demoUsers, width);
         list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
         list.setOpaque(false);
         list.setAlignmentX(Component.LEFT_ALIGNMENT);
 
+        String[] names = {"Sammael", "Chris", "Doc", "Fridge", "Clockhead"};
         for (int i = 0; i < 5; i++){
-            addRequestCard(new User(), width);
+            User u = new User(names[i]);
+            allUsers.add(u);
+            addRequestCard(u, width);
         }
 
         JScrollPane scrollPane = new JScrollPane(list);
@@ -71,6 +72,21 @@ public class UserUtilPanel extends JPanel implements UserMenuListener {
     }
 
     @Override
+    public void onSearchChange(String text) {
+        filteredUsers.clear();
+        if (text.isEmpty() || text.equals("Search")) {
+            filteredUsers.addAll(allUsers);  // Show all users if the search bar is empty
+        } else {
+            for (User user : allUsers) {
+                if (user.getName().toLowerCase().contains(text.toLowerCase())) {
+                    filteredUsers.add(user);
+                }
+            }
+        }
+        updateUserList(filteredUsers);  // Update the list with the filtered users
+    }
+
+    @Override
     public void onMenuOptionSelected(String option) {
         // Clear the current cards
         list.removeAll();
@@ -78,8 +94,7 @@ public class UserUtilPanel extends JPanel implements UserMenuListener {
         // Add cards based on the selected option
         switch (option) {
             case "Profile":
-                // Add profile-related cards (this could be a different type of card)
-                // Example: No cards for profile, maybe a user profile display
+                cur_option = "Profile";
                 break;
             case "Inbox":
                 for (int i = 0; i < 5; i++) {
@@ -92,15 +107,11 @@ public class UserUtilPanel extends JPanel implements UserMenuListener {
                     addRequestCard(new User(), getWidth());
                 }
                 break;
-            case "Settings":
-                // Add settings-related cards, if needed
-                // Example: SettingsCard
-                break;
-            case "Logout":
-                // Handle logout behavior
-                break;
+//            case "Settings":
+//                break;
+//            case "Logout":
+//                break;
             default:
-                // Default action if no option matches
                 break;
         }
 
@@ -108,4 +119,26 @@ public class UserUtilPanel extends JPanel implements UserMenuListener {
         list.revalidate();
         list.repaint();
     }
+
+    // Add the users to the list (JPanel)
+    private void updateUserList(List<User> users) {
+        list.removeAll();  // Clear the list
+
+        // Add filtered user cards
+        if (cur_option.equals("Friend request")) {
+            for (User user : users) {
+                addRequestCard(user, getWidth());
+            }
+        }else{
+            for (User user : users) {
+                addFriendCard( user, getWidth());
+            }
+        }
+
+        // Revalidate and repaint the list
+        list.revalidate();
+        list.repaint();
+    }
+
+
 }
