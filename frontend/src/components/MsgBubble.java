@@ -20,7 +20,7 @@ public class MsgBubble extends JPanel {
             bubbleColor = new Color(0, 132, 255); // Blue for user
             textColor = Color.WHITE;
         } else {
-            bubbleColor = new Color(230, 230, 230); // Gray for other
+            bubbleColor = Color.WHITE; // Gray for other
             textColor = Color.BLACK;
         }
 

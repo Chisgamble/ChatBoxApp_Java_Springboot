@@ -13,6 +13,7 @@ public class ChatScreen extends JFrame {
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.setLayout(new BorderLayout());
         this.setResizable(false);
+        this.getContentPane().setBackground(Color.WHITE);
 
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         int width = screen.width / 9;

@@ -3,6 +3,8 @@ package components;
 import model.User;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 
 public class FriendCard extends JPanel {
@@ -13,7 +15,10 @@ public class FriendCard extends JPanel {
         this.setPreferredSize(new Dimension(width, 60));
         this.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
         this.setMinimumSize(new Dimension(width, 60));
-        this.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        this.setBorder(BorderFactory.createCompoundBorder(
+                new LineBorder(Color.BLACK, 1),  // LineBorder for the border
+                new EmptyBorder(5,5,5,5)  // EmptyBorder for padding (10px on all sides)
+        ));
 
         Avatar avatar = new Avatar(user.getInitials());
 

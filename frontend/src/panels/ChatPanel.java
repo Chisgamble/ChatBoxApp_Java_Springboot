@@ -10,24 +10,25 @@ import javax.swing.border.Border;
 import components.MsgBubble;
 import components.RoundedButton;
 import components.RoundedTextArea;
-import components.SendMsg;
 
 public class ChatPanel extends JPanel{
     Border border = BorderFactory.createLineBorder(Color.black);
-    private final JScrollPane scrollPane;
+    JScrollPane scrollPane;
 
     public ChatPanel(int width, int height){
         this.setPreferredSize(new Dimension(width, height));
         this.setLayout(new BorderLayout());
         this.setBorder(border);
-        this.setBackground(Color.WHITE);
+        this.setOpaque(false);
 
         JPanel chatArea = new JPanel();
-        chatArea.setLayout(new BoxLayout(chatArea, BoxLayout.Y_AXIS));
         chatArea.setOpaque(false);
+        chatArea.setLayout(new BoxLayout(chatArea, BoxLayout.Y_AXIS));
         chatArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         this.scrollPane = new JScrollPane(chatArea);
+        this.scrollPane.setOpaque(false);
+        this.scrollPane.getViewport().setOpaque(false);
         this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
@@ -41,9 +42,12 @@ public class ChatPanel extends JPanel{
         }
 
         JPanel inputArea = new JPanel(new FlowLayout( FlowLayout.LEFT, 5,5));
+        inputArea.setOpaque(false);
         inputArea.setPreferredSize(new Dimension(width - 10, 50 ));
 
         RoundedButton sendButton = new RoundedButton(20);
+        sendButton.setFocusPainted(false);
+        sendButton.setFocusable(false);
         sendButton.setText("send");
         RoundedTextArea inputField = new RoundedTextArea(10, 7);
 
@@ -66,7 +70,6 @@ public class ChatPanel extends JPanel{
 
         inputArea.add(inputField);
         inputArea.add(sendButton);
-
 
         scrollToBottom(this.scrollPane);
         this.add(inputArea, BorderLayout.SOUTH);
