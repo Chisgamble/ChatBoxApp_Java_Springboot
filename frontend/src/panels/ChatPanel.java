@@ -10,6 +10,8 @@ import components.SendMsg;
 
 public class ChatPanel extends JPanel{
     Border border = BorderFactory.createLineBorder(Color.black);
+    private final JScrollPane scrollPane;
+
     public ChatPanel(int width, int height){
         this.setPreferredSize(new Dimension(width, height));
         this.setLayout(new BorderLayout());
@@ -21,20 +23,26 @@ public class ChatPanel extends JPanel{
         chatArea.setOpaque(false);
         chatArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        this.scrollPane = new JScrollPane(chatArea);
+        this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
         addMessage(chatArea, "Hello! How are you?", false, width, "A");
         addMessage(chatArea, "I'm doing great, thanks for asking!", true, width, "A");
         addMessage(chatArea, "That's wonderful to hear. What are you working on today? Besides, I'm building a chatbox interface with bubble messages in Java Swing! It's really hard and takes lots of time. I've only making the UI and already wanna quit halfway. Wish there was another easier way to do this without grinding all the components tutorials.", false, width, "A");
         addMessage(chatArea, "I'm building a chatbox interface with bubble messages in Java Swing! It's really hard and takes lots of time. I've only making the UI and already wanna quit halfway. Wish there was another easier way to do this without grinding all the components tutorials.", true, width, "A");
 
-        JScrollPane scrollPane = new JScrollPane(chatArea);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        for (int i = 0; i < 15; i++){
+            addMessage(chatArea, "Hello! How are you?", i%2 == 0, width, "A");
+        }
 
+
+        scrollToBottom(this.scrollPane);
         this.add(new SendMsg(width, 50), BorderLayout.SOUTH);
-        this.add(scrollPane, BorderLayout.CENTER);
+        this.add(this.scrollPane, BorderLayout.CENTER);
     }
 
-    private static void addMessage(JPanel chatPanel, String message, boolean isUser, int chatWidth, String avatarText) {
+    private void addMessage(JPanel chatPanel, String message, boolean isUser, int chatWidth, String avatarText) {
         JPanel messageWrapper = new JPanel(new FlowLayout(isUser ? FlowLayout.RIGHT : FlowLayout.LEFT));
         messageWrapper.setOpaque(false);
 
@@ -50,9 +58,22 @@ public class ChatPanel extends JPanel{
 //            messageWrapper.add(Box.createHorizontalGlue());
 //        }
         messageWrapper.add(bubble);
+        messageWrapper.validate();
+        messageWrapper.setMaximumSize(new Dimension(chatWidth, messageWrapper.getPreferredSize().height));
 
         chatPanel.add(messageWrapper);
         chatPanel.revalidate();
+        scrollToBottom(this.scrollPane);
         chatPanel.repaint();
+    }
+
+    private void scrollToBottom(JScrollPane scrollPane) {
+        // Get the vertical scrollbar
+        JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
+
+        // Set the value of the scrollbar to its maximum to scroll to the bottom
+        SwingUtilities.invokeLater(() -> {
+            verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+        });
     }
 }
