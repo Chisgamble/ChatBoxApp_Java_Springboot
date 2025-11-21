@@ -1,17 +1,18 @@
-package components;
+package renderer;
 
-import model.Msg;
+import components.Avatar;
+import model.User;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
 
-public class FriendCardRenderer extends JPanel implements ListCellRenderer<Msg> {
+public class FriendCardRenderer extends JPanel implements ListCellRenderer<User> {
 
     private final Avatar avatar;
     private final JLabel nameLabel;
-    private final JLabel msgLabel;
+    private final JLabel userLabel;
 
     public FriendCardRenderer(int width) {
         setLayout(new BorderLayout(10, 0));
@@ -31,14 +32,14 @@ public class FriendCardRenderer extends JPanel implements ListCellRenderer<Msg> 
         nameLabel = new JLabel();
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 16f));
 
-        msgLabel = new JLabel();
-        msgLabel.setForeground(Color.GRAY);
-        msgLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+        userLabel = new JLabel();
+        userLabel.setForeground(Color.GRAY);
+        userLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
 
         JPanel centerContainer = new JPanel(new BorderLayout());
         centerContainer.setOpaque(false);
         centerContainer.add(nameLabel, BorderLayout.NORTH);
-        centerContainer.add(msgLabel, BorderLayout.SOUTH);
+        centerContainer.add(userLabel, BorderLayout.SOUTH);
 
         add(westWrapper, BorderLayout.WEST);
         add(centerContainer, BorderLayout.CENTER);
@@ -46,16 +47,16 @@ public class FriendCardRenderer extends JPanel implements ListCellRenderer<Msg> 
 
     @Override
     public Component getListCellRendererComponent(
-            JList<? extends Msg> list,
-            Msg msg,
+            JList<? extends User> list,
+            User user,
             int index,
             boolean isSelected,
             boolean cellHasFocus
     ) {
         // Update data
-        avatar.setInitials(msg.getSenderInitials());
-        nameLabel.setText(msg.getSenderName());
-        msgLabel.setText(msg.getContent());
+        avatar.setInitials(user.getInitials());
+        nameLabel.setText(user.getName());
+        userLabel.setText(user.getLastMsg());
 
         // Selection effect
         if (isSelected) {

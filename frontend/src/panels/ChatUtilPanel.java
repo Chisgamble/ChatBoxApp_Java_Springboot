@@ -22,11 +22,15 @@ import java.util.List;
 
 public class ChatUtilPanel extends JPanel implements SearchBarListener {
     Border border = BorderFactory.createLineBorder(Color.black);
+    JPanel topContainer = new JPanel();
     JPanel centerContainer = new JPanel();
+    Component listContainer = null;
     
     User user;
     List<Msg> msgs = new ArrayList<>();
     List<Msg> filteredMsgs = new ArrayList<>();
+    List<User> allMembers = new ArrayList<>();
+    List<User> filteredMembers = new ArrayList<>();
     
     boolean isGroup;
     boolean isAdmin;
@@ -86,9 +90,11 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 
 
         if (cur_option.equals("Selection")) {
-            centerContainer.add(setupOption(options), BorderLayout.CENTER);
+            listContainer = setupOption(options);
+            centerContainer.add(listContainer, BorderLayout.CENTER);
         } else if (cur_option.equals("Search In Chat")) {
-            centerContainer.add(new MsgCardList(msgs, width - 15), BorderLayout.CENTER);
+            listContainer = new MsgCardList(msgs, width - 15);
+            centerContainer.add(listContainer, BorderLayout.CENTER);
         }
 
 
@@ -101,8 +107,8 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 
 
 //        centerContainer.add(scrollPane, BorderLayout.CENTER);
-
-        this.add(avatarWrapper, BorderLayout.NORTH);
+        topContainer = avatarWrapper;
+        this.add(topContainer, BorderLayout.NORTH);
         this.add(centerContainer, BorderLayout.CENTER);
 
     }
@@ -138,8 +144,17 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         // Update the current selected option
         cur_option = option;
 
+        topContainer.removeAll();
+        topContainer.setLayout(new BoxLayout(topContainer, BoxLayout.X_AXIS));
+        topContainer.setBorder(BorderFactory.createEmptyBorder(20,5,20,5));
         SearchBar sb = new SearchBar(20,5, getWidth(), 30, this);
-        JLabel label = new JLabel(new FlatSVGIcon("icons/user.svg", 24, 24));
+        JLabel label = new JLabel(new FlatSVGIcon("assets/x-solid-full.svg", 24, 24));
+
+        topContainer.add(Box.createVerticalStrut(20));
+        topContainer.add(sb);
+        topContainer.add(Box.createHorizontalGlue());
+        topContainer.add(label);
+        topContainer.add(Box.createVerticalStrut(20));
 
         // Change the center panel based on the selected option
         Component newcenterContainer = null;
@@ -157,34 +172,56 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             newcenterContainer = setupOption(options);
         }
 
-        // Replace the current center panel with the new one
-
-//        this.removeAll();
-//        this.add()
-
+        // Replace the current panel with the new one
         centerContainer.removeAll(); // Remove old components
         centerContainer.add(newcenterContainer); // Add new panel
-        centerContainer.revalidate(); // Revalidate the panel
-        centerContainer.repaint(); // Repaint the panel
+        this.revalidate();
+        this.repaint();
     }
 
     void updateMsgList(List<Msg> msgs){
-//        this.
+        listContainer = new MsgCardList(msgs, getWidth()-15);
+        listContainer.revalidate();
+        listContainer.repaint();
+    }
+
+    void updateMemberList(List<User> members){
+
+
+        // Revalidate and repaint the list
+        listContainer.revalidate();
+        listContainer.repaint();
     }
 
     @Override
     public void onSearchChange(String text) {
-        filteredMsgs.clear();
-        if (text.isEmpty() || text.equals("Search")) {
-            filteredMsgs.addAll(msgs);  // Show all users if the search bar is empty
-        } else {
-            for (Msg msg : msgs) {
-                if (msg.getContent().toLowerCase().contains(text.toLowerCase())) {
-                    filteredMsgs.add(msg);
+        if (cur_option.equals("Search In Chat")) {
+            filteredMsgs.clear();
+            if (text.isEmpty() || text.equals("Search")) {
+                filteredMsgs.addAll(msgs);  // Show all users if the search bar is empty
+            } else {
+                for (Msg msg : msgs) {
+                    if (msg.getContent().toLowerCase().contains(text.toLowerCase())) {
+                        filteredMsgs.add(msg);
+                    }
                 }
             }
+            updateMsgList(filteredMsgs);  // Update the list with the filtered users
+        }else if (cur_option.equals("Members")){
+            filteredMembers.clear();
+            if (text.isEmpty() || text.equals("Search")) {
+                filteredMembers.addAll(allMembers);  // Show all users if the search bar is empty
+            } else {
+                for (User mem: allMembers) {
+                    if (mem.getName().toLowerCase().contains(text.toLowerCase())) {
+                        filteredMembers.add(mem);
+                    }
+                }
+            }
+            updateMemberList(filteredMembers);  // Update the list with the filtered users
         }
-        updateMsgList(filteredMsgs);  // Update the list with the filtered users
+
     }
+
 
 }
