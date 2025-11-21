@@ -14,6 +14,7 @@ public class MsgCardList extends JScrollPane {
         JPanel list = new JPanel();
         list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
         list.setOpaque(false);
+        list.setBorder(null);
         list.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         for (Msg msg : msgs){

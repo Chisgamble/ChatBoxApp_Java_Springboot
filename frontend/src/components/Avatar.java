@@ -25,6 +25,11 @@ public class Avatar extends JComponent {
         setOpaque(false);
     }
 
+    public void setInitials(String text) {
+        this.text = text;
+        repaint(); // repaint so the new text appears
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);

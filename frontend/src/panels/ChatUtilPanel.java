@@ -3,6 +3,8 @@ package panels;
 import components.Avatar;
 import components.FriendCard;
 import components.MsgCardList;
+import components.SearchBar;
+import listener.SearchBarListener;
 import model.Msg;
 import model.User;
 
@@ -12,27 +14,38 @@ import java.security.DigestException;
 import javax.swing.*;
 import javax.swing.border.Border;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ChatUtilPanel extends JPanel {
+public class ChatUtilPanel extends JPanel implements SearchBarListener {
     Border border = BorderFactory.createLineBorder(Color.black);
     JPanel centerContainer = new JPanel();
+    
     User user;
+    List<Msg> msgs = new ArrayList<>();
+    List<Msg> filteredMsgs = new ArrayList<>();
+    
     boolean isGroup;
     boolean isAdmin;
-    String cur_option = "Search In Chat";
-    String[] inboxOptions = {"Search In Chat", "Create Group With", "Unfriend", "Report Spam", "Block"};
+    String cur_option = "Selection";
+    String[] inboxOptions = {"Search In Chat", "Create Group With", "Delete All Chat History", "Unfriend", "Report Spam", "Block"};
     String[] groupOptions = {"Search In Chat", "Members", "Leave Group"};
-    String[] groupAdminOptions = {"Search In Chat", "Members", "Encrypt Group", "Delete Group"};
+    String[] groupAdminOptions = {"Search In Chat", "Members", "Encrypt Group","Delete All Chat History", "Delete Group"};
 
     public ChatUtilPanel(int width, int height, boolean isGroup, boolean isAdmin) {
         this.user = new User("You");
+        this.msgs = new ArrayList<>();
+        for (int i = 0; i < 15; i++) {
+            msgs.add(new Msg());
+        }
+        
         this.isGroup = isGroup;
         this.isAdmin = isAdmin;
 
-        this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        this.setLayout(new BorderLayout());
         this.setOpaque(false);
         this.setPreferredSize(new Dimension(width, height));
         this.setBorder(border);
@@ -71,14 +84,11 @@ public class ChatUtilPanel extends JPanel {
         centerContainer.setPreferredSize(new Dimension(width - 10, height - 60));
         centerContainer.setOpaque(false);
 
+
         if (cur_option.equals("Selection")) {
-            centerContainer.add(setupOption(options));
+            centerContainer.add(setupOption(options), BorderLayout.CENTER);
         } else if (cur_option.equals("Search In Chat")) {
-            List<Msg> msgs = new ArrayList<>();
-            for (int i = 0; i < 15; i++) {
-                msgs.add(new Msg());
-            }
-            centerContainer.add(new MsgCardList(msgs, width));
+            centerContainer.add(new MsgCardList(msgs, width - 15), BorderLayout.CENTER);
         }
 
 
@@ -92,8 +102,8 @@ public class ChatUtilPanel extends JPanel {
 
 //        centerContainer.add(scrollPane, BorderLayout.CENTER);
 
-        this.add(avatarWrapper);
-        this.add(centerContainer);
+        this.add(avatarWrapper, BorderLayout.NORTH);
+        this.add(centerContainer, BorderLayout.CENTER);
 
     }
 
@@ -128,14 +138,13 @@ public class ChatUtilPanel extends JPanel {
         // Update the current selected option
         cur_option = option;
 
+        SearchBar sb = new SearchBar(20,5, getWidth(), 30, this);
+        JLabel label = new JLabel(new FlatSVGIcon("icons/user.svg", 24, 24));
+
         // Change the center panel based on the selected option
         Component newcenterContainer = null;
         if (cur_option.equals("Search In Chat")) {
-            List<Msg> msgs = new ArrayList<>();
-            for (int i = 0; i < 15; i++) {
-                msgs.add(new Msg()); // Simulate messages for search
-            }
-            newcenterContainer = new MsgCardList(msgs,getWidth());
+            newcenterContainer = new MsgCardList(msgs,getWidth() - 15);
         } else {
             String[] options = null;
             if (!isGroup) {
@@ -150,10 +159,32 @@ public class ChatUtilPanel extends JPanel {
 
         // Replace the current center panel with the new one
 
+//        this.removeAll();
+//        this.add()
+
         centerContainer.removeAll(); // Remove old components
         centerContainer.add(newcenterContainer); // Add new panel
         centerContainer.revalidate(); // Revalidate the panel
         centerContainer.repaint(); // Repaint the panel
+    }
+
+    void updateMsgList(List<Msg> msgs){
+//        this.
+    }
+
+    @Override
+    public void onSearchChange(String text) {
+        filteredMsgs.clear();
+        if (text.isEmpty() || text.equals("Search")) {
+            filteredMsgs.addAll(msgs);  // Show all users if the search bar is empty
+        } else {
+            for (Msg msg : msgs) {
+                if (msg.getContent().toLowerCase().contains(text.toLowerCase())) {
+                    filteredMsgs.add(msg);
+                }
+            }
+        }
+        updateMsgList(filteredMsgs);  // Update the list with the filtered users
     }
 
 }
