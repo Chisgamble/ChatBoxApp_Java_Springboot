@@ -1,17 +1,20 @@
 package model;
 
+import java.util.Random;
+
 public class User {
     String initials;
     String name;
     String role;
     boolean is_active;
     String last_msg;
+    Random rand = new Random();
 
     public User(){
         this.initials = "A";
         this.name = "Alice";
         this.role = "user";
-        this.is_active = false;
+        this.is_active = rand.nextInt(2) % 2 == 0;
         this.last_msg = "Hello";
     }
 
@@ -19,7 +22,7 @@ public class User {
         this.initials = name.substring(0,1).toUpperCase();
         this.name = name;
         this.role = "user";
-        this.is_active = false;
+        this.is_active = rand.nextInt(2) % 2 == 0;
         this.last_msg = "Hello, my name is" + name;
     }
 
@@ -34,6 +37,11 @@ public class User {
     public String getLastMsg(){
         return this.last_msg;
     }
+
+    public boolean isActive() {
+        return is_active;
+    }
+
     // getters + setters
     // Optional: override toString for debugging
 }

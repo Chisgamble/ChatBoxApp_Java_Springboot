@@ -1,5 +1,5 @@
 package ui;
-import javax.swing.JFrame;
+import javax.swing.*;
 import java.awt.*;
 
 import panels.ChatPanel;
@@ -24,6 +24,27 @@ public class ChatScreen extends JFrame {
         this.add(new UserUtilPanel(width * 2, height), BorderLayout.WEST);
 
         this.setVisible(true);
+    }
+
+    public void showProfilePopup() {
+        // Create dim background using glass pane
+        JPanel dim = new JPanel();
+        dim.setBackground(new Color(0, 0, 0, 120));
+        setGlassPane(dim);
+        dim.setVisible(true);
+
+        // Use your existing ProfilePopup class
+        ProfilePopup popup = new ProfilePopup(this);
+
+        // When popup closes → remove dim effect
+        popup.addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosed(java.awt.event.WindowEvent e) {
+                dim.setVisible(false);
+            }
+        });
+
+        popup.setVisible(true);
     }
 
 }

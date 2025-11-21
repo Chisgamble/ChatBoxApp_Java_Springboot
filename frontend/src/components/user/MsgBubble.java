@@ -1,8 +1,10 @@
-package components;
+package components.user;
+
+import components.Avatar;
+import components.RoundedLabel;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 
 public class MsgBubble extends JPanel {
     private Color bubbleColor;
@@ -40,30 +42,6 @@ public class MsgBubble extends JPanel {
             maxWidth -= (40 + AVATAR_GAP); // Subtract avatar width and gap
         }
 
-//        RoundedTextArea textArea = new RoundedTextArea(20, PADDING);
-//        textArea.setText(message);
-//        textArea.setWrapStyleWord(true);
-//        textArea.setLineWrap(true);
-//        textArea.setBackground(bubbleColor);
-//        textArea.setEditable(false);
-//        textArea.setFocusable(false);
-//        textArea.setFont(new Font("Arial", Font.PLAIN, 14));
-//        textArea.setForeground(textColor);
-
-        // Calculate preferred size
-
-//        textArea.setSize(textWidth + 1, Short.MAX_VALUE);
-//        int textHeight = textArea.getPreferredSize().height;
-//
-//        System.out.println(textWidth + " " + textHeight + " " + textArea.getPreferredSize().width);
-//        textArea.setPreferredSize(new Dimension(Math.min(textWidth, maxWidth), textHeight));
-//        System.out.println(fm.stringWidth(message) + " " + textArea.getPreferredSize().width + " " + maxWidth);
-//        System.out.println();
-
-//        textArea.setSize(maxWidth, Short.MAX_VALUE);  // important
-//        Dimension pref = textArea.getPreferredSize();
-//        textArea.setPreferredSize(pref);
-
         RoundedLabel textArea = new RoundedLabel(20,10);
 
         textArea.setFont(new Font("Arial", Font.PLAIN, 14));
@@ -77,7 +55,6 @@ public class MsgBubble extends JPanel {
         textArea.setBackground(bubbleColor);
         textArea.setForeground(textColor);
 //        textArea.setBorder(BorderFactory.createEmptyBorder(PADDING, PADDING, PADDING, PADDING));
-
 
         this.setMaximumSize(new Dimension(maxWidth, textArea.getPreferredSize().height));
         this.add(textArea);

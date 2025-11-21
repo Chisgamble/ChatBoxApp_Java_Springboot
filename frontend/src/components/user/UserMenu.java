@@ -1,14 +1,11 @@
-package components;
+package components.user;
 
 import listener.UserMenuListener;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 
 public class UserMenu extends JPanel {
 

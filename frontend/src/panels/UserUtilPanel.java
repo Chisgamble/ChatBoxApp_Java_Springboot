@@ -7,15 +7,28 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.border.Border;
 
-import components.*;
+import components.MyColor;
+import components.admin.RoundedComboBox;
+import components.user.FriendRequestList;
+import components.user.SearchBar;
+import components.user.UserMenu;
 import listener.SearchBarListener;
 import listener.UserMenuListener;
 import model.User;
+import components.user.FriendCardList;
+import ui.ProfilePopup;
 
 public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBarListener {
     Border border = BorderFactory.createLineBorder(Color.black);
-    JPanel list = new JPanel();
-    List<User> allUsers = new ArrayList<>();
+    JPanel centerContainer;
+    Component list = null;
+    List<User> allUsers = new ArrayList<>( List.of(
+            new User("Sammael"),
+            new User("Chris"),
+            new User("Doc"),
+            new User("Fridge"),
+            new User("Clockhead"))
+    );
     List<User> filteredUsers = new ArrayList<>();
     String cur_option;
 
@@ -30,23 +43,27 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
         topContainer.setPreferredSize(new Dimension(width, 100));
         topContainer.setOpaque(true);
         topContainer.setBackground(Color.YELLOW);
-        topContainer.add(new UserMenu(20, 20, this));
-        topContainer.add(new SearchBar(20, 7, width - 10, 30, this));
 
-        JPanel centerContainer = new JPanel(new BorderLayout());
+        String[] options = {"Online", "Offline"};
+        RoundedComboBox<String> comboBox = new RoundedComboBox<>(options);
+        comboBox.setForeground(MyColor.DARK_GRAY);
+        comboBox.setFont(new Font("Roboto", Font.PLAIN, 12));
+        comboBox.setPreferredSize(new Dimension(80, 30));
+
+        JPanel searchArea = new JPanel(new BorderLayout(10,5));
+        searchArea.setOpaque(false);
+        searchArea.add(new SearchBar(20, 7, width - 110, 30, this), BorderLayout.CENTER);
+        searchArea.add(comboBox, BorderLayout.EAST);
+
+        topContainer.add(new UserMenu(20, 20, this));
+        topContainer.add(searchArea);
+
+
+        centerContainer = new JPanel(new BorderLayout());
         centerContainer.setPreferredSize(new Dimension(width - 10, height - 60));
         centerContainer.setOpaque(false);
 
-        list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
-        list.setOpaque(false);
-        list.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        String[] names = {"Sammael", "Chris", "Doc", "Fridge", "Clockhead"};
-        for (int i = 0; i < 5; i++){
-            User u = new User(names[i]);
-            allUsers.add(u);
-            addRequestCard(u, width);
-        }
+        list = new FriendCardList(allUsers, width - 10);
 
         JScrollPane scrollPane = new JScrollPane(list);
         scrollPane.setBorder(null);
@@ -57,18 +74,6 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
 
         this.add(topContainer, BorderLayout.NORTH);
         this.add(centerContainer, BorderLayout.CENTER);
-    }
-
-    void addFriendCard(User user, int width){
-        FriendCard card = new FriendCard(user.getInitials(),user.getName(), user.getLastMsg(), width-5);
-        card.setAlignmentX(Component.LEFT_ALIGNMENT);
-        list.add(card);
-    }
-
-    void addRequestCard(User user, int width){
-        FriendRequestCard card = new FriendRequestCard(user, width - 5);
-        card.setAlignmentX(Component.LEFT_ALIGNMENT);
-        list.add(card);
     }
 
     @Override
@@ -83,40 +88,44 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
                 }
             }
         }
-        updateUserList(filteredUsers);  // Update the list with the filtered users
+        updateList(filteredUsers);  // Update the list with the filtered users
     }
 
     @Override
     public void onMenuOptionSelected(String option) {
-        // Clear the current cards
-        list.removeAll();
         cur_option = option;
+        if(option.equals("Profile")) {
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            ProfilePopup popup = new ProfilePopup(parentFrame);
+            popup.setVisible(true); // blocks here until popup is closed
+        }
 
         // Add cards based on the selected option
-        if (option.equals("Friend request") || option.equals("Inbox")){
-            updateUserList(allUsers);
-        }
+        updateList(allUsers);
     }
 
-    // Add the users to the list (JPanel)
-    private void updateUserList(List<User> users) {
-        list.removeAll();  // Clear the list
-
-        // Add filtered user cards
-        if (cur_option.equals("Friend request")) {
-            for (User user : users) {
-                addRequestCard(user, getWidth());
-            }
-        }else{
-            for (User user : users) {
-                addFriendCard( user, getWidth());
-            }
+    void updateList(List<User> users){
+        if (cur_option.equals("Friend request") ){
+            list = new FriendRequestList(users, getWidth() - 15);
+            System.out.print("1");
+        }else if(cur_option.equals("Inbox")){
+            list = new FriendCardList(users, getWidth() - 15);
+            System.out.print("2");
         }
 
-        // Revalidate and repaint the list
-        list.revalidate();
-        list.repaint();
-    }
+        this.remove(centerContainer);
 
+        JScrollPane scrollPane = new JScrollPane(list);
+        scrollPane.setBorder(null);
+        scrollPane.setOpaque(false);
+        scrollPane.getViewport().setOpaque(false);
+
+        centerContainer.removeAll();
+        centerContainer.add(scrollPane, BorderLayout.CENTER);
+        this.add(centerContainer, BorderLayout.CENTER);
+
+        this.revalidate();
+        this.repaint();
+    }
 
 }

@@ -1,15 +1,14 @@
 package panels;
 
 import components.Avatar;
-import components.FriendCard;
-import components.MsgCardList;
-import components.SearchBar;
+import components.user.FriendCardList;
+import components.user.MsgCardList;
+import components.user.SearchBar;
 import listener.SearchBarListener;
 import model.Msg;
 import model.User;
 
 import java.awt.*;
-import java.security.DigestException;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -85,7 +84,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         }
 
         centerContainer.setLayout(new BorderLayout());
-        centerContainer.setPreferredSize(new Dimension(width - 10, height - 60));
+        centerContainer.setPreferredSize(new Dimension(width - 25, height - 60));
         centerContainer.setOpaque(false);
 
 
@@ -93,7 +92,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             listContainer = setupOption(options);
             centerContainer.add(listContainer, BorderLayout.CENTER);
         } else if (cur_option.equals("Search In Chat")) {
-            listContainer = new MsgCardList(msgs, width - 15);
+            listContainer = new MsgCardList(msgs, width - 25);
             centerContainer.add(listContainer, BorderLayout.CENTER);
         }
 
@@ -159,7 +158,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         // Change the center panel based on the selected option
         Component newcenterContainer = null;
         if (cur_option.equals("Search In Chat")) {
-            newcenterContainer = new MsgCardList(msgs,getWidth() - 15);
+            newcenterContainer = new MsgCardList(msgs,getWidth() - 25);
         } else {
             String[] options = null;
             if (!isGroup) {
@@ -180,14 +179,14 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     }
 
     void updateMsgList(List<Msg> msgs){
-        listContainer = new MsgCardList(msgs, getWidth()-15);
+        listContainer = new MsgCardList(msgs, getWidth()-25);
         listContainer.revalidate();
         listContainer.repaint();
     }
 
     void updateMemberList(List<User> members){
-
-
+        this.remove(listContainer);
+        listContainer = new FriendCardList(members, getWidth()-15);
         // Revalidate and repaint the list
         listContainer.revalidate();
         listContainer.repaint();

@@ -7,7 +7,7 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.Border;
 
-import components.MsgBubble;
+import components.user.MsgBubble;
 import components.RoundedButton;
 import components.RoundedTextArea;
 

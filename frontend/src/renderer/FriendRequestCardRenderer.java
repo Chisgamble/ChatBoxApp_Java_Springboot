@@ -1,5 +1,6 @@
-package components;
+package renderer;
 
+import components.Avatar;
 import model.User;
 
 import javax.swing.*;
@@ -8,9 +9,11 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 
-public class FriendRequestCard extends JPanel {
+public class FriendRequestCardRenderer extends JPanel implements ListCellRenderer<User> {
+    private final Avatar avatar;
+    private final JLabel nameLabel;
 
-    public FriendRequestCard(User user, int width) {
+    public FriendRequestCardRenderer(int width) {
         this.setLayout(new BorderLayout(10, 0));
         this.setOpaque(false);
         this.setPreferredSize(new Dimension(width, 60));
@@ -20,13 +23,13 @@ public class FriendRequestCard extends JPanel {
                 new MatteBorder(0,0,1,0, Color.BLACK),  // LineBorder for the border
                 new EmptyBorder(5,0,5,0)  // EmptyBorder for padding (10px on all sides)
         ));
-        Avatar avatar = new Avatar(user.getInitials());
+        avatar = new Avatar("");
 
         JPanel westWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
         westWrapper.setOpaque(false); // optional, to be transparent
         westWrapper.add(avatar);
 
-        JLabel nameLabel = new JLabel(user.getName());
+        nameLabel = new JLabel();
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD,16f));
 
         JPanel options = new JPanel();
@@ -62,6 +65,27 @@ public class FriendRequestCard extends JPanel {
 
         this.add(westWrapper, BorderLayout.WEST);
         this.add(centerContainer, BorderLayout.CENTER);
+    }
 
+    @Override
+    public Component getListCellRendererComponent(
+            JList<? extends User> list,
+            User user,
+            int index,
+            boolean isSelected,
+            boolean cellHasFocus
+    ) {
+        // Update data
+        avatar.setInitials(user.getInitials());
+        nameLabel.setText(user.getName());
+
+        // Selection effect
+        if (isSelected) {
+            setBackground(new Color(0xDDEAFF)); // light blue
+        } else {
+            setBackground(Color.WHITE);
+        }
+
+        return this;
     }
 }
