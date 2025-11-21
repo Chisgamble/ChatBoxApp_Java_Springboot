@@ -1,5 +1,7 @@
 package components;
 
+import listener.UserMenuListener;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusEvent;
@@ -12,8 +14,10 @@ public class UserMenu extends JPanel {
 
     private final JButton menuButton;
     private final JPopupMenu popupMenu;
+    private final UserMenuListener listener;
 
-    public UserMenu(int width, int height) {
+    public UserMenu(int width, int height, UserMenuListener listener) {
+        this.listener = listener;
         this.setLayout(new FlowLayout(FlowLayout.LEFT));
 //        this.setPreferredSize(new Dimension(width, height));
         this.setOpaque(false);
@@ -33,9 +37,23 @@ public class UserMenu extends JPanel {
 
         // Popup menu
         popupMenu = new JPopupMenu();
-        popupMenu.add(new JMenuItem("Profile"));
-        popupMenu.add(new JMenuItem("Settings"));
-        popupMenu.add(new JMenuItem("Logout"));
+
+        JMenuItem profileItem = new JMenuItem("Profile");
+        profileItem.addActionListener(e -> listener.onMenuOptionSelected("Profile"));
+        JMenuItem inboxItem = new JMenuItem("Inbox");
+        inboxItem.addActionListener(e -> listener.onMenuOptionSelected("Inbox"));
+        JMenuItem friendReqItem = new JMenuItem("Friend request");
+        friendReqItem.addActionListener(e -> listener.onMenuOptionSelected("Friend request"));
+        JMenuItem settingsItem = new JMenuItem("Settings");
+        settingsItem.addActionListener(e -> listener.onMenuOptionSelected("Settings"));
+        JMenuItem logoutItem = new JMenuItem("Logout");
+        logoutItem.addActionListener(e -> listener.onMenuOptionSelected("Logout"));
+
+        popupMenu.add(profileItem);
+        popupMenu.add(inboxItem);
+        popupMenu.add(friendReqItem);
+        popupMenu.add(settingsItem);
+        popupMenu.add(logoutItem);
 
         menuButton.addMouseListener(new MouseAdapter() {
             @Override

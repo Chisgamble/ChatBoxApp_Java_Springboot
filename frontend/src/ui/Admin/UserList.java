@@ -102,5 +102,6 @@ public class UserList extends JFrame {
 
         add(sidebar);
         add(right);
+        setVisible(true);
     }
 }

@@ -13,15 +13,14 @@ public class ChatScreen extends JFrame {
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.setLayout(new BorderLayout());
         this.setResizable(false);
+        this.getContentPane().setBackground(Color.WHITE);
 
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         int width = screen.width / 9;
         int height = screen.height;
 
-        System.out.println(width + " " + height);
-
         this.add(new ChatPanel(width * 5, height), BorderLayout.CENTER);
-        this.add(new ChatUtilPanel(width * 2, height), BorderLayout.EAST);
+        this.add(new ChatUtilPanel(width * 2, height, false, false), BorderLayout.EAST);
         this.add(new UserUtilPanel(width * 2, height), BorderLayout.WEST);
 
         this.setVisible(true);

@@ -1,20 +1,26 @@
 package components;
 
+import listener.SearchBarListener;
+import panels.UserUtilPanel;
+
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
-public class SearchBar extends RoundedTextField implements FocusListener{
-    public SearchBar(int radius,int pad, int width, int height){
+public class SearchBar extends RoundedTextField implements FocusListener, DocumentListener {
+    private SearchBarListener sbListener;
+
+    public SearchBar(int radius, int pad, int width, int height, SearchBarListener sbListener) {
         super(radius, pad);
-        this.setPreferredSize(new Dimension(width,height));
+        this.sbListener = sbListener;
+        this.setPreferredSize(new Dimension(width, height));
         this.setForeground(Color.GRAY);
         this.setText("Search");
-//        this.setBorder(BorderFactory.createLineBorder(Color.RED, 1));
-
         this.addFocusListener(this);
-
+        this.getDocument().addDocumentListener(this);
     }
 
     @Override
@@ -24,6 +30,7 @@ public class SearchBar extends RoundedTextField implements FocusListener{
             this.setForeground(Color.BLACK);
         }
     }
+
     @Override
     public void focusLost(FocusEvent e) {
         if (this.getText().isEmpty()) {
@@ -31,4 +38,26 @@ public class SearchBar extends RoundedTextField implements FocusListener{
             this.setText("Search");
         }
     }
+
+    @Override
+    public void insertUpdate (javax.swing.event.DocumentEvent e){
+        notifySearchTextChanged();
+    }
+
+    @Override
+    public void removeUpdate (javax.swing.event.DocumentEvent e){
+        notifySearchTextChanged();
+    }
+
+    @Override
+    public void changedUpdate (javax.swing.event.DocumentEvent e){
+        notifySearchTextChanged();
+    }
+
+    private void notifySearchTextChanged () {
+        if (sbListener != null) {
+            sbListener.onSearchChange(SearchBar.this.getText());
+        }
+    }
+
 }

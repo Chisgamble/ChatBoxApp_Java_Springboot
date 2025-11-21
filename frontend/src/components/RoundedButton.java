@@ -11,10 +11,10 @@ public class RoundedButton extends JButton {
         this.radius = radius;
         borderColour = new Color(255,255,255,1);
         setContentAreaFilled(false);
-        setOpaque(true);
-        setContentAreaFilled(true);
-        setBorderPainted(false);
-        setFocusPainted(false);
+//        setOpaque(true);
+//        setContentAreaFilled(true);
+//        setBorderPainted(false);
+//        setFocusPainted(false);
     }
     public RoundedButton(int radius, Color border) {
         this.radius = radius;
@@ -25,7 +25,6 @@ public class RoundedButton extends JButton {
         setBorderPainted(false);
         setFocusPainted(false);
     }
-
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -58,7 +57,7 @@ public class RoundedButton extends JButton {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setColor(borderColour);
-        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
+        g2.drawRoundRect(0, 1, getWidth() - 1, getHeight() - 2, radius, radius);
         g2.dispose();
     }
 }
