@@ -5,8 +5,7 @@ import java.awt.*;
 
 public class RoundedTextField extends JTextField {
 
-    private final int radius;
-    private int pad = 1;
+    protected final int radius;
 
     public RoundedTextField(int radius) {
         this.radius = radius;
@@ -16,7 +15,6 @@ public class RoundedTextField extends JTextField {
 
     public RoundedTextField(int radius, int pad) {
         this.radius = radius;
-        this.pad = pad;
         setOpaque(false); // VERY important
         setBorder(BorderFactory.createEmptyBorder(pad, pad, pad, pad)); // padding inside
     }

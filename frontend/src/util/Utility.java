@@ -14,12 +14,18 @@ public class Utility {
         return Font.createFont(Font.TRUETYPE_FONT, is);
     }
 
-    public static JLabel makeText(String value, Font font, Float font_size, Integer font_type, Color foreground, Color background){
+    public static JLabel makeText(String value, Font font, Float font_size, Integer font_type, Color foreground, Color background) {
         JLabel res = new JLabel();
         res.setText(value);
+        if (font == null) {
+            font = UIManager.getFont("Label.font");
+        }
         res.setFont(font.deriveFont(font_type, font_size));
         res.setForeground(foreground);
-        res.setBackground(background);
+        if (background != null) {
+            res.setOpaque(true);
+            res.setBackground(background);
+        }
         return res;
     }
 }

@@ -8,15 +8,13 @@ import java.io.IOException;
 import java.io.InputStream;
 
 
-public class Signup {
-    public static void main(String[] arg) throws IOException, FontFormatException {
-
-        JFrame frame = new JFrame();
-        frame.setTitle("Chat system");
+public class Signup extends JFrame{
+    public Signup() throws IOException, FontFormatException {
+        setTitle("Chat system");
         try{
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-            frame.setLayout(new BoxLayout(frame.getContentPane(), BoxLayout.Y_AXIS));
+            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            setExtendedState(JFrame.MAXIMIZED_BOTH);
+            setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 
             Font baloo = Utility.getFont("../public/font/Baloo2-VariableFont_wght.ttf");
 
@@ -119,14 +117,14 @@ public class Signup {
             panel.add(Box.createVerticalGlue(), gbc);
 
 
-            frame.add(Box.createVerticalGlue()); //Vertical centering
-            frame.add(sign_up);
-            frame.add(or_login);
-            frame.add(panel);
-            frame.add(submit);
-            frame.add(Box.createVerticalGlue()); //Vertical centering
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
+            add(Box.createVerticalGlue()); //Vertical centering
+            add(sign_up);
+            add(or_login);
+            add(panel);
+            add(submit);
+            add(Box.createVerticalGlue()); //Vertical centering
+            setLocationRelativeTo(null);
+            setVisible(true);
         }
         catch (IOException | FontFormatException e) {
             System.out.println("io font error");

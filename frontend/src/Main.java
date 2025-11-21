@@ -1,9 +1,8 @@
-import ui.ChatScreen;
-import ui.Login;
+import ui.Admin.*;
 
 public class Main {
     public static void main(String[] args){
-        ChatScreen cs = new ChatScreen();
-//        new Login();
+        UserList ul = new UserList();
+        ul.setVisible(true);
     }
 }
