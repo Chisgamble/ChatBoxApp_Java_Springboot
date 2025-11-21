@@ -1,6 +1,6 @@
-package components.admin;
+package ui;
 
-import ui.UserList;
+import components.admin.*;
 
 import javax.swing.*;
 import java.awt.*;

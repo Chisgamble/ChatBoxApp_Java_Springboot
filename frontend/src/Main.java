@@ -1,4 +1,4 @@
-import components.admin.AdminDashboard;
+import ui.AdminDashboard;
 
 import javax.swing.*;
 
