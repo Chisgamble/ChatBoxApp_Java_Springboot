@@ -31,6 +31,19 @@ public class FilterButton extends RoundedTextField {
         setupEnterListener();
     }
 
+    public FilterButton(String text, int radius) {
+        super(radius);
+        this.placeholderText = text;
+
+        setText(text);
+        setForeground(placeholderColor);
+        setOpaque(false);
+        setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+
+        setupFocusListener();
+        setupEnterListener();
+    }
+
     private void setupFocusListener() {
         addFocusListener(new FocusAdapter() {
             @Override

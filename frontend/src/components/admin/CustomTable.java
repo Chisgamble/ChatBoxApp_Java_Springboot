@@ -3,6 +3,7 @@ package components.admin;
 import components.MyColor;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.table.*;
 import java.awt.*;
 import java.util.HashMap;
@@ -33,8 +34,21 @@ public class CustomTable extends JTable {
 
                 // If custom component exists → use it as renderer
                 if (componentMap.containsKey(key)) {
-                    return componentMap.get(key);
+                    JComponent comp = componentMap.get(key);
+
+                    // Make sure the wrapper panel is opaque
+                    comp.setOpaque(true);
+
+                    // Change background on selection
+                    if (isSelected) {
+                        comp.setBackground(table.getSelectionBackground());
+                    } else {
+                        comp.setBackground(Color.WHITE);
+                    }
+
+                    return comp;
                 }
+
 
                 JLabel cell = (JLabel) super.getTableCellRendererComponent(
                         table, value, isSelected, hasFocus, row, column);
@@ -97,8 +111,12 @@ public class CustomTable extends JTable {
         JTableHeader header = getTableHeader();
         header.setBackground(new Color(170, 170, 170, 20));
         header.setForeground(MyColor.DARK_GRAY);
-        header.setFont(new Font("Roboto", Font.BOLD, 20));
-        header.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
+        header.setFont(new Font("Roboto", Font.BOLD, 18));
+        Border padding = BorderFactory.createEmptyBorder(10, 0, 10, 0);
+
+        Border bottomLine = BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY);
+
+        header.setBorder(BorderFactory.createCompoundBorder(bottomLine, padding));
     }
 
     // ================================

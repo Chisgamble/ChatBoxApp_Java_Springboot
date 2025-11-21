@@ -4,91 +4,93 @@ import components.MyColor;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Sidebar extends JPanel {
+    private SidebarListener listener;
+    private String currentPage = ""; // track current page
+    private final Map<String, JButton> buttons = new HashMap<>(); // store buttons by pageName
+
+    public interface SidebarListener {
+        void onButtonClicked(String pageName);
+    }
 
     public Sidebar() {
-        setLayout(new GridBagLayout());
-        GridBagConstraints c;
-
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setMinimumSize(new Dimension(180, 1080));
         setMaximumSize(new Dimension(225, 1080));
         setPreferredSize(new Dimension(180, 1080));
         setBackground(MyColor.WHITE_BG);
         setBorder(BorderFactory.createLineBorder(MyColor.LIGHT_BLACK));
-        // Header
-        c = new GridBagConstraints();
-        c.gridx = 0;
-        c.gridy = 0;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.anchor = GridBagConstraints.WEST;  // <-- anchor to the left
-        c.weightx = 1.0;
 
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(new Color(25, 55, 109));
+        // Create buttons
+        createButton("User List", "UserList");
+        createButton("Chat Group List", "ChatGroupList");
+        createButton("Login Activity", "LoginActivity");
+        createButton("Spam", "Spam");
+        createButton("New User List", "NewUser");
+        createButton("Graphs", "GraphPage");
+        createButton("User And Friends", "Friend");
+        createButton("Active", "Active");
 
-        JLabel headerLabel = new JLabel("Categories");
-        headerLabel.setFont(new Font("Roboto", Font.BOLD, 18));
-        headerLabel.setBorder(BorderFactory.createEmptyBorder(20, 25, 20, 25));
-        headerLabel.setForeground(Color.WHITE);
-
-        header.add(headerLabel, BorderLayout.WEST);
-        add(header, c);
-
-        // Menu items
-        String[] menuItems = {
-                "User list",
-                "Login activity log",
-                "Chat group list",
-                "Spam report list",
-                "New user list",
-                "Graphs",
-                "User and friends",
-                "Active"
-        };
-
-        int row = 1;
-        for (String item : menuItems) {
-            c.gridy = row++;
-            c.insets = new Insets(0, 0, 0, 0);   // optional: padding around button
-
-            JButton button = createMenuItem(item);
-            add(button, c);
-        }
-
-        // Push items to top: add a "filler" component
-        c = new GridBagConstraints();
-        c.gridx = 0;
-        c.gridy = row;
-        c.weighty = 1.0;            // take all extra vertical space
-        c.fill = GridBagConstraints.VERTICAL;
-        add(Box.createVerticalGlue(), c);
+        setCurrentPage("UserList");
+        // add vertical glue at bottom so buttons stick to top
+        add(Box.createVerticalGlue());
     }
 
-    private JButton createMenuItem(String text) {
+    private void createButton(String text, String pageName) {
         JButton button = new JButton(text);
 
         button.setFont(new Font("Roboto", Font.BOLD, 14));
         button.setForeground(new Color(60, 60, 60));
         button.setOpaque(true);
         button.setContentAreaFilled(true);
-        button.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
-
-        button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setBackground(MyColor.WHITE_BG);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        button.setFocusPainted(false);
+        button.setHorizontalAlignment(SwingConstants.LEFT);
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        button.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                button.setBackground(new Color(0xD1DAE3));
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                button.setBackground(MyColor.WHITE_BG);
-            }
+        // Make button fill horizontally
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+
+        // store in map for later coloring
+        buttons.put(pageName, button);
+
+        button.addActionListener(e -> {
+            // notify listener
+            if (listener != null) listener.onButtonClicked(pageName);
+
+            // update current page highlight
+            setCurrentPage(pageName);
         });
 
-        return button;
+        add(button);
+    }
+
+    public void setButtonListener(SidebarListener listener) {
+        this.listener = listener;
+    }
+
+    public void setCurrentPage(String pageName) {
+        currentPage = pageName;
+        updateButtonColors();
+    }
+
+    private void updateButtonColors() {
+        for (Map.Entry<String, JButton> entry : buttons.entrySet()) {
+            JButton b = entry.getValue();
+            if (entry.getKey().equals(currentPage)) {
+                b.setBackground(new Color(0xD1DAE3)); // highlight color
+                b.setForeground(MyColor.LIGHT_BLACK);
+                b.setFont(new Font("Roboto", Font.BOLD, 15));
+            } else {
+                b.setBackground(MyColor.WHITE_BG);
+                b.setForeground(new Color(60, 60, 60));
+                b.setFont(new Font("Roboto", Font.BOLD, 14));
+            }
+        }
     }
 }

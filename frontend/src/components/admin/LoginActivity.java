@@ -1,27 +1,22 @@
-package ui.Admin;
+package components.admin;
 
 import components.MyColor;
-import components.RoundedButton;
-import components.admin.*;
-import util.Utility;
+import components.RoundedComboBox;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class LoginActivity extends JFrame {
-    public LoginActivity(){
+public class LoginActivity extends JPanel {
+
+    public LoginActivity() {
         Font roboto = new Font("Roboto", Font.PLAIN, 16);
-        setLayout(new BoxLayout( getContentPane(), BoxLayout.X_AXIS));
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        setTitle("Chat system");
-        getContentPane().setBackground(MyColor.LIGHT_BLACK);
-        setSize(100,100);
 
-        Sidebar sidebar = new Sidebar();
-        AdminDashboard ad = new AdminDashboard();
+        // This panel IS the main page content
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setBackground(MyColor.LIGHT_BLUE);
 
-        String[] customHeader = {"Username", "Full name", "Time"};
+        // === Table Data ===
+        String[] headers = {"Username", "Full name", "Time"};
         String[][] data = {
                 {"thaibao", "Nguyễn Thái Bảo", "2003-05-20"},
                 {"thaibao", "Nguyễn Thái Bảo", "2003-05-20"},
@@ -39,33 +34,26 @@ public class LoginActivity extends JFrame {
                 {"thaibao", "Nguyễn Thái Bảo", "2003-05-20"},
                 {"thaibao", "Nguyễn Thái Bảo", "2003-05-20"}
         };
-        CustomTable table = new CustomTable(data, customHeader);
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
 
+        CustomTable table = new CustomTable(data, headers);
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        scroll.setPreferredSize(new Dimension(1920, 800));
+
+        // === Optional: sorting comboboxes (if you want them) ===
         String[] options = {"Name", "Account Age"};
         RoundedComboBox<String> comboBox = new RoundedComboBox<>(options);
         comboBox.setForeground(MyColor.DARK_GRAY);
-        comboBox.setFont(new Font("Roboto", Font.PLAIN, 16));
+        comboBox.setFont(roboto);
 
-
-        String[] optionsToSort = {"Ascending", "Descending"};
-        RoundedComboBox<String> asc_des = new RoundedComboBox<>(optionsToSort);
+        String[] sortOptions = {"Ascending", "Descending"};
+        RoundedComboBox<String> asc_des = new RoundedComboBox<>(sortOptions);
         asc_des.setForeground(MyColor.DARK_GRAY);
-        asc_des.setFont(new Font("Roboto", Font.PLAIN, 16));
+        asc_des.setFont(roboto);
 
-        JPanel right = new JPanel();
-        right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
-        right.setBackground(MyColor.LIGHT_BLUE);
-        right.setPreferredSize(new Dimension(100, getHeight()));
-        scroll.setPreferredSize(new Dimension(1920, 800));
+        // === Add components to main panel ===
+        add(scroll);                 // table scroll
+        add(Box.createVerticalGlue()); // push content to top if space
 
-
-        right.add(ad);
-        right.add(scroll);
-        right.add(Box.createVerticalGlue());
-
-        add(sidebar);
-        add(right);
     }
 }
