@@ -120,6 +120,8 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
             //Group card is a msg card but groups will be passed instead of msg
             //since the card only display name and last msg
             list = new MsgCardList(all_msgs, getWidth() - 15);
+        }else if (cur_option.equals("Find User")){
+            list = new StrangerCardList(allUsers, getWidth() - 15);
         }
 
         this.remove(centerContainer);

@@ -37,19 +37,28 @@ public class UserMenu extends JPanel {
 
         JMenuItem profileItem = new JMenuItem("Profile");
         profileItem.addActionListener(e -> listener.onMenuOptionSelected("Profile"));
+
         JMenuItem friendItem = new JMenuItem("Friends");
         friendItem.addActionListener(e -> listener.onMenuOptionSelected("Friends"));
+
+        JMenuItem findItem = new JMenuItem("Find User");
+        findItem.addActionListener(e -> listener.onMenuOptionSelected("Find User"));
+
         JMenuItem friendReqItem = new JMenuItem("Friend request");
         friendReqItem.addActionListener(e -> listener.onMenuOptionSelected("Friend request"));
+
         JMenuItem groupItem = new JMenuItem("Groups");
         groupItem.addActionListener(e -> listener.onMenuOptionSelected("Groups"));
-        JMenuItem searchItem = new JMenuItem("SearchMsg");
+
+        JMenuItem searchItem = new JMenuItem("Search from all messages");
         searchItem.addActionListener(e -> listener.onMenuOptionSelected("SearchMsg"));
+
         JMenuItem logoutItem = new JMenuItem("Logout");
         logoutItem.addActionListener(e -> listener.onMenuOptionSelected("Logout"));
 
         popupMenu.add(profileItem);
         popupMenu.add(friendItem);
+        popupMenu.add(findItem);
         popupMenu.add(friendReqItem);
         popupMenu.add(groupItem);
         popupMenu.add(searchItem);

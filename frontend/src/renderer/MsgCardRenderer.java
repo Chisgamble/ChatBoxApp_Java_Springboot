@@ -6,6 +6,7 @@ import model.Msg;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.border.MatteBorder;
 import java.awt.*;
 
 public class MsgCardRenderer extends JPanel implements ListCellRenderer<Msg> {
@@ -19,7 +20,7 @@ public class MsgCardRenderer extends JPanel implements ListCellRenderer<Msg> {
         setOpaque(true);
         setPreferredSize(new Dimension(width, 60));
         setBorder(BorderFactory.createCompoundBorder(
-                new LineBorder(Color.BLACK, 1),
+                new MatteBorder(0,0,1,0, Color.BLACK),
                 new EmptyBorder(5, 5, 5, 5)
         ));
 

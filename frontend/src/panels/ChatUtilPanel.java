@@ -3,6 +3,7 @@ package panels;
 import components.Avatar;
 import components.ConfirmPopup;
 import components.user.FriendCardList;
+import components.user.MemberCardList;
 import components.user.MsgCardList;
 import components.user.SearchBar;
 import listener.SearchBarListener;
@@ -36,7 +37,13 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     User user;
     List<Msg> msgs = new ArrayList<>();
     List<Msg> filteredMsgs = new ArrayList<>();
-    List<User> allMembers = new ArrayList<>();
+    List<User> allMembers = new ArrayList<>( List.of(
+            new User("Sammael"),
+            new User("Chris"),
+            new User("Doc"),
+            new User("Fridge"),
+            new User("Dante"))
+    );
     List<User> filteredMembers = new ArrayList<>();
     
     boolean isGroup;
@@ -51,6 +58,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         this.mainFrame = mainFrame;
 
         this.user = new User("You");
+
         this.msgs = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
             msgs.add(new Msg());
@@ -101,6 +109,9 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             });
             setupSearchArea(itemSelected);
             centerContainer.add(msgList, BorderLayout.CENTER);
+        }else if (cur_option.equals("Members")){
+            centerContainer.add(new MemberCardList(allMembers, getWidth() - 25, isAdmin));
+            setupSearchArea(itemSelected);
         }
 
         this.add(topContainer, BorderLayout.NORTH);

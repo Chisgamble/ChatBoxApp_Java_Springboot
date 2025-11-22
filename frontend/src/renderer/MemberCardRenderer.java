@@ -9,14 +9,15 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class MemberCardRenderer extends JPanel implements ListCellRenderer<User>  {
-
     private final Avatar avatar;
     private final JLabel nameLabel;
     private final JLabel roleLabel;
 
-    public MemberCardRenderer(int width){
+    public MemberCardRenderer(int width, boolean isAdmin){
         User user = new User();
         this.setLayout(new BorderLayout(10, 0));
         this.setOpaque(false);
@@ -56,6 +57,27 @@ public class MemberCardRenderer extends JPanel implements ListCellRenderer<User>
         roleLabel.setOpaque(false);
         roleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
 
+        JLabel option = new JLabel(new FlatSVGIcon("assets/ellipsis-solid-full.svg", 30, 30));
+        option.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        option.setVisible(isAdmin);
+        JPopupMenu popupMenu = new JPopupMenu();
+
+        JMenuItem promoteItem = new JMenuItem("Promote to Admin");
+//        promoteItem.addActionListener(e -> listener.onMenuOptionSelected("Promote"));
+        JMenuItem removeItem = new JMenuItem("Remove from group");
+//        removeItem.addActionListener(e -> listener.onMenuOptionSelected("Remove From Group"));
+
+        popupMenu.add(promoteItem);
+        popupMenu.add(removeItem);
+
+        option.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                popupMenu.show(option, 0, option.getHeight());
+                System.out.print(true);
+            }
+        });
+
         JPanel centerContainer = new JPanel(new BorderLayout());
         centerContainer.setOpaque(false);
         centerContainer.add(nameLabel, BorderLayout.NORTH);
@@ -63,6 +85,7 @@ public class MemberCardRenderer extends JPanel implements ListCellRenderer<User>
 
         this.add(westWrapper, BorderLayout.WEST);
         this.add(centerContainer, BorderLayout.CENTER);
+        this.add(option, BorderLayout.EAST);
     }
 
     @Override
@@ -76,6 +99,12 @@ public class MemberCardRenderer extends JPanel implements ListCellRenderer<User>
         // Update data
         avatar.setInitials(user.getInitials());
         nameLabel.setText(user.getName());
+        FlatSVGIcon icon;
+        if (user.isActive())
+            icon = new FlatSVGIcon("assets/online-icon.svg", 10, 10);
+        else
+            icon = new FlatSVGIcon("assets/offline-icon.svg", 10, 10);
+        nameLabel.setIcon(icon);
         roleLabel.setText(user.isAdmin() ? "Admin" : "Member");
 
         // Selection effect
