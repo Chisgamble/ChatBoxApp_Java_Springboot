@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 public class FriendCardRenderer extends JPanel implements ListCellRenderer<User> {
 
@@ -31,6 +32,9 @@ public class FriendCardRenderer extends JPanel implements ListCellRenderer<User>
 
         nameLabel = new JLabel();
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 16f));
+        nameLabel.setHorizontalTextPosition(SwingConstants.LEFT); // text on the left, icon on the right
+        nameLabel.setVerticalTextPosition(SwingConstants.CENTER); // vertically centered
+        nameLabel.setIconTextGap(5);
 
         userLabel = new JLabel();
         userLabel.setForeground(Color.GRAY);
@@ -56,6 +60,12 @@ public class FriendCardRenderer extends JPanel implements ListCellRenderer<User>
         // Update data
         avatar.setInitials(user.getInitials());
         nameLabel.setText(user.getName());
+        FlatSVGIcon icon;
+        if (user.isActive())
+            icon = new FlatSVGIcon("assets/online-icon.svg", 10, 10);
+        else
+            icon = new FlatSVGIcon("assets/offline-icon.svg", 10, 10);
+        nameLabel.setIcon(icon);
         userLabel.setText(user.getLastMsg());
 
         // Selection effect

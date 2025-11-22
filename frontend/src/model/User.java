@@ -13,6 +13,7 @@ public class User {
     boolean is_active;
     String last_msg;
     Random rand = new Random();
+    boolean is_admin;
 
     public User(){
         this.initials = "A";
@@ -24,6 +25,7 @@ public class User {
         this.email = "alice@gmail.com";
         this.is_active = rand.nextInt(2) % 2 == 0;
         this.last_msg = "Hello";
+        this.is_admin = true;
     }
 
     public User(String name){
@@ -36,6 +38,7 @@ public class User {
         this.email = name + "@gmail.com";
         this.is_active = rand.nextInt(2) % 2 == 0;
         this.last_msg = "Hello, my name is" + name;
+        this.is_admin = rand.nextInt(2) % 2 == 0;
     }
 
     public String getInitials(){
@@ -68,5 +71,9 @@ public class User {
 
     public String getGender() {
         return gender;
+    }
+
+    public boolean isAdmin(){
+        return is_admin;
     }
 }

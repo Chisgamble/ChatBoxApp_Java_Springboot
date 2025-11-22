@@ -15,6 +15,8 @@ import javax.swing.border.Border;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,8 +54,79 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         this.setOpaque(false);
         this.setPreferredSize(new Dimension(width, height));
         this.setBorder(border);
-        this.setBackground(Color.BLUE);
 
+        topContainer = setupAvatarWrapper();
+
+        centerContainer.setLayout(new BorderLayout());
+        centerContainer.setPreferredSize(new Dimension(width - 25, height - 60));
+        centerContainer.setOpaque(false);
+
+        if (cur_option.equals("Selection")) {
+            listContainer = setupOption();
+            centerContainer.add(listContainer, BorderLayout.CENTER);
+        } else if (cur_option.equals("Search In Chat")) {
+            listContainer = new MsgCardList(msgs, width - 25);
+            centerContainer.add(listContainer, BorderLayout.CENTER);
+        }
+
+//        String[] names = {"Sammael", "Chris", "Doc", "Fridge", "Clockhead"};
+//        for (int i = 0; i < 5; i++){
+//            User u = new User(names[i]);
+//            allUsers.add(u);
+//            addMsgCard(u, width);
+//        }
+
+//        centerContainer.add(scrollPane, BorderLayout.CENTER);
+//        topContainer = avatarWrapper;
+
+        this.add(topContainer, BorderLayout.NORTH);
+        this.add(centerContainer, BorderLayout.CENTER);
+
+    }
+
+    void updatePanel(){
+        this.removeAll();
+        centerContainer.removeAll();
+        topContainer.removeAll();
+
+        if (cur_option.equals("Selection")){
+            topContainer = setupAvatarWrapper();
+            centerContainer.add(setupOption(), BorderLayout.CENTER);
+        }else if (cur_option.equals("Search In Chat")){
+            setupSearchArea();
+            centerContainer.add(new MsgCardList(msgs,getWidth() - 25), BorderLayout.CENTER);
+        }
+
+        this.add(topContainer, BorderLayout.NORTH);
+        this.add(centerContainer, BorderLayout.CENTER);
+        this.revalidate();
+        this.repaint();
+    }
+
+    void setupSearchArea(){
+        topContainer.setLayout(new BoxLayout(topContainer, BoxLayout.X_AXIS));
+        topContainer.setBorder(BorderFactory.createEmptyBorder(20,5,20,5));
+        SearchBar sb = new SearchBar(20,5, getWidth(), 30, this);
+        JLabel label = new JLabel(new FlatSVGIcon("assets/x-solid-full.svg", 24, 24));
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                cur_option = "Selection";
+                updatePanel();
+                // This code will execute when the JLabel is clicked
+                System.out.println("JLabel clicked!");
+
+            }
+        });
+
+        topContainer.add(Box.createVerticalStrut(20));
+        topContainer.add(sb);
+        topContainer.add(Box.createHorizontalGlue());
+        topContainer.add(label);
+        topContainer.add(Box.createVerticalStrut(20));
+    }
+
+    JPanel setupAvatarWrapper(){
         JPanel avatarWrapper = new JPanel();
         avatarWrapper.setLayout(new BoxLayout(avatarWrapper, BoxLayout.Y_AXIS));
         avatarWrapper.setOpaque(false);
@@ -73,6 +146,14 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 
         avatarWrapper.validate();
         avatarWrapper.setMaximumSize(new Dimension(Short.MAX_VALUE, avatarWrapper.getPreferredSize().height));
+        return avatarWrapper;
+    }
+
+    JPanel setupOption() {
+        JPanel optionWrapper = new JPanel();
+        optionWrapper.setLayout(new BoxLayout(optionWrapper, BoxLayout.Y_AXIS));
+        optionWrapper.setOpaque(false);
+        optionWrapper.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
 
         String[] options;
         if (!isGroup) {
@@ -82,41 +163,6 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         } else {
             options = groupOptions;
         }
-
-        centerContainer.setLayout(new BorderLayout());
-        centerContainer.setPreferredSize(new Dimension(width - 25, height - 60));
-        centerContainer.setOpaque(false);
-
-
-        if (cur_option.equals("Selection")) {
-            listContainer = setupOption(options);
-            centerContainer.add(listContainer, BorderLayout.CENTER);
-        } else if (cur_option.equals("Search In Chat")) {
-            listContainer = new MsgCardList(msgs, width - 25);
-            centerContainer.add(listContainer, BorderLayout.CENTER);
-        }
-
-
-//        String[] names = {"Sammael", "Chris", "Doc", "Fridge", "Clockhead"};
-//        for (int i = 0; i < 5; i++){
-//            User u = new User(names[i]);
-//            allUsers.add(u);
-//            addMsgCard(u, width);
-//        }
-
-
-//        centerContainer.add(scrollPane, BorderLayout.CENTER);
-        topContainer = avatarWrapper;
-        this.add(topContainer, BorderLayout.NORTH);
-        this.add(centerContainer, BorderLayout.CENTER);
-
-    }
-
-    JPanel setupOption(String[] options) {
-        JPanel optionWrapper = new JPanel();
-        optionWrapper.setLayout(new BoxLayout(optionWrapper, BoxLayout.Y_AXIS));
-        optionWrapper.setOpaque(false);
-        optionWrapper.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
 
         for (String option : options) {
             JButton button = new JButton(option);
@@ -142,40 +188,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     private void onOptionButtonClick(String option) {
         // Update the current selected option
         cur_option = option;
-
-        topContainer.removeAll();
-        topContainer.setLayout(new BoxLayout(topContainer, BoxLayout.X_AXIS));
-        topContainer.setBorder(BorderFactory.createEmptyBorder(20,5,20,5));
-        SearchBar sb = new SearchBar(20,5, getWidth(), 30, this);
-        JLabel label = new JLabel(new FlatSVGIcon("assets/x-solid-full.svg", 24, 24));
-
-        topContainer.add(Box.createVerticalStrut(20));
-        topContainer.add(sb);
-        topContainer.add(Box.createHorizontalGlue());
-        topContainer.add(label);
-        topContainer.add(Box.createVerticalStrut(20));
-
-        // Change the center panel based on the selected option
-        Component newcenterContainer = null;
-        if (cur_option.equals("Search In Chat")) {
-            newcenterContainer = new MsgCardList(msgs,getWidth() - 25);
-        } else {
-            String[] options = null;
-            if (!isGroup) {
-                options = inboxOptions;
-            } else if (isGroup && isAdmin) {
-                options = groupAdminOptions;
-            } else {
-                options = groupOptions;
-            }
-            newcenterContainer = setupOption(options);
-        }
-
-        // Replace the current panel with the new one
-        centerContainer.removeAll(); // Remove old components
-        centerContainer.add(newcenterContainer); // Add new panel
-        this.revalidate();
-        this.repaint();
+        updatePanel();
     }
 
     void updateMsgList(List<Msg> msgs){
@@ -219,8 +232,6 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             }
             updateMemberList(filteredMembers);  // Update the list with the filtered users
         }
-
     }
-
 
 }

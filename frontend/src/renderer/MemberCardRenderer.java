@@ -1,68 +1,65 @@
 package renderer;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import components.Avatar;
-import components.MyColor;
+import model.Msg;
 import model.User;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.border.MatteBorder;
 import java.awt.*;
 
-public class FriendRequestCardRenderer extends JPanel implements ListCellRenderer<User> {
+public class MemberCardRenderer extends JPanel implements ListCellRenderer<User>  {
+
     private final Avatar avatar;
     private final JLabel nameLabel;
+    private final JLabel roleLabel;
 
-    public FriendRequestCardRenderer(int width) {
+    public MemberCardRenderer(int width){
+        User user = new User();
         this.setLayout(new BorderLayout(10, 0));
         this.setOpaque(false);
         this.setPreferredSize(new Dimension(width, 60));
         this.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
         this.setMinimumSize(new Dimension(width, 60));
         this.setBorder(BorderFactory.createCompoundBorder(
-                new MatteBorder(0,0,1,0, MyColor.DARK_GRAY),  // LineBorder for the border
-                new EmptyBorder(5,0,5,0)  // EmptyBorder for padding (10px on all sides)
+                new LineBorder(Color.BLACK, 1),  // LineBorder for the border
+                new EmptyBorder(5,5,5,5)  // EmptyBorder for padding (10px on all sides)
         ));
-        avatar = new Avatar("");
+
+        avatar = new Avatar(user.getInitials());
 
         JPanel westWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
         westWrapper.setOpaque(false); // optional, to be transparent
         westWrapper.add(avatar);
 
-        nameLabel = new JLabel();
+        nameLabel = new JLabel(user.getName());
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD,16f));
 
-        JPanel options = new JPanel();
-        options.setOpaque(false);
-        options.setLayout(new BoxLayout(options, BoxLayout.X_AXIS));
+        FlatSVGIcon icon = null;
+        if (user.isActive())
+            icon = new FlatSVGIcon("assets/online-icon.svg", 10, 10);
+        else
+            icon = new FlatSVGIcon("assets/offline-icon.svg", 10, 10);
 
-        JButton accept = new JButton("Accept");
-        accept.setFont(accept.getFont().deriveFont(16f));
-        accept.setForeground(Color.green);
-        accept.setBorderPainted(false);
-        accept.setOpaque(false);
-        accept.setContentAreaFilled(false);
-        accept.setFocusPainted(false);
+        // Set icon on JLabel
+        nameLabel.setIcon(icon);
 
-        JButton reject = new JButton("Reject");
-        reject.setFont(accept.getFont().deriveFont(16f));
-        reject.setForeground(Color.red);
-        reject.setBorderPainted(false);
-        reject.setOpaque(false);
-        reject.setContentAreaFilled(false);
-        reject.setFocusPainted(false);
+        // Position the icon relative to text
+        nameLabel.setHorizontalTextPosition(SwingConstants.LEFT); // text on the left, icon on the right
+        nameLabel.setVerticalTextPosition(SwingConstants.CENTER); // vertically centered
+        nameLabel.setIconTextGap(5); // gap between text and icon
 
-        options.add(Box.createHorizontalStrut(40));
-        options.add(accept);
-        options.add(Box.createHorizontalGlue());
-        options.add(reject);
-        options.add(Box.createHorizontalStrut(40));
+        roleLabel = new JLabel(user.isAdmin() ? "Admin" : "Member");
+        roleLabel.setForeground(Color.GRAY);
+        roleLabel.setOpaque(false);
+        roleLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
 
         JPanel centerContainer = new JPanel(new BorderLayout());
         centerContainer.setOpaque(false);
         centerContainer.add(nameLabel, BorderLayout.NORTH);
-        centerContainer.add(options, BorderLayout.SOUTH);
+        centerContainer.add(roleLabel, BorderLayout.SOUTH);
 
         this.add(westWrapper, BorderLayout.WEST);
         this.add(centerContainer, BorderLayout.CENTER);
@@ -79,6 +76,7 @@ public class FriendRequestCardRenderer extends JPanel implements ListCellRendere
         // Update data
         avatar.setInitials(user.getInitials());
         nameLabel.setText(user.getName());
+        roleLabel.setText(user.isAdmin() ? "Admin" : "Member");
 
         // Selection effect
         if (isSelected) {
