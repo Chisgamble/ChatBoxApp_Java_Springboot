@@ -9,13 +9,11 @@ import javax.swing.border.Border;
 
 import components.MyColor;
 import components.admin.RoundedComboBox;
-import components.user.FriendRequestList;
-import components.user.SearchBar;
-import components.user.UserMenu;
+import components.user.*;
 import listener.SearchBarListener;
 import listener.UserMenuListener;
+import model.Msg;
 import model.User;
-import components.user.FriendCardList;
 import ui.ProfilePopup;
 
 public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBarListener {
@@ -27,13 +25,20 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
             new User("Chris"),
             new User("Doc"),
             new User("Fridge"),
-            new User("Clockhead"))
+            new User("Dante"))
     );
     List<User> filteredUsers = new ArrayList<>();
+    List<Msg> all_msgs = new ArrayList<>(List.of(
+            new Msg("Sammael"),
+            new Msg("Chris"),
+            new Msg("Doc"),
+            new Msg("Fridge"),
+            new Msg("Dante"))
+    );
     String cur_option;
 
     public UserUtilPanel(int width, int height) {
-        this.cur_option = "Inbox";
+        this.cur_option = "Friends";
         this.setPreferredSize(new Dimension(width, height));
         this.setLayout(new BorderLayout());
         this.setBorder(border);
@@ -107,10 +112,14 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     void updateList(List<User> users){
         if (cur_option.equals("Friend request") ){
             list = new FriendRequestList(users, getWidth() - 15);
-            System.out.print("1");
-        }else if(cur_option.equals("Inbox")){
+        }else if(cur_option.equals("Friends")){
             list = new FriendCardList(users, getWidth() - 15);
-            System.out.print("2");
+        }else if (cur_option.equals("SearchMsg")){
+            list = new MsgCardList(all_msgs, getWidth() - 15);
+        }else if (cur_option.equals("Groups")){
+            //Group card is a msg card but groups will be passed instead of msg
+            //since the card only display name and last msg
+            list = new MsgCardList(all_msgs, getWidth() - 15);
         }
 
         this.remove(centerContainer);

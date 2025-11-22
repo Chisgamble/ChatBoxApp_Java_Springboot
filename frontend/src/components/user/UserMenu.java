@@ -37,19 +37,22 @@ public class UserMenu extends JPanel {
 
         JMenuItem profileItem = new JMenuItem("Profile");
         profileItem.addActionListener(e -> listener.onMenuOptionSelected("Profile"));
-        JMenuItem inboxItem = new JMenuItem("Inbox");
-        inboxItem.addActionListener(e -> listener.onMenuOptionSelected("Inbox"));
+        JMenuItem friendItem = new JMenuItem("Friends");
+        friendItem.addActionListener(e -> listener.onMenuOptionSelected("Friends"));
         JMenuItem friendReqItem = new JMenuItem("Friend request");
         friendReqItem.addActionListener(e -> listener.onMenuOptionSelected("Friend request"));
-        JMenuItem settingsItem = new JMenuItem("Settings");
-        settingsItem.addActionListener(e -> listener.onMenuOptionSelected("Settings"));
+        JMenuItem groupItem = new JMenuItem("Groups");
+        groupItem.addActionListener(e -> listener.onMenuOptionSelected("Groups"));
+        JMenuItem searchItem = new JMenuItem("SearchMsg");
+        searchItem.addActionListener(e -> listener.onMenuOptionSelected("SearchMsg"));
         JMenuItem logoutItem = new JMenuItem("Logout");
         logoutItem.addActionListener(e -> listener.onMenuOptionSelected("Logout"));
 
         popupMenu.add(profileItem);
-        popupMenu.add(inboxItem);
+        popupMenu.add(friendItem);
         popupMenu.add(friendReqItem);
-        popupMenu.add(settingsItem);
+        popupMenu.add(groupItem);
+        popupMenu.add(searchItem);
         popupMenu.add(logoutItem);
 
         menuButton.addMouseListener(new MouseAdapter() {

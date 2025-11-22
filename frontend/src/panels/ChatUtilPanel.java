@@ -1,6 +1,7 @@
 package panels;
 
 import components.Avatar;
+import components.ConfirmPopup;
 import components.user.FriendCardList;
 import components.user.MsgCardList;
 import components.user.SearchBar;
@@ -12,16 +13,21 @@ import java.awt.*;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.JScrollPane;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import ui.ChatScreen;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 public class ChatUtilPanel extends JPanel implements SearchBarListener {
+    ChatScreen mainFrame;
+
     Border border = BorderFactory.createLineBorder(Color.black);
     JPanel topContainer = new JPanel();
     JPanel centerContainer = new JPanel();
@@ -35,12 +41,15 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     
     boolean isGroup;
     boolean isAdmin;
+    boolean itemSelected;
     String cur_option = "Selection";
     String[] inboxOptions = {"Search In Chat", "Create Group With", "Delete All Chat History", "Unfriend", "Report Spam", "Block"};
     String[] groupOptions = {"Search In Chat", "Members", "Leave Group"};
     String[] groupAdminOptions = {"Search In Chat", "Members", "Encrypt Group","Delete All Chat History", "Delete Group"};
 
-    public ChatUtilPanel(int width, int height, boolean isGroup, boolean isAdmin) {
+    public ChatUtilPanel(ChatScreen mainFrame, int width, int height, boolean isGroup, boolean isAdmin) {
+        this.mainFrame = mainFrame;
+
         this.user = new User("You");
         this.msgs = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
@@ -69,16 +78,6 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             centerContainer.add(listContainer, BorderLayout.CENTER);
         }
 
-//        String[] names = {"Sammael", "Chris", "Doc", "Fridge", "Clockhead"};
-//        for (int i = 0; i < 5; i++){
-//            User u = new User(names[i]);
-//            allUsers.add(u);
-//            addMsgCard(u, width);
-//        }
-
-//        centerContainer.add(scrollPane, BorderLayout.CENTER);
-//        topContainer = avatarWrapper;
-
         this.add(topContainer, BorderLayout.NORTH);
         this.add(centerContainer, BorderLayout.CENTER);
 
@@ -93,8 +92,15 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             topContainer = setupAvatarWrapper();
             centerContainer.add(setupOption(), BorderLayout.CENTER);
         }else if (cur_option.equals("Search In Chat")){
-            setupSearchArea();
-            centerContainer.add(new MsgCardList(msgs,getWidth() - 25), BorderLayout.CENTER);
+            itemSelected = false;
+            MsgCardList msgList = new MsgCardList(msgs,getWidth() - 25);
+            JList<Msg> list = msgList.getList();
+            list.addListSelectionListener(e -> {
+                itemSelected = list.getSelectedIndices().length > 0;
+                updatePanel();
+            });
+            setupSearchArea(itemSelected);
+            centerContainer.add(msgList, BorderLayout.CENTER);
         }
 
         this.add(topContainer, BorderLayout.NORTH);
@@ -103,26 +109,39 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         this.repaint();
     }
 
-    void setupSearchArea(){
+    void setupSearchArea(boolean itemSelected){
+        topContainer.removeAll();
         topContainer.setLayout(new BoxLayout(topContainer, BoxLayout.X_AXIS));
         topContainer.setBorder(BorderFactory.createEmptyBorder(20,5,20,5));
-        SearchBar sb = new SearchBar(20,5, getWidth(), 30, this);
-        JLabel label = new JLabel(new FlatSVGIcon("assets/x-solid-full.svg", 24, 24));
+        SearchBar sb = new SearchBar(20,5, getWidth() - 100, 30, this);
+        JLabel label = new JLabel(new FlatSVGIcon("assets/arrow-left-solid-full.svg", 24, 24));
         label.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 cur_option = "Selection";
                 updatePanel();
-                // This code will execute when the JLabel is clicked
-                System.out.println("JLabel clicked!");
-
             }
         });
 
+        JLabel deleteBtn = new JLabel(new FlatSVGIcon("assets/trash-solid-full.svg", 24, 24));
+        deleteBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        deleteBtn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (ConfirmPopup.show(mainFrame, "deleting the message(s)")) {
+                    System.out.println("Delete user");
+                    updatePanel();
+                }
+            }
+        });
+        deleteBtn.setVisible(itemSelected);
+
         topContainer.add(Box.createVerticalStrut(20));
-        topContainer.add(sb);
-        topContainer.add(Box.createHorizontalGlue());
         topContainer.add(label);
+        topContainer.add(Box.createHorizontalStrut(10));
+        topContainer.add(sb);
+        topContainer.add(Box.createHorizontalStrut(10));
+        topContainer.add(deleteBtn);
         topContainer.add(Box.createVerticalStrut(20));
     }
 
@@ -188,6 +207,18 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     private void onOptionButtonClick(String option) {
         // Update the current selected option
         cur_option = option;
+
+        String[] needConfirm = {"Delete All Chat History", "Unfriend", "Report Spam", "Block",
+                                "Leave Group", "Delete All Chat History", "Delete Group"};
+        String[] notification = {"delete all chat history", "unfriend this user", "report this user for spamming", "block this user",
+                                 "leave this group", "delete all chat history", "delete this group"};
+        if (Arrays.asList(needConfirm).contains(option)){
+            if (ConfirmPopup.show(mainFrame, notification[Arrays.asList(needConfirm).indexOf(option)])) {
+                System.out.println("Perform action");
+            }
+            cur_option = "Selection";
+        }
+
         updatePanel();
     }
 

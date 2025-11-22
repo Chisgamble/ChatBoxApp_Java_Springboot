@@ -95,7 +95,7 @@ public class ProfilePopup extends JDialog {
     }
 
     private void showChangePasswordForm() {
-        // 1. Change title
+        //Change title
         setTitle("Change Password");
         setSize(400, 260);
 
@@ -103,7 +103,7 @@ public class ProfilePopup extends JDialog {
         title.setFont(title.getFont().deriveFont(16f));
         title.setBorder(BorderFactory.createEmptyBorder(10,5,10,5));
 
-        // 2. Remove old content
+        //Remove old content
         this.getContentPane().removeAll();
         content.removeAll();
 
@@ -114,12 +114,12 @@ public class ProfilePopup extends JDialog {
 
         int row = 0;
 
-        // 3. Add new password fields
+        //Add new password fields
         addField(gbc, row++, "Old Password:", new JPasswordField(20));
         addField(gbc, row++, "New Password:", new JPasswordField(20));
         addField(gbc, row++, "Confirm New:", new JPasswordField(20));
 
-        // 4. Add Submit button (bottom-right)
+        //Add Submit button (bottom-right)
         RoundedButton back = new RoundedButton(20);
         back.setText("Back");
         back.addActionListener(e -> showProfile());
