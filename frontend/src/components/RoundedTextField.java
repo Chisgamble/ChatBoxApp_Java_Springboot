@@ -26,7 +26,7 @@ public class RoundedTextField extends JTextField {
 
         // background
         g2.setColor(getBackground());
-        g2.fillRoundRect(0, 1, getWidth(), getHeight() - 2, radius, radius);
+        g2.fillRoundRect(1, 1, getWidth()-2, getHeight() - 2, radius, radius);
 
         g2.dispose();
         super.paintComponent(g); // draw the text and caret

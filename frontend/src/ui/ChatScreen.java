@@ -2,11 +2,13 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 
+import listener.CreateGroupListener;
+import model.Group;
 import panels.ChatPanel;
 import panels.ChatUtilPanel;
 import panels.UserUtilPanel;
 
-public class ChatScreen extends JFrame {
+public class ChatScreen extends JFrame implements CreateGroupListener {
 
     public ChatScreen(){
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -20,10 +22,21 @@ public class ChatScreen extends JFrame {
         int height = screen.height;
 
         this.add(new ChatPanel(width * 5, height), BorderLayout.CENTER);
-        this.add(new ChatUtilPanel(this, width * 2, height, true, true), BorderLayout.EAST);
+        this.add(new ChatUtilPanel(this, width * 2, height, false, false), BorderLayout.EAST);
         this.add(new UserUtilPanel(width * 2, height), BorderLayout.WEST);
 
         this.setVisible(true);
     }
 
+    @Override
+    public void onGroupCreated(Group group) {
+        System.out.println("New group created: " + group.getName());
+
+        reloadGroups(); // Temporary
+    }
+
+    public void reloadGroups() {
+        System.out.println("[ChatScreen] refreshing groups...");
+        // later: call backend → update UI list
+    }
 }

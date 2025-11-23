@@ -25,7 +25,10 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
             new User("Chris"),
             new User("Doc"),
             new User("Fridge"),
-            new User("Dante"))
+            new User("Dante"),
+            new User("Faust"),
+            new User("Heathcliff"),
+            new User("Ishmael"))
     );
     List<User> filteredUsers = new ArrayList<>();
     List<Msg> all_msgs = new ArrayList<>(List.of(
@@ -33,7 +36,10 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
             new Msg("Chris"),
             new Msg("Doc"),
             new Msg("Fridge"),
-            new Msg("Dante"))
+            new Msg("Dante"),
+            new Msg("Faust"),
+            new Msg("Heathcliff"),
+            new Msg("Ishmael"))
     );
     String cur_option;
 

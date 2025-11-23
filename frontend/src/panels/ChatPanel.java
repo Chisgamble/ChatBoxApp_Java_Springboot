@@ -7,6 +7,8 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.Border;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
+import components.MyColor;
 import components.user.MsgBubble;
 import components.RoundedButton;
 import components.RoundedTextArea;
@@ -41,15 +43,22 @@ public class ChatPanel extends JPanel{
             addMessage(chatArea, "Hello! How are you?", i%2 == 0, width, "A");
         }
 
-        JPanel inputArea = new JPanel(new FlowLayout( FlowLayout.LEFT, 5,5));
+        JPanel inputArea = new JPanel(new FlowLayout( FlowLayout.LEFT, 10,5));
         inputArea.setOpaque(false);
         inputArea.setPreferredSize(new Dimension(width - 10, 50 ));
+
+        JButton LLM = new JButton(new FlatSVGIcon("assets/robot-solid-full.svg", 20,20));
+        LLM.setContentAreaFilled(false);
+        LLM.setBorder(null);
 
         RoundedButton sendButton = new RoundedButton(20);
         sendButton.setFocusPainted(false);
         sendButton.setFocusable(false);
         sendButton.setText("send");
-        RoundedTextArea inputField = new RoundedTextArea(10, 7);
+        sendButton.setForeground(Color.WHITE);
+        sendButton.setBackground(MyColor.LIGHT_BLUE);
+
+        RoundedTextArea inputField = new RoundedTextArea(20, 10);
 
         sendButton.addActionListener(new ActionListener() {
             @Override
@@ -64,10 +73,11 @@ public class ChatPanel extends JPanel{
 
         Dimension buttonSize = sendButton.getPreferredSize();
 
-        inputField.setPreferredSize(new Dimension(width - buttonSize.width - 20, 30));
+        inputField.setPreferredSize(new Dimension(width - buttonSize.width - LLM.getPreferredSize().width - 40, 30));
 //        textArea.setMinimumSize(new Dimension(0, 5));
 //        textArea.setMaximumSize(new Dimension(Integer.MAX_VALUE, 5));
 
+        inputArea.add(LLM);
         inputArea.add(inputField);
         inputArea.add(sendButton);
 

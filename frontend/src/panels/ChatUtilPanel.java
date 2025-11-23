@@ -2,10 +2,7 @@ package panels;
 
 import components.Avatar;
 import components.ConfirmPopup;
-import components.user.FriendCardList;
-import components.user.MemberCardList;
-import components.user.MsgCardList;
-import components.user.SearchBar;
+import components.user.*;
 import listener.SearchBarListener;
 import model.Msg;
 import model.User;
@@ -14,7 +11,6 @@ import java.awt.*;
 
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.JScrollPane;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import ui.ChatScreen;
@@ -42,7 +38,10 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             new User("Chris"),
             new User("Doc"),
             new User("Fridge"),
-            new User("Dante"))
+            new User("Dante"),
+            new User("Faust"),
+            new User("Heathcliff"),
+            new User("Ishmael"))
     );
     List<User> filteredMembers = new ArrayList<>();
     
@@ -52,7 +51,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     String cur_option = "Selection";
     String[] inboxOptions = {"Search In Chat", "Create Group With", "Delete All Chat History", "Unfriend", "Report Spam", "Block"};
     String[] groupOptions = {"Search In Chat", "Members", "Leave Group"};
-    String[] groupAdminOptions = {"Search In Chat", "Members", "Encrypt Group","Delete All Chat History", "Delete Group"};
+    String[] groupAdminOptions = {"Search In Chat", "Members", "Change Group Name", "Encrypt Group","Delete All Chat History", "Delete Group"};
 
     public ChatUtilPanel(ChatScreen mainFrame, int width, int height, boolean isGroup, boolean isAdmin) {
         this.mainFrame = mainFrame;
@@ -227,6 +226,20 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             if (ConfirmPopup.show(mainFrame, notification[Arrays.asList(needConfirm).indexOf(option)])) {
                 System.out.println("Perform action");
             }
+            cur_option = "Selection";
+        }else if (option.equals("Change Group Name")){
+            if (ChangeGroupNamePopup.show(mainFrame)){
+                System.out.println("Change group name");
+            }
+            cur_option = "Selection";
+        }else if (option.equals("Create Group With")){
+            List<User> allFriends = allMembers;
+
+            CreateGroupPopup.show(
+                    mainFrame,
+                    allFriends,
+                    mainFrame   // callback
+            );
             cur_option = "Selection";
         }
 
