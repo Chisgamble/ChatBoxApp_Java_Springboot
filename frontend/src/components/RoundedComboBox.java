@@ -1,6 +1,5 @@
-package components.admin;
+package components;
 
-import components.MyColor;
 import javax.swing.*;
 import java.awt.*;
 
@@ -49,7 +48,7 @@ public class RoundedComboBox<E> extends JComboBox<E> {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g2.setColor(Color.GRAY);
-        g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, radius, radius);
+        g2.drawRoundRect(1, 0, getWidth() - 2, getHeight() - 1, radius, radius);
 
         g2.dispose();
     }
