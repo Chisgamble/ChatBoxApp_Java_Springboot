@@ -64,6 +64,10 @@ public class AddMemberCard extends JPanel {
         return selected;
     }
 
+    public void setSelected(boolean selected){
+        this.selected = selected;
+    }
+
     public User getUser() {
         return user;
     }

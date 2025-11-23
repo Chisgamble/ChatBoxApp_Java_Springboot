@@ -51,7 +51,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     String cur_option = "Selection";
     String[] inboxOptions = {"Search In Chat", "Create Group With", "Delete All Chat History", "Unfriend", "Report Spam", "Block"};
     String[] groupOptions = {"Search In Chat", "Members", "Leave Group"};
-    String[] groupAdminOptions = {"Search In Chat", "Members", "Change Group Name", "Encrypt Group","Delete All Chat History", "Delete Group"};
+    String[] groupAdminOptions = {"Search In Chat", "Members", "Add New Members", "Change Group Name", "Encrypt Group","Delete All Chat History", "Delete Group"};
 
     public ChatUtilPanel(ChatScreen mainFrame, int width, int height, boolean isGroup, boolean isAdmin) {
         this.mainFrame = mainFrame;
@@ -236,6 +236,15 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             List<User> allFriends = allMembers;
 
             CreateGroupPopup.show(
+                    mainFrame,
+                    allFriends,
+                    mainFrame   // callback
+            );
+            cur_option = "Selection";
+        }else if (option.equals("Add New Members")){
+            List<User> allFriends = allMembers;
+            //TODO: remove already existed members from allFriends here
+            AddMemberPopup.show(
                     mainFrame,
                     allFriends,
                     mainFrame   // callback

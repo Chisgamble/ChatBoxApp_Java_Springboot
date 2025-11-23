@@ -126,12 +126,20 @@ public class CreateGroupPopup {
             String phrase
     ) {
         listPanel.removeAll();
-
+        //TODO: auto select current user that create group with
         for (User u : allUsers) {
-            if (!phrase.isEmpty() && !phrase.equals("Search") && !u.getName().toLowerCase().contains(phrase.toLowerCase()))
+            if (!selectedUsers.contains(u) &&
+                    !phrase.isEmpty() && !phrase.equals("Search")
+                    && !u.getName().toLowerCase().contains(phrase.toLowerCase()))
                 continue;
 
             AddMemberCard card = new AddMemberCard(u, 300);
+
+            if (selectedUsers.contains(u)) {
+                card.setBackground(MyColor.LIGHT_PURPLE.darker());
+                card.setSelected(true);
+            }
+
             card.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
                 public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -139,8 +147,6 @@ public class CreateGroupPopup {
                         selectedUsers.remove(u);
                     else
                         selectedUsers.add(u);
-
-//                    card.setBackground(selectedUsers.contains(u) ? Color.LIGHT_GRAY : null);
                 }
             });
 

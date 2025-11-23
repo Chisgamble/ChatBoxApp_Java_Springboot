@@ -22,7 +22,7 @@ public class ChatScreen extends JFrame implements CreateGroupListener {
         int height = screen.height;
 
         this.add(new ChatPanel(width * 5, height), BorderLayout.CENTER);
-        this.add(new ChatUtilPanel(this, width * 2, height, false, false), BorderLayout.EAST);
+        this.add(new ChatUtilPanel(this, width * 2, height, true, true), BorderLayout.EAST);
         this.add(new UserUtilPanel(width * 2, height), BorderLayout.WEST);
 
         this.setVisible(true);
