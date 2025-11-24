@@ -1,11 +1,17 @@
-import ui.AdminDashboard;
+import ui.*;
 
 import javax.swing.*;
+import java.awt.*;
+import java.io.IOException;
 
 public class Main {
     public static void main(String[] args){
         SwingUtilities.invokeLater(() ->{
-                AdminDashboard cs = new AdminDashboard();
+            try {
+                ChatScreen cs = new ChatScreen();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
         });
 
 //        new Login();

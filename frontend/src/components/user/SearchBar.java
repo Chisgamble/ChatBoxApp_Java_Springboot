@@ -1,10 +1,8 @@
-package components;
+package components.user;
 
+import components.RoundedTextField;
 import listener.SearchBarListener;
-import panels.UserUtilPanel;
 
-import javax.swing.*;
-import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.FocusEvent;

@@ -9,10 +9,11 @@ public class RoundedComboBox<E> extends JComboBox<E> {
 
     public RoundedComboBox(E[] items) {
         super(items);
+        setFocusable(false);
         setOpaque(false);
         setForeground(MyColor.DARK_GRAY);
         setFont(new Font("Roboto", Font.PLAIN, 16));
-        setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        setBorder(BorderFactory.createEmptyBorder(2, 6, 2, 6));
         setUI(new javax.swing.plaf.basic.BasicComboBoxUI() {
             @Override
             protected JButton createArrowButton() {

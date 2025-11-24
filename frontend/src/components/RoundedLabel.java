@@ -21,7 +21,7 @@ public class RoundedLabel extends JLabel{
 
         // background
         g2.setColor(getBackground());
-        g2.fillRoundRect(0, 1, getWidth() - 1, getHeight() - 2, radius, radius);
+        g2.fillRoundRect(1, 1, getWidth() - 2, getHeight() - 2, radius, radius);
 
         super.paintComponent(g); // draw the text and caret
         g2.dispose();
@@ -33,7 +33,7 @@ public class RoundedLabel extends JLabel{
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g2.setColor(getForeground()); // or custom border color
-        g2.drawRoundRect(0, 1, getWidth() - 1, getHeight() - 2, radius, radius);
+        g2.drawRoundRect(1, 1, getWidth()-2, getHeight() - 2, radius, radius);
         g2.dispose();
     }
 

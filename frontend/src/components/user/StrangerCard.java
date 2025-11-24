@@ -1,16 +1,17 @@
-package components;
+package components.user;
 
+import components.Avatar;
+import components.MyColor;
 import model.User;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 
-public class FriendRequestCard extends JPanel {
+public class StrangerCard extends JPanel {
 
-    public FriendRequestCard(User user, int width) {
+    public StrangerCard(User user, int width) {
         this.setLayout(new BorderLayout(10, 0));
         this.setOpaque(false);
         this.setPreferredSize(new Dimension(width, 60));
@@ -33,26 +34,16 @@ public class FriendRequestCard extends JPanel {
         options.setOpaque(false);
         options.setLayout(new BoxLayout(options, BoxLayout.X_AXIS));
 
-        JButton accept = new JButton("Accept");
-        accept.setFont(accept.getFont().deriveFont(16f));
-        accept.setForeground(Color.green);
-        accept.setBorderPainted(false);
-        accept.setOpaque(false);
-        accept.setContentAreaFilled(false);
-        accept.setFocusPainted(false);
+        JButton addFriend = new JButton("Add Friend");
+        addFriend.setFont(addFriend.getFont().deriveFont(16f));
+        addFriend.setForeground(MyColor.LIGHT_BLUE);
+        addFriend.setBorderPainted(false);
+        addFriend.setOpaque(false);
+        addFriend.setContentAreaFilled(false);
+        addFriend.setFocusPainted(false);
 
-        JButton reject = new JButton("Reject");
-        reject.setFont(accept.getFont().deriveFont(16f));
-        reject.setForeground(Color.red);
-        reject.setBorderPainted(false);
-        reject.setOpaque(false);
-        reject.setContentAreaFilled(false);
-        reject.setFocusPainted(false);
-
-        options.add(Box.createHorizontalStrut(40));
-        options.add(accept);
-        options.add(Box.createHorizontalGlue());
-        options.add(reject);
+        options.add(Box.createHorizontalStrut(100));
+        options.add(addFriend);
         options.add(Box.createHorizontalStrut(40));
 
         JPanel centerContainer = new JPanel(new BorderLayout());

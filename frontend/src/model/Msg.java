@@ -13,7 +13,7 @@ public class Msg {
 
     public Msg(String name){
         senderName = name;
-        content = "Hello";
+        content = "Hello, my name is " + name;
         senderInitials = name.substring(0,1).toUpperCase();
     }
 

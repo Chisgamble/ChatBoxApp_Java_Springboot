@@ -1,27 +1,30 @@
 package panels;
 
 import components.Avatar;
-import components.FriendCard;
-import components.MsgCardList;
-import components.SearchBar;
+import components.ConfirmPopup;
+import components.user.*;
 import listener.SearchBarListener;
 import model.Msg;
 import model.User;
 
 import java.awt.*;
-import java.security.DigestException;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
+import ui.ChatScreen;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 
 public class ChatUtilPanel extends JPanel implements SearchBarListener {
-    Border border = BorderFactory.createLineBorder(Color.black);
+    ChatScreen mainFrame;
+
     JPanel topContainer = new JPanel();
     JPanel centerContainer = new JPanel();
     Component listContainer = null;
@@ -29,18 +32,31 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     User user;
     List<Msg> msgs = new ArrayList<>();
     List<Msg> filteredMsgs = new ArrayList<>();
-    List<User> allMembers = new ArrayList<>();
+    List<User> allMembers = new ArrayList<>( List.of(
+            new User("Sammael"),
+            new User("Chris"),
+            new User("Doc"),
+            new User("Fridge"),
+            new User("Dante"),
+            new User("Faust"),
+            new User("Heathcliff"),
+            new User("Ishmael"))
+    );
     List<User> filteredMembers = new ArrayList<>();
     
     boolean isGroup;
     boolean isAdmin;
+    boolean itemSelected;
     String cur_option = "Selection";
     String[] inboxOptions = {"Search In Chat", "Create Group With", "Delete All Chat History", "Unfriend", "Report Spam", "Block"};
     String[] groupOptions = {"Search In Chat", "Members", "Leave Group"};
-    String[] groupAdminOptions = {"Search In Chat", "Members", "Encrypt Group","Delete All Chat History", "Delete Group"};
+    String[] groupAdminOptions = {"Search In Chat", "Members", "Add New Members", "Change Group Name", "Encrypt Group","Delete All Chat History", "Delete Group"};
 
-    public ChatUtilPanel(int width, int height, boolean isGroup, boolean isAdmin) {
-        this.user = new User("You");
+    public ChatUtilPanel(ChatScreen mainFrame, int width, int height, boolean isGroup, boolean isAdmin) {
+        this.mainFrame = mainFrame;
+
+        this.user = new User("Alice");
+
         this.msgs = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
             msgs.add(new Msg());
@@ -52,9 +68,93 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         this.setLayout(new BorderLayout());
         this.setOpaque(false);
         this.setPreferredSize(new Dimension(width, height));
-        this.setBorder(border);
-        this.setBackground(Color.BLUE);
+//        this.setBorder(border);
 
+        topContainer = setupAvatarWrapper();
+
+        centerContainer.setLayout(new BorderLayout());
+        centerContainer.setPreferredSize(new Dimension(width - 25, height - 60));
+        centerContainer.setOpaque(false);
+
+        if (cur_option.equals("Selection")) {
+            listContainer = setupOption();
+            centerContainer.add(listContainer, BorderLayout.CENTER);
+        } else if (cur_option.equals("Search In Chat")) {
+            listContainer = new MsgCardList(msgs, width - 25);
+            centerContainer.add(listContainer, BorderLayout.CENTER);
+        }
+
+        this.add(topContainer, BorderLayout.NORTH);
+        this.add(centerContainer, BorderLayout.CENTER);
+
+    }
+
+    void updatePanel(){
+        this.removeAll();
+        centerContainer.removeAll();
+        topContainer.removeAll();
+
+        if (cur_option.equals("Selection")){
+            topContainer = setupAvatarWrapper();
+            centerContainer.add(setupOption(), BorderLayout.CENTER);
+        }else if (cur_option.equals("Search In Chat")){
+            itemSelected = false;
+            MsgCardList msgList = new MsgCardList(msgs,getWidth() - 25);
+            JList<Msg> list = msgList.getList();
+            list.addListSelectionListener(e -> {
+                itemSelected = list.getSelectedIndices().length > 0;
+                updatePanel();
+            });
+            setupSearchArea(itemSelected);
+            centerContainer.add(msgList, BorderLayout.CENTER);
+        }else if (cur_option.equals("Members")){
+            centerContainer.add(new MemberCardList(allMembers, getWidth() - 25, isAdmin));
+            setupSearchArea(itemSelected);
+        }
+
+        this.add(topContainer, BorderLayout.NORTH);
+        this.add(centerContainer, BorderLayout.CENTER);
+        this.revalidate();
+        this.repaint();
+    }
+
+    void setupSearchArea(boolean itemSelected){
+        topContainer.removeAll();
+        topContainer.setLayout(new BoxLayout(topContainer, BoxLayout.X_AXIS));
+        topContainer.setBorder(BorderFactory.createEmptyBorder(20,5,20,5));
+        SearchBar sb = new SearchBar(20,5, getWidth() - 100, 30, this);
+        JLabel label = new JLabel(new FlatSVGIcon("assets/arrow-left-solid-full.svg", 24, 24));
+        label.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                cur_option = "Selection";
+                updatePanel();
+            }
+        });
+
+        JLabel deleteBtn = new JLabel(new FlatSVGIcon("assets/trash-solid-full.svg", 24, 24));
+        deleteBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        deleteBtn.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (ConfirmPopup.show(mainFrame, "deleting the message(s)")) {
+                    System.out.println("Delete user");
+                    updatePanel();
+                }
+            }
+        });
+        deleteBtn.setVisible(itemSelected);
+
+        topContainer.add(Box.createVerticalStrut(20));
+        topContainer.add(label);
+        topContainer.add(Box.createHorizontalStrut(10));
+        topContainer.add(sb);
+        topContainer.add(Box.createHorizontalStrut(10));
+        topContainer.add(deleteBtn);
+        topContainer.add(Box.createVerticalStrut(20));
+    }
+
+    JPanel setupAvatarWrapper(){
         JPanel avatarWrapper = new JPanel();
         avatarWrapper.setLayout(new BoxLayout(avatarWrapper, BoxLayout.Y_AXIS));
         avatarWrapper.setOpaque(false);
@@ -74,6 +174,14 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 
         avatarWrapper.validate();
         avatarWrapper.setMaximumSize(new Dimension(Short.MAX_VALUE, avatarWrapper.getPreferredSize().height));
+        return avatarWrapper;
+    }
+
+    JPanel setupOption() {
+        JPanel optionWrapper = new JPanel();
+        optionWrapper.setLayout(new BoxLayout(optionWrapper, BoxLayout.Y_AXIS));
+        optionWrapper.setOpaque(false);
+        optionWrapper.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
 
         String[] options;
         if (!isGroup) {
@@ -83,41 +191,6 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         } else {
             options = groupOptions;
         }
-
-        centerContainer.setLayout(new BorderLayout());
-        centerContainer.setPreferredSize(new Dimension(width - 10, height - 60));
-        centerContainer.setOpaque(false);
-
-
-        if (cur_option.equals("Selection")) {
-            listContainer = setupOption(options);
-            centerContainer.add(listContainer, BorderLayout.CENTER);
-        } else if (cur_option.equals("Search In Chat")) {
-            listContainer = new MsgCardList(msgs, width - 15);
-            centerContainer.add(listContainer, BorderLayout.CENTER);
-        }
-
-
-//        String[] names = {"Sammael", "Chris", "Doc", "Fridge", "Clockhead"};
-//        for (int i = 0; i < 5; i++){
-//            User u = new User(names[i]);
-//            allUsers.add(u);
-//            addMsgCard(u, width);
-//        }
-
-
-//        centerContainer.add(scrollPane, BorderLayout.CENTER);
-        topContainer = avatarWrapper;
-        this.add(topContainer, BorderLayout.NORTH);
-        this.add(centerContainer, BorderLayout.CENTER);
-
-    }
-
-    JPanel setupOption(String[] options) {
-        JPanel optionWrapper = new JPanel();
-        optionWrapper.setLayout(new BoxLayout(optionWrapper, BoxLayout.Y_AXIS));
-        optionWrapper.setOpaque(false);
-        optionWrapper.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
 
         for (String option : options) {
             JButton button = new JButton(option);
@@ -144,50 +217,52 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         // Update the current selected option
         cur_option = option;
 
-        topContainer.removeAll();
-        topContainer.setLayout(new BoxLayout(topContainer, BoxLayout.X_AXIS));
-        topContainer.setBorder(BorderFactory.createEmptyBorder(20,5,20,5));
-        SearchBar sb = new SearchBar(20,5, getWidth(), 30, this);
-        JLabel label = new JLabel(new FlatSVGIcon("assets/x-solid-full.svg", 24, 24));
-
-        topContainer.add(Box.createVerticalStrut(20));
-        topContainer.add(sb);
-        topContainer.add(Box.createHorizontalGlue());
-        topContainer.add(label);
-        topContainer.add(Box.createVerticalStrut(20));
-
-        // Change the center panel based on the selected option
-        Component newcenterContainer = null;
-        if (cur_option.equals("Search In Chat")) {
-            newcenterContainer = new MsgCardList(msgs,getWidth() - 15);
-        } else {
-            String[] options = null;
-            if (!isGroup) {
-                options = inboxOptions;
-            } else if (isGroup && isAdmin) {
-                options = groupAdminOptions;
-            } else {
-                options = groupOptions;
+        String[] needConfirm = {"Delete All Chat History", "Unfriend", "Report Spam", "Block",
+                                "Leave Group", "Delete All Chat History", "Delete Group"};
+        String[] notification = {"delete all chat history", "unfriend this user", "report this user for spamming", "block this user",
+                                 "leave this group", "delete all chat history", "delete this group"};
+        if (Arrays.asList(needConfirm).contains(option)){
+            if (ConfirmPopup.show(mainFrame, notification[Arrays.asList(needConfirm).indexOf(option)])) {
+                System.out.println("Perform action");
             }
-            newcenterContainer = setupOption(options);
+            cur_option = "Selection";
+        }else if (option.equals("Change Group Name")){
+            if (ChangeGroupNamePopup.show(mainFrame)){
+                System.out.println("Change group name");
+            }
+            cur_option = "Selection";
+        }else if (option.equals("Create Group With")){
+            List<User> allFriends = allMembers;
+
+            CreateGroupPopup.show(
+                    mainFrame,
+                    allFriends,
+                    mainFrame   // callback
+            );
+            cur_option = "Selection";
+        }else if (option.equals("Add New Members")){
+            List<User> allFriends = allMembers;
+            //TODO: remove already existed members from allFriends here
+            AddMemberPopup.show(
+                    mainFrame,
+                    allFriends,
+                    mainFrame   // callback
+            );
+            cur_option = "Selection";
         }
 
-        // Replace the current panel with the new one
-        centerContainer.removeAll(); // Remove old components
-        centerContainer.add(newcenterContainer); // Add new panel
-        this.revalidate();
-        this.repaint();
+        updatePanel();
     }
 
     void updateMsgList(List<Msg> msgs){
-        listContainer = new MsgCardList(msgs, getWidth()-15);
+        listContainer = new MsgCardList(msgs, getWidth()-25);
         listContainer.revalidate();
         listContainer.repaint();
     }
 
     void updateMemberList(List<User> members){
-
-
+        this.remove(listContainer);
+        listContainer = new FriendCardList(members, getWidth()-15);
         // Revalidate and repaint the list
         listContainer.revalidate();
         listContainer.repaint();
@@ -220,8 +295,6 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             }
             updateMemberList(filteredMembers);  // Update the list with the filtered users
         }
-
     }
-
 
 }

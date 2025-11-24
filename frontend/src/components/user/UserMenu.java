@@ -1,14 +1,11 @@
-package components;
+package components.user;
 
 import listener.UserMenuListener;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
 
 public class UserMenu extends JPanel {
 
@@ -40,19 +37,31 @@ public class UserMenu extends JPanel {
 
         JMenuItem profileItem = new JMenuItem("Profile");
         profileItem.addActionListener(e -> listener.onMenuOptionSelected("Profile"));
-        JMenuItem inboxItem = new JMenuItem("Inbox");
-        inboxItem.addActionListener(e -> listener.onMenuOptionSelected("Inbox"));
+
+        JMenuItem friendItem = new JMenuItem("Friends");
+        friendItem.addActionListener(e -> listener.onMenuOptionSelected("Friends"));
+
+        JMenuItem findItem = new JMenuItem("Find User");
+        findItem.addActionListener(e -> listener.onMenuOptionSelected("Find User"));
+
         JMenuItem friendReqItem = new JMenuItem("Friend request");
         friendReqItem.addActionListener(e -> listener.onMenuOptionSelected("Friend request"));
-        JMenuItem settingsItem = new JMenuItem("Settings");
-        settingsItem.addActionListener(e -> listener.onMenuOptionSelected("Settings"));
+
+        JMenuItem groupItem = new JMenuItem("Groups");
+        groupItem.addActionListener(e -> listener.onMenuOptionSelected("Groups"));
+
+        JMenuItem searchItem = new JMenuItem("Search from all messages");
+        searchItem.addActionListener(e -> listener.onMenuOptionSelected("SearchMsg"));
+
         JMenuItem logoutItem = new JMenuItem("Logout");
         logoutItem.addActionListener(e -> listener.onMenuOptionSelected("Logout"));
 
         popupMenu.add(profileItem);
-        popupMenu.add(inboxItem);
+        popupMenu.add(friendItem);
+        popupMenu.add(findItem);
         popupMenu.add(friendReqItem);
-        popupMenu.add(settingsItem);
+        popupMenu.add(groupItem);
+        popupMenu.add(searchItem);
         popupMenu.add(logoutItem);
 
         menuButton.addMouseListener(new MouseAdapter() {
