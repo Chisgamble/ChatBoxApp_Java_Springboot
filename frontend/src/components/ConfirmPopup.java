@@ -6,7 +6,7 @@ import javax.swing.*;
 public class ConfirmPopup {
 
     public static boolean show(JFrame parent, String action) {
-        RoundedDialog dialog = new RoundedDialog(parent, "Confirm", 350, 180);
+        RoundedDialog dialog = new RoundedDialog(parent, "Confirm", 350, 200);
 
         JPanel panel = new JPanel();
         panel.setOpaque(false);
