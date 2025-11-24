@@ -4,47 +4,10 @@ import components.Avatar;
 import model.Msg;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 
-public class MsgCardRenderer extends JPanel implements ListCellRenderer<Msg> {
-
-    private final Avatar avatar;
-    private final JLabel nameLabel;
-    private final JLabel msgLabel;
-
-    public MsgCardRenderer(int width) {
-        setLayout(new BorderLayout(10, 0));
-        setOpaque(true);
-        setPreferredSize(new Dimension(width, 60));
-        setBorder(BorderFactory.createCompoundBorder(
-                new MatteBorder(0,0,1,0, Color.BLACK),
-                new EmptyBorder(5, 5, 5, 5)
-        ));
-
-        avatar = new Avatar(" ");
-
-        JPanel westWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        westWrapper.setOpaque(false);
-        westWrapper.add(avatar);
-
-        nameLabel = new JLabel();
-        nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 16f));
-
-        msgLabel = new JLabel();
-        msgLabel.setForeground(Color.GRAY);
-        msgLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
-
-        JPanel centerContainer = new JPanel(new BorderLayout());
-        centerContainer.setOpaque(false);
-        centerContainer.add(nameLabel, BorderLayout.NORTH);
-        centerContainer.add(msgLabel, BorderLayout.SOUTH);
-
-        add(westWrapper, BorderLayout.WEST);
-        add(centerContainer, BorderLayout.CENTER);
-    }
+public class MsgCardRenderer implements ListCellRenderer<Msg> {
 
     @Override
     public Component getListCellRendererComponent(
@@ -54,18 +17,36 @@ public class MsgCardRenderer extends JPanel implements ListCellRenderer<Msg> {
             boolean isSelected,
             boolean cellHasFocus
     ) {
-        // Update data
-        avatar.setInitials(msg.getSenderInitials());
-        nameLabel.setText(msg.getSenderName());
-        msgLabel.setText(msg.getContent());
+        JPanel panel = new JPanel(new BorderLayout(10, 0));
+        panel.setPreferredSize(new Dimension(list.getWidth(), 70));
+        panel.setBorder(new MatteBorder(0, 0, 1, 0, Color.BLACK));
 
-        // Selection effect
-        if (isSelected) {
-            setBackground(new Color(0xDDEAFF)); // light blue
-        } else {
-            setBackground(Color.WHITE);
-        }
+        panel.setOpaque(true);
+        panel.setBackground(isSelected ? new Color(0xE8F1FF) : Color.WHITE);
 
-        return this;
+        Avatar avatar = new Avatar(msg.getSenderInitials());
+
+        JPanel westWrapper = new JPanel(new GridBagLayout());
+        westWrapper.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 0));
+        westWrapper.setOpaque(false);
+        westWrapper.add(avatar);
+
+        JLabel nameLabel = new JLabel(msg.getSenderName());
+        nameLabel.setBorder(BorderFactory.createEmptyBorder(5,0,0,0));
+        nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 15f));
+
+        JLabel msgLabel = new JLabel(msg.getContent());
+        msgLabel.setForeground(Color.GRAY);
+        msgLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+
+        JPanel center = new JPanel(new BorderLayout());
+        center.setOpaque(false);
+        center.add(nameLabel, BorderLayout.NORTH);
+        center.add(msgLabel, BorderLayout.SOUTH);
+
+        panel.add(westWrapper, BorderLayout.WEST);
+        panel.add(center, BorderLayout.CENTER);
+
+        return panel;
     }
 }

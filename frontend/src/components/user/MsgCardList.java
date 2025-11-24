@@ -9,29 +9,32 @@ import java.util.List;
 import renderer.MsgCardRenderer;
 
 public class MsgCardList extends JScrollPane {
-    private JList<Msg> list;
+    private final JList<Msg> list;
 
     public MsgCardList(List<Msg> msgs, int width) {
         DefaultListModel<Msg> model = new DefaultListModel<>();
         msgs.forEach(model::addElement);
 
         list = new JList<>(model);
-        list.setCellRenderer(new MsgCardRenderer(width));
+        list.setCellRenderer(new MsgCardRenderer());
+        list.setFixedCellHeight(60);
         list.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-        list.setOpaque(false);
-        list.setFixedCellHeight(70); // slight extra padding
-        list.setBorder(null);
-
-        this.setViewportView(list);
-        this.setBorder(null);
-        this.setOpaque(false);
-        this.getViewport().setOpaque(false);
+        setViewportView(list);
+        setBorder(null);
+        setOpaque(false);
+        getViewport().setOpaque(false);
     }
 
-    public JList<Msg> getList() {  // ⭐ Added getter
+    public JList<Msg> getList() {
         return list;
     }
 
+    public void updateList(List<Msg> newMsgs) {
+        DefaultListModel<Msg> model = (DefaultListModel<Msg>) list.getModel();
+        model.clear();
+        newMsgs.forEach(model::addElement);
+    }
 }
+
 
