@@ -36,7 +36,7 @@ public class ProfilePopup extends JDialog {
 
     private void showProfile(){
         this.setTitle("User profile");
-        this.setSize(400,370);
+        this.setSize(400,410);
         this.setResizable(false);
 
         this.getContentPane().removeAll();
@@ -54,6 +54,7 @@ public class ProfilePopup extends JDialog {
 
         int row = 0;
 
+        addField(gbc, row++, "Username:", new JTextField(user.getName(), 20));
         addField(gbc, row++, "Name:", new JTextField(user.getName(), 20));
 
         JComboBox<String> genderCombo = new JComboBox<>(new String[]{"Male", "Female", "Other"});
