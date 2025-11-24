@@ -2,7 +2,7 @@ package components;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
+//import java.awt.geom.RoundRectangle2D;
 
 public class RoundedLabel extends JLabel{
     private final int radius;

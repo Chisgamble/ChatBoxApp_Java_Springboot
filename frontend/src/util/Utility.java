@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 
 public class Utility {
     public static Font getFont(String file_path) throws IOException, FontFormatException {
@@ -27,5 +28,17 @@ public class Utility {
             res.setBackground(background);
         }
         return res;
+    }
+
+    public static String[][] convertToString(List<List<String>> list) {
+        int row = list.size();
+        int col = list.get(0).size();
+        String[][] result = new String[row][col];
+        for(int i = 0; i < row; i++){
+            for(int j = 0; j < col; j++){
+                result[i][j] = list.get(i).get(j);
+            }
+        }
+        return result;
     }
 }

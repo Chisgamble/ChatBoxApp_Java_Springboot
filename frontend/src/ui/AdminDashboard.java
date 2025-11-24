@@ -32,6 +32,7 @@ public class AdminDashboard extends JFrame {
         Friend friendPage = new Friend();
         NewUser newUserPage = new NewUser();
         GraphPage graphPage = new GraphPage();
+        setTitle("Chat system");
 
         cardPanel.add(userListPage, "UserList");
         cardPanel.add(chatGroupListPage, "ChatGroupList");

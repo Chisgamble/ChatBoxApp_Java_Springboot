@@ -7,13 +7,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Interactive filter input field with placeholder text that disappears on focus
  */
 public class FilterButton extends RoundedTextField {
     private String placeholderText;
-    private String savedText = "";
     private boolean isShowingPlaceholder = true;
     private Color placeholderColor = MyColor.DARK_GRAY;
     private Color textColor = MyColor.LIGHT_BLACK;
@@ -28,7 +29,6 @@ public class FilterButton extends RoundedTextField {
         setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
         setupFocusListener();
-        setupEnterListener();
     }
 
     public FilterButton(String text, int radius) {
@@ -41,7 +41,6 @@ public class FilterButton extends RoundedTextField {
         setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 
         setupFocusListener();
-        setupEnterListener();
     }
 
     private void setupFocusListener() {
@@ -49,7 +48,7 @@ public class FilterButton extends RoundedTextField {
             @Override
             public void focusGained(FocusEvent e) {
                 if (isShowingPlaceholder) {
-                    setText(savedText);
+                    setText("");
                     setForeground(textColor);
                     isShowingPlaceholder = false;
                 }
@@ -59,34 +58,14 @@ public class FilterButton extends RoundedTextField {
             public void focusLost(FocusEvent e) {
                 String currentText = getText().trim();
                 if (currentText.isEmpty()) {
-                    savedText = "";
                     setText(placeholderText);
                     setForeground(placeholderColor);
                     isShowingPlaceholder = true;
                 } else {
                     // Keep the saved text displayed
-                    setText(savedText);
                     setForeground(textColor);
                     isShowingPlaceholder = false;
                 }
-            }
-        });
-    }
-
-    private void setupEnterListener() {
-        addActionListener(e -> {
-            String currentText = getText().trim();
-            if (!currentText.isEmpty()) {
-                savedText = currentText;
-                setText(savedText);
-                setForeground(textColor);
-                isShowingPlaceholder = false;
-                // Remove focus to show the saved text
-                transferFocus();
-            }
-            else{
-                isShowingPlaceholder = true;
-                transferFocus();
             }
         });
     }
@@ -102,16 +81,6 @@ public class FilterButton extends RoundedTextField {
         }
     }
 
-    public String getActualText() {
-        return savedText;
-    }
-
-    public void clearSavedText() {
-        savedText = "";
-        setText(placeholderText);
-        setForeground(placeholderColor);
-        isShowingPlaceholder = true;
-    }
 
     public void setPlaceholderColor(Color color) {
         this.placeholderColor = color;
@@ -125,5 +94,17 @@ public class FilterButton extends RoundedTextField {
         if (!isShowingPlaceholder) {
             setForeground(color);
         }
+    }
+
+    public void addFilterAction(List<String> filterList, Runnable function1, Runnable function2) {
+        addActionListener(e -> {
+            String text = getText().trim();
+
+            if (!text.isEmpty() && !filterList.contains(text)) {
+                filterList.add(text);
+                function1.run();
+                function2.run();
+            }
+        });
     }
 }

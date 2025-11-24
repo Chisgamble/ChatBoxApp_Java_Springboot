@@ -7,16 +7,36 @@ import components.RoundedComboBox;
 import util.Utility;
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 
-public class ChatGroupList extends JPanel {
+public class ChatGroupList extends MainPanel {
+    private List<String> nameFilter;
 
     public ChatGroupList() {
-        Font roboto = new Font("Roboto", Font.PLAIN, 16);
-
-        // This panel IS the main page content
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(MyColor.LIGHT_BLUE);
+        setBackground(MyColor.WHITE_BG);
 
+        // === Table ===
+        data = Arrays.asList(
+                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", ""),
+                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", ""),
+                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", ""),
+                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", ""),
+                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", ""),
+                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", ""),
+                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", ""),
+                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", "")
+        );
+        filtered = new ArrayList<>(data);
+        nameFilter = new ArrayList<>();
+
+        refreshTable();
+    }
+
+    @Override
+    protected void buildFilterPanel() {
         // === Filter Panel ===
         JPanel filterPanel = new JPanel();
         filterPanel.setLayout(new FlowLayout(FlowLayout.LEADING, 10, 10));
@@ -24,21 +44,37 @@ public class ChatGroupList extends JPanel {
         filterPanel.setPreferredSize(new Dimension(1920, 60));
         filterPanel.setMaximumSize(new Dimension(1950, 70));
 
-        FilterButton nameFilter = new FilterButton("Filter by name");
+        // Name Filter
+        FilterButton nameFilterBtn = new FilterButton("Filter by name");
+        filterPanel.add(nameFilterBtn);
+        nameFilterBtn.addFilterAction(nameFilter, this::setUpFiltered, this::refreshTable);
+        // Name Filter Tags
+        for(String item : nameFilter){
+            RoundedButton b = new RoundedButton(10);
+            b.setText(item);
+            b.setFocusPainted(false);
+            b.addActionListener(e -> {
+                nameFilter.remove(item);
+                setUpFiltered();
+                refreshTable();
+            });
+
+            filterPanel.add(b);
+        }
+
         FilterButton timeFilter = new FilterButton("Filter by time");
-        JLabel orderby = Utility.makeText("Order by:", roboto, 16f, Font.PLAIN, MyColor.DARK_GRAY, null);
+        JLabel orderby = Utility.makeText("Order by:", ROBOTO, 16f, Font.PLAIN, MyColor.DARK_GRAY, null);
 
         String[] options = {"Name", "Group Age"};
         RoundedComboBox<String> comboBox = new RoundedComboBox<>(options);
         comboBox.setForeground(MyColor.DARK_GRAY);
-        comboBox.setFont(roboto);
+        comboBox.setFont(ROBOTO);
 
         String[] sortOptions = {"Ascending", "Descending"};
         RoundedComboBox<String> asc_des = new RoundedComboBox<>(sortOptions);
         asc_des.setForeground(MyColor.DARK_GRAY);
-        asc_des.setFont(roboto);
+        asc_des.setFont(ROBOTO);
 
-        filterPanel.add(nameFilter);
         filterPanel.add(timeFilter);
         filterPanel.add(Box.createHorizontalStrut(20));
         filterPanel.add(orderby);
@@ -46,28 +82,20 @@ public class ChatGroupList extends JPanel {
         filterPanel.add(asc_des);
 
         add(filterPanel);
+    }
 
-        // === Table ===
-        String[] headers = {"Chat group name", "Time created", "", ""};
-        String[][] data = {
-                {"thaibao", "12:00:00 12/12/2025", "", ""},
-                {"thaibao", "12:00:00 12/12/2025", "", ""},
-                {"thaibao", "12:00:00 12/12/2025", "", ""},
-                {"thaibao", "12:00:00 12/12/2025", "", ""},
-                {"thaibao", "12:00:00 12/12/2025", "", ""},
-                {"thaibao", "12:00:00 12/12/2025", "", ""},
-                {"thaibao", "12:00:00 12/12/2025", "", ""},
-                {"thaibao", "12:00:00 12/12/2025", "", ""}
-        };
+    @Override
+    protected void setUpTable() {
+    String[] headers = {"Chat group name", "Time created", "", ""};
 
-        CustomTable table = new CustomTable(data, headers);
+        table = new CustomTable(filtered, headers);
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.setPreferredSize(new Dimension(1920, 800));
         add(scroll);
 
         // === Table buttons ===
-        for (int i = 0; i < data.length; i++) {
+        for (int i = 0; i < data.size(); i++) {
             // View Participants button
             RoundedButton participants = new RoundedButton(15);
             participants.setText("View Participants");
@@ -75,7 +103,7 @@ public class ChatGroupList extends JPanel {
             participants.setForeground(Color.WHITE);
             participants.setFocusPainted(false);
             participants.setBorder(BorderFactory.createEmptyBorder(3, 10, 4, 10));
-            participants.setFont(roboto.deriveFont(Font.PLAIN, 14f));
+            participants.setFont(ROBOTO.deriveFont(Font.PLAIN, 14f));
 
             JPanel participantsWrapper = new JPanel(new GridBagLayout());
             participantsWrapper.setBackground(Color.WHITE);
@@ -90,7 +118,7 @@ public class ChatGroupList extends JPanel {
             admin.setForeground(Color.WHITE);
             admin.setFocusPainted(false);
             admin.setBorder(BorderFactory.createEmptyBorder(3, 10, 4, 10));
-            admin.setFont(roboto.deriveFont(Font.PLAIN, 14f));
+            admin.setFont(ROBOTO.deriveFont(Font.PLAIN, 14f));
 
             JPanel adminWrapper = new JPanel(new GridBagLayout());
             adminWrapper.setBackground(Color.WHITE);
@@ -101,5 +129,22 @@ public class ChatGroupList extends JPanel {
 
         // Stretch content to fill
         add(Box.createVerticalGlue());
+    }
+
+    private void setUpFiltered(){
+        filtered = new ArrayList<>();
+        boolean fit = false;
+        for (List<String> row : data) {
+            fit = false;
+            for (String filter : nameFilter){
+                if (row.get(0).toLowerCase().contains(filter.toLowerCase())) {
+                    fit = true;
+                    break;
+                }
+            }
+            if(fit || nameFilter.isEmpty()){
+                filtered.add(row);
+            }
+        }
     }
 }
