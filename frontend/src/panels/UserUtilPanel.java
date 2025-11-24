@@ -8,7 +8,7 @@ import javax.swing.*;
 import javax.swing.border.Border;
 
 import components.MyColor;
-import components.admin.RoundedComboBox;
+import components.RoundedComboBox;
 import components.user.*;
 import listener.SearchBarListener;
 import listener.UserMenuListener;
@@ -17,7 +17,7 @@ import model.User;
 import ui.ProfilePopup;
 
 public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBarListener {
-    Border border = BorderFactory.createLineBorder(Color.black);
+
     JPanel centerContainer;
     Component list = null;
     List<User> allUsers = new ArrayList<>( List.of(
@@ -47,13 +47,13 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
         this.cur_option = "Friends";
         this.setPreferredSize(new Dimension(width, height));
         this.setLayout(new BorderLayout());
-        this.setBorder(border);
         this.setOpaque(false);
 
         JPanel topContainer = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 10));
         topContainer.setPreferredSize(new Dimension(width, 100));
-        topContainer.setOpaque(true);
-        topContainer.setBackground(Color.YELLOW);
+        topContainer.setOpaque(false);
+        topContainer.setBorder(BorderFactory.createMatteBorder(0,0,1,0,Color.BLACK));
+//        topContainer.setBackground(Color.YELLOW);
 
         String[] options = {"Online", "Offline"};
         RoundedComboBox<String> comboBox = new RoundedComboBox<>(options);

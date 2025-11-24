@@ -25,7 +25,6 @@ import java.util.List;
 public class ChatUtilPanel extends JPanel implements SearchBarListener {
     ChatScreen mainFrame;
 
-    Border border = BorderFactory.createLineBorder(Color.black);
     JPanel topContainer = new JPanel();
     JPanel centerContainer = new JPanel();
     Component listContainer = null;
@@ -56,7 +55,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     public ChatUtilPanel(ChatScreen mainFrame, int width, int height, boolean isGroup, boolean isAdmin) {
         this.mainFrame = mainFrame;
 
-        this.user = new User("You");
+        this.user = new User("Alice");
 
         this.msgs = new ArrayList<>();
         for (int i = 0; i < 15; i++) {
@@ -69,7 +68,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         this.setLayout(new BorderLayout());
         this.setOpaque(false);
         this.setPreferredSize(new Dimension(width, height));
-        this.setBorder(border);
+//        this.setBorder(border);
 
         topContainer = setupAvatarWrapper();
 

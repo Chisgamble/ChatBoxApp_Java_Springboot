@@ -30,6 +30,7 @@ public class ChatPanel extends JPanel{
 
         this.scrollPane = new JScrollPane(chatArea);
         this.scrollPane.setOpaque(false);
+        this.scrollPane.setBorder(BorderFactory.createMatteBorder(0,0,1,0, Color.BLACK));
         this.scrollPane.getViewport().setOpaque(false);
         this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
@@ -90,17 +91,8 @@ public class ChatPanel extends JPanel{
         JPanel messageWrapper = new JPanel(new FlowLayout(isUser ? FlowLayout.RIGHT : FlowLayout.LEFT));
         messageWrapper.setOpaque(false);
 
-//        messageWrapper.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
         MsgBubble bubble = new MsgBubble(message, isUser, chatWidth, avatarText);
 
-//        if (isUser) {
-//            messageWrapper.add(Box.createHorizontalGlue());
-//            messageWrapper.add(bubble);
-//        } else {
-//            messageWrapper.add(bubble);
-//            messageWrapper.add(Box.createHorizontalGlue());
-//        }
         messageWrapper.add(bubble);
         messageWrapper.validate();
         messageWrapper.setMaximumSize(new Dimension(chatWidth, messageWrapper.getPreferredSize().height));
