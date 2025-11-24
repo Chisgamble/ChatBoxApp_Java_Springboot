@@ -4,8 +4,11 @@ import components.MyColor;
 import components.RoundedButton;
 import components.RoundedComboBox;
 
+import components.RoundedPanel;
 import util.Utility;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
@@ -20,14 +23,14 @@ public class ChatGroupList extends MainPanel {
 
         // === Table ===
         data = Arrays.asList(
-                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", ""),
-                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", ""),
-                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", ""),
-                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", ""),
-                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", ""),
-                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", ""),
-                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", ""),
-                Arrays.asList("thaibao", "12:00:00 12/12/2025", "", "")
+                Arrays.asList("thaibao", "12:00:00 12/12/2025", ""),
+                Arrays.asList("real", "12:00:00 12/12/2025", ""),
+                Arrays.asList("Bún riêu cua", "12:00:00 12/12/2025", ""),
+                Arrays.asList("Group vật lý", "12:00:00 12/12/2025", ""),
+                Arrays.asList("12A12", "12:00:00 12/12/2025", ""),
+                Arrays.asList("Group Toán", "12:00:00 12/12/2025", ""),
+                Arrays.asList("New group", "12:00:00 12/12/2025", ""),
+                Arrays.asList("1234", "12:00:00 12/12/2025", "")
         );
         filtered = new ArrayList<>(data);
         nameFilter = new ArrayList<>();
@@ -86,7 +89,7 @@ public class ChatGroupList extends MainPanel {
 
     @Override
     protected void setUpTable() {
-    String[] headers = {"Chat group name", "Time created", "", ""};
+    String[] headers = {"Chat group name", "Time created", ""};
 
         table = new CustomTable(filtered, headers);
         JScrollPane scroll = new JScrollPane(table);
@@ -105,26 +108,14 @@ public class ChatGroupList extends MainPanel {
             participants.setBorder(BorderFactory.createEmptyBorder(3, 10, 4, 10));
             participants.setFont(ROBOTO.deriveFont(Font.PLAIN, 14f));
 
+            final int a = i;
+            participants.addActionListener(e -> openParticipantsDialog(data.get(a)));
+
             JPanel participantsWrapper = new JPanel(new GridBagLayout());
             participantsWrapper.setBackground(Color.WHITE);
             participantsWrapper.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
             participantsWrapper.add(participants);
             table.setCellComponent(i, 2, participantsWrapper);
-
-            // View Admin button
-            RoundedButton admin = new RoundedButton(15);
-            admin.setText("View Admin");
-            admin.setBackground(MyColor.DARK_RED);
-            admin.setForeground(Color.WHITE);
-            admin.setFocusPainted(false);
-            admin.setBorder(BorderFactory.createEmptyBorder(3, 10, 4, 10));
-            admin.setFont(ROBOTO.deriveFont(Font.PLAIN, 14f));
-
-            JPanel adminWrapper = new JPanel(new GridBagLayout());
-            adminWrapper.setBackground(Color.WHITE);
-            adminWrapper.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-            adminWrapper.add(admin);
-            table.setCellComponent(i, 3, adminWrapper);
         }
 
         // Stretch content to fill
@@ -147,4 +138,74 @@ public class ChatGroupList extends MainPanel {
             }
         }
     }
+
+    private void openParticipantsDialog(List<String> groupData) {
+        // Tạo dialog modal
+        JDialog dialog = new JDialog((Frame) null, "Participants", true);
+        dialog.setSize(450, 600);
+        dialog.setLayout(new BorderLayout());
+
+        // Custom panel bên trong popup
+        JPanel customPanel = new JPanel();
+        customPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
+        customPanel.setLayout(new BoxLayout(customPanel, BoxLayout.Y_AXIS));
+        customPanel.setBackground(Color.WHITE);
+
+        // Ví dụ thêm dữ liệu
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        GridBagConstraints g = new GridBagConstraints();
+        g.gridx = 0;
+        g.gridy = 0;
+        g.weightx = 1;
+        g.anchor = GridBagConstraints.WEST; // canh trái
+
+        JLabel groupName = new JLabel(groupData.get(0));
+        groupName.setFont(ROBOTO.deriveFont(Font.BOLD, 16));
+        wrapper.add(groupName, g);
+
+        g.gridx = 1;
+        g.weightx = 0;
+        g.anchor = GridBagConstraints.EAST; // canh phải
+
+        JLabel timeCreated = new JLabel(groupData.get(1));
+        timeCreated.setFont(ROBOTO.deriveFont(Font.BOLD, 16));
+        wrapper.add(timeCreated, g);
+
+        wrapper.setPreferredSize(new Dimension(360, 60));
+        wrapper.setMaximumSize(new Dimension(365, 65));
+        wrapper.setBackground(Color.WHITE);
+        customPanel.add(wrapper);
+
+        for (String member : groupData) {
+            JLabel name = new JLabel("Giao Thai Bao");
+            name.setFont(new Font("Roboto", Font.PLAIN, 14));
+            name.setAlignmentY(0.5f);
+            JLabel role = new JLabel("Role: user");
+            role.setFont(new Font("Roboto", Font.PLAIN, 14));
+            role.setAlignmentY(0.5f);
+
+
+            RoundedPanel labelWrapper = new RoundedPanel();
+            labelWrapper.setLayout(new BorderLayout());
+            labelWrapper.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+            labelWrapper.setPreferredSize(new Dimension(360, 32));
+            labelWrapper.setMaximumSize(new Dimension(365, 35));
+            labelWrapper.setBackground(new Color(0,0,0, 15));
+
+            labelWrapper.add(name, BorderLayout.WEST);
+            labelWrapper.add(role, BorderLayout.EAST);
+            customPanel.add(labelWrapper);
+            customPanel.add(Box.createVerticalStrut(5));
+        }
+
+        // Cho scroll nếu nhiều người
+        JScrollPane scrollPane = new JScrollPane(customPanel);
+        dialog.add(scrollPane, BorderLayout.CENTER);
+
+        // Đặt dialog ở giữa màn hình
+        dialog.setLocationRelativeTo(null);
+
+        dialog.setVisible(true);
+    }
+
 }

@@ -29,10 +29,10 @@ public class GraphPage extends JPanel {
             scores.add(random.nextInt(maxScore));
         }
 
-        DrawGraph newUserGraph = new DrawGraph(scores, 600, 250);
+        DrawGraph newUserGraph = new DrawGraph(scores, 1000, 400);
         JPanel firstWrapper = new JPanel(new FlowLayout(FlowLayout.LEADING));
-        firstWrapper.setPreferredSize(new Dimension(1900, 300));
-        firstWrapper.setMaximumSize(new Dimension(1950, 310));
+        firstWrapper.setPreferredSize(new Dimension(1900, 515));
+        firstWrapper.setMaximumSize(new Dimension(1950, 520));
         firstWrapper.add(newUserGraph);
         firstWrapper.setBackground(MyColor.WHITE_BG);
 
@@ -47,15 +47,15 @@ public class GraphPage extends JPanel {
         newWrapper.setMaximumSize(new Dimension(1900, 60));
         newWrapper.setBackground(MyColor.WHITE_BG);
 
-        DrawGraph activeUserGraph = new DrawGraph(scores, 600, 250);
+        DrawGraph activeUserGraph = new DrawGraph(scores, 1000, 400);
         JPanel secondWrapper = new JPanel(new FlowLayout(FlowLayout.LEADING));
-        secondWrapper.setPreferredSize(new Dimension(1900, 300));
-        secondWrapper.setMaximumSize(new Dimension(1950, 310));
+        secondWrapper.setPreferredSize(new Dimension(1900, 515));
+        secondWrapper.setMaximumSize(new Dimension(1950, 520));
         secondWrapper.add(activeUserGraph);
         secondWrapper.setBackground(MyColor.WHITE_BG);
 
 
-        JLabel activeUser = Utility.makeText("New users in year: ", roboto,  16f, Font.BOLD, MyColor.LIGHT_BLACK, null);
+        JLabel activeUser = Utility.makeText("Active users in year: ", roboto,  16f, Font.BOLD, MyColor.LIGHT_BLACK, null);
         FilterButton year2 = new FilterButton("year", 10);
         year2.setBackground(Color.WHITE);
         year2.setMaximumSize(new Dimension(year2.getWidth(), 40));
@@ -65,11 +65,18 @@ public class GraphPage extends JPanel {
         activeWrapper.setMaximumSize(new Dimension(1900, 60));
         activeWrapper.setBackground(MyColor.WHITE_BG);
 
-        add(newWrapper);
-        add(firstWrapper);
-        add(activeWrapper);
-        add(secondWrapper);
-        // Stretch content to fill
-        add(Box.createVerticalGlue());
+        JScrollPane scroll = new JScrollPane();
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.add(newWrapper);
+        panel.add(firstWrapper);
+        panel.add(activeWrapper);
+        panel.add(secondWrapper);
+//        panel.setPreferredSize(new Dimension(1920,1080));
+
+        scroll.getViewport().add(panel);
+        scroll.getVerticalScrollBar().setUnitIncrement(20);
+        add(scroll);
+
     }
 }

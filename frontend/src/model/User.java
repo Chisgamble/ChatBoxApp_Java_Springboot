@@ -36,7 +36,7 @@ public class User {
         this.address = "There";
         this.birthday = rand.nextInt(30) + "//" + rand.nextInt(12) + "//" + rand.nextInt(2025);
         this.email = name + "@gmail.com";
-        this.is_active = rand.nextInt(10) % 5 == 0;
+        this.is_active = rand.nextInt(2) % 2 == 0;
         this.last_msg = "Hello, my name is " + name;
         this.is_admin = rand.nextInt(2) % 2 == 0;
     }

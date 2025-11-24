@@ -1,15 +1,16 @@
 package components.admin;
 
-import components.MyColor;
-import components.RoundedButton;
-import components.RoundedComboBox;
+import components.*;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
 import util.Utility;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class UserList extends MainPanel {
@@ -49,15 +50,28 @@ public class UserList extends MainPanel {
         for (int i = 0; i < filtered.size(); i++) {
 
             // button column
-            RoundedButton action = new RoundedButton(15);
-            action.setText("...");
-            action.setBorder(BorderFactory.createEmptyBorder(3, 10, 4, 10));
-            action.setFont(ROBOTO.deriveFont(Font.BOLD, 26f));
-            action.setBackground(new Color(255,255,255,1));
-            action.setFocusPainted(false);
+            String[] options = {"Khóa","Lịch sử đăng nhập", "Cập nhật","Cập nhật mật khẩu","Danh sách bạn bè","Xóa"};
+            JLabel option = new JLabel("…"); // Unicode 2026
+            option.setFont(new Font("Arial", Font.BOLD, 24));
+            option.setForeground(Color.DARK_GRAY);
+            option.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            JPopupMenu popupMenu = new JPopupMenu();
+
+            for (String item : options){
+                JMenuItem promoteItem = new JMenuItem(item);
+                popupMenu.add(promoteItem);
+            }
+
+            option.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    popupMenu.show(option, 0, option.getHeight());
+                    System.out.print(true);
+                }
+            });
 
             JPanel btnWrap = new JPanel(new GridBagLayout());
-            btnWrap.add(action);
+            btnWrap.add(option);
             btnWrap.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
             table.setCellComponent(i, 7, btnWrap);
 
@@ -96,6 +110,18 @@ public class UserList extends MainPanel {
         JPanel filterPanel = new JPanel();
         filterPanel.setLayout(new FlowLayout(FlowLayout.LEADING, 10, 10));
         filterPanel.setBackground(MyColor.WHITE_BG);
+
+        RoundedButton addButton = new RoundedButton(25);
+        addButton.setText("+");
+        addButton.setFont(new Font("Arial", Font.BOLD, 20));
+        addButton.setForeground(Color.WHITE);
+        addButton.setBackground(new Color(0x0084FF));
+        addButton.setFocusPainted(false);
+        addButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
+        addButton.addActionListener(e -> {
+            addUserPopup();
+        });
+        filterPanel.add(addButton);
 
         FilterButton usernameFilterBtn = new FilterButton("Filter by username");
         //Username filter event
@@ -201,4 +227,65 @@ public class UserList extends MainPanel {
             refreshTable();
         });
     }
+
+    private void addUserPopup() {
+        RoundedPanel popup = new RoundedPanel(15);
+        popup.setLayout(new BorderLayout());
+        popup.setBorder(new EmptyBorder(10,10,10,10));
+        popup.setBackground(Color.WHITE); // make sure visible
+        popup.setPreferredSize(new Dimension(500, 300));
+
+        String[] options = {"Username", "Gender", "Address", "Email", "Date of birth", "Phone number"};
+        JPanel leftWrapper = new JPanel();
+        JPanel rightWrapper = new JPanel();
+        leftWrapper.setLayout(new BoxLayout(leftWrapper, BoxLayout.Y_AXIS));
+        rightWrapper.setLayout(new BoxLayout(rightWrapper, BoxLayout.Y_AXIS));
+        leftWrapper.setOpaque(false);
+        rightWrapper.setOpaque(false);
+
+        for (String item : options) {
+            JLabel text = new JLabel(item);
+            text.setFont(new Font("Roboto", Font.BOLD, 14));
+            JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 10));
+            wrapper.setPreferredSize(new Dimension(150, 30));
+            wrapper.add(text);
+            wrapper.setBackground(Color.WHITE);
+
+            RoundedTextField field = new RoundedTextField(15);
+            field.setPreferredSize(new Dimension(175, 30));
+            field.setToolTipText("Enter " + item.toLowerCase());
+
+            leftWrapper.add(wrapper);
+            leftWrapper.add(Box.createVerticalStrut(10));
+            rightWrapper.add(field);
+            rightWrapper.add(Box.createVerticalStrut(10));
+        }
+
+        RoundedButton save = new RoundedButton(25);
+        save.setText("SAVE");
+        save.setBackground(MyColor.LIGHT_BLUE);
+        RoundedButton cancel = new RoundedButton(25);
+        cancel.setText("CANCEL");
+        cancel.setBackground(Color.WHITE);
+
+        JPanel bottomWrapper = new JPanel();
+        bottomWrapper.add(cancel);
+        bottomWrapper.add(save);
+
+        popup.add(leftWrapper, BorderLayout.WEST);
+        popup.add(rightWrapper, BorderLayout.EAST);
+        popup.add(bottomWrapper, BorderLayout.SOUTH);
+
+
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Add User", true);
+        dialog.setContentPane(popup);
+        dialog.pack();
+        dialog.setLocationRelativeTo(null);
+
+        cancel.addActionListener(e -> dialog.dispose());
+        save.addActionListener(e -> dialog.dispose());
+
+        dialog.setVisible(true);
+    }
+
 }

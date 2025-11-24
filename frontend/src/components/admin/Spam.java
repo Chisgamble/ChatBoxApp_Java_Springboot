@@ -25,6 +25,7 @@ public class Spam extends JPanel {
 
         FilterButton nameFilter = new FilterButton("Filter by name");
         FilterButton timeFilter = new FilterButton("Filter by time");
+        FilterButton emailFilter = new FilterButton("Filter by email");
         JLabel orderby = Utility.makeText("Order by:", roboto, 16f, Font.PLAIN, MyColor.DARK_GRAY, null);
 
         String[] options = {"Name", "Time"};
@@ -39,6 +40,7 @@ public class Spam extends JPanel {
 
         filterPanel.add(nameFilter);
         filterPanel.add(timeFilter);
+        filterPanel.add(emailFilter);
         filterPanel.add(Box.createHorizontalStrut(20));
         filterPanel.add(orderby);
         filterPanel.add(comboBox);
@@ -47,16 +49,16 @@ public class Spam extends JPanel {
         add(filterPanel);
 
         // === Table ===
-        String[] headers = {"Username", "Time reported", ""};
+        String[] headers = {"Username", "Time reported", "email",""};
         String[][] data = {
-                {"thaibao", "12:00:00 12/12/2025", ""},
-                {"thaibao", "12:00:00 12/12/2025", ""},
-                {"thaibao", "12:00:00 12/12/2025", ""},
-                {"thaibao", "12:00:00 12/12/2025", ""},
-                {"thaibao", "12:00:00 12/12/2025", ""},
-                {"thaibao", "12:00:00 12/12/2025", ""},
-                {"thaibao", "12:00:00 12/12/2025", ""},
-                {"thaibao", "12:00:00 12/12/2025", ""}
+                {"thaibao", "12:00:00 12/12/2025", "123@gmail.com", ""},
+                {"thaibao", "12:00:00 12/12/2025", "123@gmail.com", ""},
+                {"thaibao", "12:00:00 12/12/2025", "123@gmail.com", ""},
+                {"thaibao", "12:00:00 12/12/2025", "123@gmail.com", ""},
+                {"thaibao", "12:00:00 12/12/2025", "123@gmail.com", ""},
+                {"thaibao", "12:00:00 12/12/2025", "123@gmail.com", ""},
+                {"thaibao", "12:00:00 12/12/2025", "123@gmail.com", ""},
+                {"thaibao", "12:00:00 12/12/2025", "123@gmail.com", ""}
         };
 
         CustomTable table = new CustomTable(data, headers);
@@ -80,7 +82,7 @@ public class Spam extends JPanel {
             lockWrapper.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
             lockWrapper.add(lock);
 
-            table.setCellComponent(i, 2, lockWrapper);
+            table.setCellComponent(i, 3, lockWrapper);
         }
 
         // Stretch content
