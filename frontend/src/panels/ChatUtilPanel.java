@@ -43,10 +43,11 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             new User("Ishmael"))
     );
     List<User> filteredMembers = new ArrayList<>();
+    MsgCardList msgList;
     
     boolean isGroup;
     boolean isAdmin;
-    boolean itemSelected;
+    boolean itemSelected = false;
     String cur_option = "Selection";
     String[] inboxOptions = {"Search In Chat", "Create Group With", "Delete All Chat History", "Unfriend", "Report Spam", "Block"};
     String[] groupOptions = {"Search In Chat", "Members", "Leave Group"};
@@ -97,17 +98,8 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         if (cur_option.equals("Selection")){
             topContainer = setupAvatarWrapper();
             centerContainer.add(setupOption(), BorderLayout.CENTER);
-        }else if (cur_option.equals("Search In Chat")){
-            itemSelected = false;
-            MsgCardList msgList = new MsgCardList(msgs,getWidth() - 25);
-            JList<Msg> list = msgList.getList();
-            list.addListSelectionListener(e -> {
-                itemSelected = list.getSelectedIndices().length > 0;
-                updatePanel();
-            });
-            setupSearchArea(itemSelected);
-            centerContainer.add(msgList, BorderLayout.CENTER);
         }else if (cur_option.equals("Members")){
+            itemSelected = false;
             centerContainer.add(new MemberCardList(allMembers, getWidth() - 25, isAdmin));
             setupSearchArea(itemSelected);
         }
@@ -226,6 +218,9 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
                 System.out.println("Perform action");
             }
             cur_option = "Selection";
+        }else if (option.equals("Search In Chat")){
+            enterSearchMode();
+            return;
         }else if (option.equals("Change Group Name")){
             if (ChangeGroupNamePopup.show(mainFrame)){
                 System.out.println("Change group name");
@@ -267,6 +262,78 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         listContainer.revalidate();
         listContainer.repaint();
     }
+
+    void enterSearchMode() {
+        cur_option = "Search In Chat";
+
+        centerContainer.removeAll();
+
+        msgList = new MsgCardList(msgs, getWidth() - 25);
+        JList<Msg> list = msgList.getList();
+
+        list.addListSelectionListener(e -> {
+            itemSelected = list.getSelectedIndices().length > 0;
+            updateSearchHeader();
+        });
+
+        updateSearchHeader();
+        centerContainer.add(msgList, BorderLayout.CENTER);
+
+        centerContainer.revalidate();
+        centerContainer.repaint();
+    }
+
+    void updateSearchHeader() {
+        topContainer.removeAll();
+        topContainer.setLayout(new BoxLayout(topContainer, BoxLayout.X_AXIS));
+        topContainer.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
+
+        JLabel back = new JLabel(new FlatSVGIcon("assets/arrow-left-solid-full.svg", 24, 24));
+        back.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        back.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                cur_option = "Selection";
+                updatePanel();
+            }
+        });
+
+        SearchBar sb = new SearchBar(20, 5, getWidth() - 100, 30, this);
+
+        JLabel trash = new JLabel(new FlatSVGIcon("assets/trash-solid-full.svg", 24, 24));
+        trash.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        trash.setVisible(itemSelected);
+
+        trash.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (ConfirmPopup.show(mainFrame, "delete selected messages")) {
+                    deleteSelectedMessages();
+                }
+            }
+        });
+
+        topContainer.add(back);
+        topContainer.add(Box.createHorizontalStrut(10));
+        topContainer.add(sb);
+        topContainer.add(Box.createHorizontalStrut(10));
+        topContainer.add(trash);
+
+        topContainer.revalidate();
+        topContainer.repaint();
+    }
+
+    void deleteSelectedMessages() {
+        JList<Msg> list = msgList.getList();
+        List<Msg> toRemove = list.getSelectedValuesList();
+
+        msgs.removeAll(toRemove);
+        msgList.updateList(msgs);
+
+        itemSelected = false;
+        updateSearchHeader();
+    }
+
 
     @Override
     public void onSearchChange(String text) {
