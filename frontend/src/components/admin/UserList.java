@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
+import components.user.FriendCard;
+import model.User;
 import util.Utility;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -25,7 +27,7 @@ public class UserList extends MainPanel {
 
         //=== Data ===
         data = Arrays.asList(
-                Arrays.asList("thaibao", "Nguyễn Thái Bảo", "Active", "Ho Chi Minh City", "2003-05-20", "Male", "bao@gmail.com", ""),
+                Arrays.asList("\uD83D\uDD12thaibao", "Nguyễn Thái Bảo", "Active", "Ho Chi Minh City", "2003-05-20", "Male", "bao@gmail.com", ""),
                 Arrays.asList("linhngoc", "Phạm Ngọc Linh", "Banned", "Da Nang", "2002-11-02", "Female", "linh@gmail.com", ""),
                 Arrays.asList("minhduc", "Trần Minh Đức", "Active", "Hanoi", "2001-08-12", "Male", "duc@gmail.com", "")
         );
@@ -50,7 +52,7 @@ public class UserList extends MainPanel {
         for (int i = 0; i < filtered.size(); i++) {
 
             // button column
-            String[] options = {"Khóa","Lịch sử đăng nhập", "Cập nhật","Cập nhật mật khẩu","Danh sách bạn bè","Xóa"};
+            String[] options = {"Lock","Login history", "Update","Update password","Friend list","Delete"};
             JLabel option = new JLabel("…"); // Unicode 2026
             option.setFont(new Font("Arial", Font.BOLD, 24));
             option.setForeground(Color.DARK_GRAY);
@@ -58,8 +60,39 @@ public class UserList extends MainPanel {
             JPopupMenu popupMenu = new JPopupMenu();
 
             for (String item : options){
-                JMenuItem promoteItem = new JMenuItem(item);
+                String text = item;
+                final int index = i;
+                if(filtered.get(i).get(0).contains("\uD83D\uDD12") && item.equals("Lock")){
+                    text = "Unlock";
+                }
+                JMenuItem promoteItem = new JMenuItem(text);
                 popupMenu.add(promoteItem);
+                if(item.equals("Lock")){
+                    promoteItem.addActionListener(e ->{
+                        if(filtered.get(index).get(0).contains("\uD83D\uDD12")){
+                            filtered.get(index).set(0, filtered.get(index).get(0).replace("\uD83D\uDD12", ""));
+                        }
+                        else{
+                            filtered.get(index).set(0, "\uD83D\uDD12" + filtered.get(index).get(0));
+                        }
+                        refreshTable();
+                    });
+                }
+                if(item.equals("Friend list")){
+                    promoteItem.addActionListener(e -> {
+                        userFriendPopup();
+                    });
+                }
+                if(item.equals("Update")){
+                    promoteItem.addActionListener(e -> {
+                        updateUserPopup();
+                    });
+                }
+                if(item.equals("Login history")){
+                    promoteItem.addActionListener(e ->{
+                        userLoginPopup(filtered.get(index).get(0));
+                    });
+                }
             }
 
             option.addMouseListener(new MouseAdapter() {
@@ -233,7 +266,7 @@ public class UserList extends MainPanel {
         popup.setLayout(new BorderLayout());
         popup.setBorder(new EmptyBorder(10,10,10,10));
         popup.setBackground(Color.WHITE); // make sure visible
-        popup.setPreferredSize(new Dimension(500, 300));
+        popup.setPreferredSize(new Dimension(500, 350));
 
         String[] options = {"Username", "Gender", "Address", "Email", "Date of birth", "Phone number"};
         JPanel leftWrapper = new JPanel();
@@ -248,12 +281,13 @@ public class UserList extends MainPanel {
             text.setFont(new Font("Roboto", Font.BOLD, 14));
             JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 10));
             wrapper.setPreferredSize(new Dimension(150, 30));
+            wrapper.setMaximumSize(new Dimension(175, 35));
             wrapper.add(text);
             wrapper.setBackground(Color.WHITE);
 
             RoundedTextField field = new RoundedTextField(15);
             field.setPreferredSize(new Dimension(175, 30));
-            field.setToolTipText("Enter " + item.toLowerCase());
+            field.setMaximumSize(new Dimension(175, 35));
 
             leftWrapper.add(wrapper);
             leftWrapper.add(Box.createVerticalStrut(10));
@@ -262,15 +296,17 @@ public class UserList extends MainPanel {
         }
 
         RoundedButton save = new RoundedButton(25);
-        save.setText("SAVE");
+        save.setText("ADD");
+        save.setForeground(MyColor.WHITE_BG);
         save.setBackground(MyColor.LIGHT_BLUE);
         RoundedButton cancel = new RoundedButton(25);
         cancel.setText("CANCEL");
         cancel.setBackground(Color.WHITE);
 
         JPanel bottomWrapper = new JPanel();
-        bottomWrapper.add(cancel);
+        bottomWrapper.setLayout(new FlowLayout(FlowLayout.TRAILING, 20, 10));
         bottomWrapper.add(save);
+        bottomWrapper.add(cancel);
 
         popup.add(leftWrapper, BorderLayout.WEST);
         popup.add(rightWrapper, BorderLayout.EAST);
@@ -286,6 +322,117 @@ public class UserList extends MainPanel {
         save.addActionListener(e -> dialog.dispose());
 
         dialog.setVisible(true);
+    }
+
+    private void updateUserPopup() {
+        RoundedPanel popup = new RoundedPanel(15);
+        popup.setLayout(new BorderLayout());
+        popup.setBorder(new EmptyBorder(10,10,10,10));
+        popup.setBackground(Color.WHITE); // make sure visible
+        popup.setPreferredSize(new Dimension(500, 350));
+
+        String[] options = {"Username", "Gender", "Address", "Email", "Date of birth", "Phone number"};
+        JPanel leftWrapper = new JPanel();
+        JPanel rightWrapper = new JPanel();
+        leftWrapper.setLayout(new BoxLayout(leftWrapper, BoxLayout.Y_AXIS));
+        rightWrapper.setLayout(new BoxLayout(rightWrapper, BoxLayout.Y_AXIS));
+        leftWrapper.setOpaque(false);
+        rightWrapper.setOpaque(false);
+
+        for (String item : options) {
+            JLabel text = new JLabel(item);
+            text.setFont(new Font("Roboto", Font.BOLD, 14));
+            JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 10));
+            wrapper.setPreferredSize(new Dimension(150, 30));
+            wrapper.setMaximumSize(new Dimension(175, 35));
+            wrapper.add(text);
+            wrapper.setBackground(Color.WHITE);
+
+            RoundedTextField field = new RoundedTextField(15);
+            field.setPreferredSize(new Dimension(175, 30));
+            field.setMaximumSize(new Dimension(175, 35));
+            field.setText("abcabc");
+
+            leftWrapper.add(wrapper);
+            leftWrapper.add(Box.createVerticalStrut(10));
+            rightWrapper.add(field);
+            rightWrapper.add(Box.createVerticalStrut(10));
+        }
+
+        RoundedButton save = new RoundedButton(25);
+        save.setText("UPDATE");
+        save.setForeground(MyColor.WHITE_BG);
+        save.setBackground(MyColor.LIGHT_BLUE);
+        RoundedButton cancel = new RoundedButton(25);
+        cancel.setText("CANCEL");
+        cancel.setBackground(Color.WHITE);
+
+        JPanel bottomWrapper = new JPanel();
+        bottomWrapper.setLayout(new FlowLayout(FlowLayout.TRAILING, 20, 10));
+        bottomWrapper.add(save);
+        bottomWrapper.add(cancel);
+
+        popup.add(leftWrapper, BorderLayout.WEST);
+        popup.add(rightWrapper, BorderLayout.EAST);
+        popup.add(bottomWrapper, BorderLayout.SOUTH);
+
+
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Update user", true);
+        dialog.setContentPane(popup);
+        dialog.pack();
+        dialog.setLocationRelativeTo(null);
+
+        cancel.addActionListener(e -> dialog.dispose());
+        save.addActionListener(e -> dialog.dispose());
+
+        dialog.setVisible(true);
+    }
+
+    private void userFriendPopup() {
+       JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Friend list", true);
+
+       JPanel wrapper = new JPanel();
+       wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.Y_AXIS));
+       for(int i = 0; i < 10; i++){
+           User u = new User("BABA");
+           FriendCard friend = new FriendCard( u, 400);
+           wrapper.add(friend);
+           wrapper.add(Box.createVerticalStrut(20));
+       }
+       JScrollPane scroll = new JScrollPane(wrapper);
+        scroll.setPreferredSize(new Dimension(600, 500));
+        scroll.getVerticalScrollBar().setUnitIncrement(20);
+
+        dialog.add(scroll);
+        dialog.pack();
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+
+    }
+
+    private void userLoginPopup(String username) {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Login log", true);
+
+        JPanel wrapper = new JPanel();
+        wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.Y_AXIS));
+        for(int i = 0; i < 10; i++){
+            JPanel a = new JPanel();
+            a.setLayout(new BorderLayout());
+            a.add(new JLabel(username), BorderLayout.WEST);
+            a.add(new JLabel("12/12/2025"), BorderLayout.EAST);
+            wrapper.add(a);
+            wrapper.setBorder(new EmptyBorder(5, 15, 5, 15));
+            wrapper.add(Box.createVerticalStrut(20));
+        }
+        JScrollPane scroll = new JScrollPane(wrapper);
+        scroll.setPreferredSize(new Dimension(600, 500));
+        scroll.getVerticalScrollBar().setUnitIncrement(20);
+
+        dialog.add(scroll);
+        dialog.pack();
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+
     }
 
 }
