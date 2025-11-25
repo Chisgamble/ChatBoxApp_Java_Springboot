@@ -17,8 +17,10 @@ import model.User;
 import ui.ProfilePopup;
 
 public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBarListener {
-
+    JPanel topContainer;
     JPanel centerContainer;
+    RoundedComboBox<String> comboBox;
+    SearchBar sb;
     Component list = null;
     List<User> allUsers = new ArrayList<>( List.of(
             new User("Sammael"),
@@ -49,21 +51,22 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
         this.setLayout(new BorderLayout());
         this.setOpaque(false);
 
-        JPanel topContainer = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 10));
+        topContainer = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 10));
         topContainer.setPreferredSize(new Dimension(width, 100));
         topContainer.setOpaque(false);
         topContainer.setBorder(BorderFactory.createMatteBorder(0,0,1,0,Color.BLACK));
 //        topContainer.setBackground(Color.YELLOW);
 
         String[] options = {"Online", "Offline"};
-        RoundedComboBox<String> comboBox = new RoundedComboBox<>(options);
+        comboBox = new RoundedComboBox<>(options);
         comboBox.setForeground(MyColor.DARK_GRAY);
         comboBox.setFont(new Font("Roboto", Font.PLAIN, 12));
         comboBox.setPreferredSize(new Dimension(80, 30));
 
         JPanel searchArea = new JPanel(new BorderLayout(10,5));
         searchArea.setOpaque(false);
-        searchArea.add(new SearchBar(20, 7, width - 110, 30, this), BorderLayout.CENTER);
+        sb = new SearchBar(20, 7, width - 110, 30, this);
+        searchArea.add(sb, BorderLayout.CENTER);
         searchArea.add(comboBox, BorderLayout.EAST);
 
         topContainer.add(new UserMenu(20, 20, this));
@@ -116,10 +119,12 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     }
 
     void updateList(List<User> users){
+        boolean showOnline = false;
         if (cur_option.equals("Friend request") ){
             list = new FriendRequestList(users, getWidth() - 15);
         }else if(cur_option.equals("Friends")){
             list = new FriendCardList(users, getWidth() - 15);
+            showOnline = true;
         }else if (cur_option.equals("SearchMsg")){
             list = new MsgCardList(all_msgs, getWidth() - 15);
         }else if (cur_option.equals("Groups")){
@@ -140,9 +145,14 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
         centerContainer.removeAll();
         centerContainer.add(scrollPane, BorderLayout.CENTER);
         this.add(centerContainer, BorderLayout.CENTER);
-
+        updateSearchArea(showOnline);
         this.revalidate();
         this.repaint();
+    }
+
+    void updateSearchArea(boolean showOnline){
+        comboBox.setVisible(showOnline);
+        sb.setPreferredSize(new Dimension(getWidth() - (showOnline ? 110 : 20), 30));
     }
 
 }
