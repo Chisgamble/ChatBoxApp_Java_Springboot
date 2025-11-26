@@ -8,7 +8,7 @@ public class Main {
     public static void main(String[] args){
         SwingUtilities.invokeLater(() ->{
             try {
-                ChatScreen cs = new ChatScreen();
+                AdminDashboard cs = new AdminDashboard();
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }

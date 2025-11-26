@@ -52,7 +52,7 @@ public class UserList extends MainPanel {
         for (int i = 0; i < filtered.size(); i++) {
 
             // button column
-            String[] options = {"Lock","Login history", "Update","Update password","Friend list","Delete"};
+            String[] options = {"Lock","Login history", "Update","Update password", "Refresh password","Friend list","Delete"};
             JLabel option = new JLabel("…"); // Unicode 2026
             option.setFont(new Font("Arial", Font.BOLD, 24));
             option.setForeground(Color.DARK_GRAY);
@@ -91,6 +91,11 @@ public class UserList extends MainPanel {
                 if(item.equals("Login history")){
                     promoteItem.addActionListener(e ->{
                         userLoginPopup(filtered.get(index).get(0));
+                    });
+                }
+                if(item.equals("Update password")){
+                    promoteItem.addActionListener(e -> {
+                        updatePasswordPopup(filtered.get(index).get(0));
                     });
                 }
             }
@@ -435,4 +440,67 @@ public class UserList extends MainPanel {
 
     }
 
+    private void updatePasswordPopup(String s) {
+        RoundedPanel popup = new RoundedPanel(15);
+        popup.setLayout(new BorderLayout());
+        popup.setBorder(new EmptyBorder(10,10,10,10));
+        popup.setBackground(Color.WHITE); // make sure visible
+        popup.setPreferredSize(new Dimension(500, 200));
+
+        String[] options = {"Old password", "New password"};
+        JPanel leftWrapper = new JPanel();
+        JPanel rightWrapper = new JPanel();
+        leftWrapper.setLayout(new BoxLayout(leftWrapper, BoxLayout.Y_AXIS));
+        rightWrapper.setLayout(new BoxLayout(rightWrapper, BoxLayout.Y_AXIS));
+        leftWrapper.setOpaque(false);
+        rightWrapper.setOpaque(false);
+
+        for (String item : options) {
+            JLabel text = new JLabel(item);
+            text.setFont(new Font("Roboto", Font.BOLD, 14));
+            JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 10));
+            wrapper.setPreferredSize(new Dimension(150, 30));
+            wrapper.setMaximumSize(new Dimension(175, 35));
+            wrapper.add(text);
+            wrapper.setBackground(Color.WHITE);
+
+            RoundedPasswordField field = new RoundedPasswordField(15);
+            field.setPreferredSize(new Dimension(175, 30));
+            field.setMaximumSize(new Dimension(175, 35));
+            field.setText("abcabc");
+
+            leftWrapper.add(wrapper);
+            leftWrapper.add(Box.createVerticalStrut(10));
+            rightWrapper.add(field);
+            rightWrapper.add(Box.createVerticalStrut(10));
+        }
+
+        RoundedButton update = new RoundedButton(25);
+        update.setText("UPDATE");
+        update.setForeground(MyColor.WHITE_BG);
+        update.setBackground(MyColor.LIGHT_BLUE);
+        RoundedButton cancel = new RoundedButton(25);
+        cancel.setText("CANCEL");
+        cancel.setBackground(Color.WHITE);
+
+        JPanel bottomWrapper = new JPanel();
+        bottomWrapper.setLayout(new FlowLayout(FlowLayout.TRAILING, 20, 10));
+        bottomWrapper.add(update);
+        bottomWrapper.add(cancel);
+
+        popup.add(leftWrapper, BorderLayout.WEST);
+        popup.add(rightWrapper, BorderLayout.EAST);
+        popup.add(bottomWrapper, BorderLayout.SOUTH);
+
+
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Update password", true);
+        dialog.setContentPane(popup);
+        dialog.pack();
+        dialog.setLocationRelativeTo(null);
+
+        cancel.addActionListener(e -> dialog.dispose());
+        update.addActionListener(e -> dialog.dispose());
+
+        dialog.setVisible(true);
+    }
 }
