@@ -1,0 +1,11 @@
+package app.chatbox.mapper;
+
+import app.chatbox.dto.UserDTO;
+import app.chatbox.model.AppUser;
+import org.mapstruct.Mapper;
+
+@Mapper(componentModel = "spring")
+public interface UserMapper {
+    UserDTO toDTO(AppUser entity);
+    AppUser toEntity(UserDTO dto);
+}

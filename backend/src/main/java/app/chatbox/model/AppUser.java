@@ -7,48 +7,50 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Table;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.Builder;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.Instant;
-import java.util.*;
 
 @Entity
 @Table(name = "app_user")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name="ID")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name="username", length = 50, nullable = false)
     private String username;
 
-    @Column(nullable=false)
+    @Column(name="password", length = 50, nullable=false)
     private String password; // lưu hash (bcrypt/argon2)
 
+    @Column(name="name", length = 50)
     private String name;
 
+    @Column(name="address", length = 100)
     private String address;
 
+    @Column(name = "birthday")
     private LocalDate birthday;
 
+    @Column(name="gender", length = 10)
     private String gender;
 
-    @Column(unique=true, nullable = false)
+    @Column(name = "email", unique=true, length = 50, nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "is_active")
     private boolean is_active;
 
     //user / admin
-    @Column(nullable = false)
+    @Column(name = "role", nullable = false)
     private String role;
 
     private boolean is_locked = false;

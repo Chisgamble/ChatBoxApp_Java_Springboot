@@ -1,6 +1,9 @@
 package app.chatbox.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import app.chatbox.dto.response.UserResDTO;
+import app.chatbox.model.AppUser;
+import app.chatbox.services.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,7 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
-import app.chatbox.model.User;
 import app.chatbox.repository.UserRepository;
 
 import java.util.List;
@@ -20,7 +22,6 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
 
-    @Autowired
     private final UserRepository repo;
 
     public UserController(UserRepository repo) {
@@ -28,19 +29,19 @@ public class UserController {
     }
 
     @GetMapping("/getall")
-    public List<User> getAllUsers() {
+    public List<AppUser> getAllUsers() {
         return repo.findAll();
     }
 
     @GetMapping("/{id}")
-    public User getUser(@PathVariable Long id) {
+    public AppUser getUser(@PathVariable Long id) {
         return repo.findById(id).orElse(null);
     }
 
-    @PostMapping
-    public User addUser(@RequestBody User user) {
-        return repo.save(user);
-    }
+//    @PostMapping
+//    public UserResDTO addUser(@RequestBody @Valid UserRequest request) {
+//        return UserService.addUser(request);
+//    }
 
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
@@ -48,12 +49,12 @@ public class UserController {
     }
 
 //    @PostMapping("/login")
-//    public User login(@RequestBody User user) {
+//    public AppUser login(@RequestBody AppUser user) {
 //        return repo.save(user);
 //    }
 //
 //    @PostMapping("/register")
-//    public int signup(@RequestBody User user) {
+//    public int signup(@RequestBody AppUser user) {
 //        if (user.getUsername().trim().isEmpty()){
 //
 //        }

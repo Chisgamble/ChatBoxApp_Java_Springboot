@@ -3,7 +3,6 @@ package app.chatbox.model;
 import jakarta.persistence.*;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.Builder;
 
@@ -11,11 +10,10 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "inbox_message")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class InboxMessage{
+public class InboxMsg {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -26,7 +24,7 @@ public class InboxMessage{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "senderID", nullable = false)
-    private User sender;
+    private AppUser sender;
 
     //sending (loading) / sent / seen
     @Column(length = 30)
