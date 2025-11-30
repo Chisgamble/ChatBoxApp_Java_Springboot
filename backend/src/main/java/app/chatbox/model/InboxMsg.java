@@ -2,9 +2,7 @@ package app.chatbox.model;
 
 import jakarta.persistence.*;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.Builder;
+import lombok.*;
 
 import java.time.Instant;
 
@@ -12,6 +10,8 @@ import java.time.Instant;
 @Table(name = "inbox_message")
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Builder
 public class InboxMsg {
     @Id
@@ -19,11 +19,11 @@ public class InboxMsg {
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "inboxID", nullable = false)
+    @JoinColumn(name = "inbox_id", nullable = false)
     private Inbox inbox;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "senderID", nullable = false)
+    @JoinColumn(name = "sender_id", nullable = false)
     private AppUser sender;
 
     //sending (loading) / sent / seen
@@ -33,7 +33,7 @@ public class InboxMsg {
     @Column(length = 500)
     private String content;
 
-    @Column(name = "created_at", updatable = false)
-    private Instant created_at = Instant.now();
-    private Instant updated_at = Instant.now();
+    @Column(updatable = false)
+    private Instant createdAt = Instant.now();
+    private Instant updatedAt = Instant.now();
 }

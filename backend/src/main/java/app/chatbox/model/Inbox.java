@@ -1,9 +1,7 @@
 package app.chatbox.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.Instant;
 
@@ -11,6 +9,8 @@ import java.time.Instant;
 @Table(name = "inbox")
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Builder
 public class Inbox {
     @Id
@@ -31,7 +31,8 @@ public class Inbox {
         nullable = false,
         foreignKey = @ForeignKey(name = "fk_ib_a_seen")
     )
-    private InboxMsg userA_last_seen;
+    private InboxMsg userALastSeen;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
@@ -39,7 +40,7 @@ public class Inbox {
         nullable = false,
         foreignKey = @ForeignKey(name = "fk_ib_b_seen")
     )
-    private InboxMsg userB_last_seen;
+    private InboxMsg userBLastSeen;
 
     @Column(updatable = false)
     private Instant created_at = Instant.now();

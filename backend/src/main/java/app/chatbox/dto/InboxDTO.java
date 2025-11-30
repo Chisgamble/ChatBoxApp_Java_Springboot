@@ -1,9 +1,12 @@
 package app.chatbox.dto;
 
+import java.util.List;
+
 public record InboxDTO(
         long id,
-        long userA,
-        long userB,
-        long userA_last_seen,
-        long userB_last_seen
+        long userAId,
+        long userBId,
+        long userALastSeenMsgId,
+        long userBLastSeenMsgId,
+        List<InboxMsgDTO> latestMsgs
 ) {}

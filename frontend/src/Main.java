@@ -2,7 +2,12 @@ import ui.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args){
@@ -13,6 +18,27 @@ public class Main {
                 throw new RuntimeException(e);
             }
         });
+        URL url = new URL("http://localhost:8080/api/auth/login");
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
+        conn.setRequestMethod("POST");
+        conn.setDoOutput(true);
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+
+        String params = "email=" + email + "&password=" + password;
+        conn.getOutputStream().write(params.getBytes());
+
+        String setCookie = conn.getHeaderField("Set-Cookie");
+// Save this for next requests
+
+        BufferedReader reader = new BufferedReader(
+                new InputStreamReader(conn.getInputStream())
+        );
+        String response = reader.lines().collect(Collectors.joining("\n"));
+
+        System.out.println("Response: " + response);
+        System.out.println("Session Cookie: " + setCookie);
+        conn.setRequestProperty("Cookie", setCookie);
 
 //        new Login();
 //        JFrame fr = new JFrame();

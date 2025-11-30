@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<AppUser, Long> {
-    // You can add custom queries if needed, e.g.:
-    Optional<AppUser> findByUsername(String username);
-
+    AppUser findByUsername(String username);
+    Optional<AppUser> findByEmail(String email);
+    boolean existsByEmail(String email);
 }

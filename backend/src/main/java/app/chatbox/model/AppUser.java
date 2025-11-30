@@ -21,15 +21,15 @@ import java.time.Instant;
 @Builder
 public class AppUser {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="ID")
     private Long id;
 
     @Column(name="username", length = 50, nullable = false)
     private String username;
 
-    @Column(name="password", length = 50, nullable=false)
-    private String password; // lưu hash (bcrypt/argon2)
+    @Column(name="password", length = 100, nullable=false)
+    private String password; // lưu hash (bcrypt)
 
     @Column(name="name", length = 50)
     private String name;
@@ -47,13 +47,13 @@ public class AppUser {
     private String email;
 
     @Column(name = "is_active")
-    private boolean is_active;
+    private Boolean isActive;
 
     //user / admin
     @Column(name = "role", nullable = false)
     private String role;
 
-    private boolean is_locked = false;
+    private Boolean is_locked = false;
 
     private Instant created_at = Instant.now();
     private Instant updated_at = Instant.now();
