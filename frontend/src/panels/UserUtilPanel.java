@@ -10,6 +10,7 @@ import javax.swing.border.Border;
 import components.MyColor;
 import components.RoundedComboBox;
 import components.user.*;
+import dto.InboxDTO;
 import listener.SearchBarListener;
 import listener.UserMenuListener;
 import model.Msg;
@@ -22,6 +23,7 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     RoundedComboBox<String> comboBox;
     SearchBar sb;
     Component list = null;
+    List<InboxDTO> inboxes;
     List<User> allUsers = new ArrayList<>( List.of(
             new User("Sammael"),
             new User("Chris"),
@@ -45,8 +47,10 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     );
     String cur_option;
 
-    public UserUtilPanel(int width, int height) {
+    public UserUtilPanel(int width, int height, List<InboxDTO> inboxes) {
         this.cur_option = "Friends";
+        this.inboxes = inboxes;
+
         this.setPreferredSize(new Dimension(width, height));
         this.setLayout(new BorderLayout());
         this.setOpaque(false);

@@ -2,6 +2,10 @@ package ui;
 import javax.swing.*;
 import java.awt.*;
 
+import java.util.List;
+
+import dto.InboxDTO;
+import dto.response.LoginResDTO;
 import listener.CreateGroupListener;
 import model.Group;
 import panels.ChatPanel;
@@ -9,8 +13,12 @@ import panels.ChatUtilPanel;
 import panels.UserUtilPanel;
 
 public class ChatScreen extends JFrame implements CreateGroupListener {
+    LoginResDTO user;
+    List<InboxDTO> inboxes;
 
-    public ChatScreen(){
+    public ChatScreen(LoginResDTO user){
+        this.user = user;
+        inboxes = user.inboxes();
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.setLayout(new BorderLayout());
@@ -23,7 +31,7 @@ public class ChatScreen extends JFrame implements CreateGroupListener {
 
         this.add(new ChatPanel(width * 5, height), BorderLayout.CENTER);
         this.add(new ChatUtilPanel(this, width * 2, height, false, false), BorderLayout.EAST);
-        this.add(new UserUtilPanel(width * 2, height), BorderLayout.WEST);
+        this.add(new UserUtilPanel(width * 2, height, inboxes), BorderLayout.WEST);
 
         this.setVisible(true);
     }

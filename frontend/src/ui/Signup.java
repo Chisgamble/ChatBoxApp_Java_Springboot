@@ -1,5 +1,8 @@
 package ui;
 
+import dto.response.RegisterResDTO;
+import dto.response.UserResDTO;
+import services.AuthService;
 import util.Utility;
 import components.*;
 import javax.swing.*;
@@ -108,6 +111,22 @@ public class Signup extends JFrame{
             submit.setPreferredSize(new Dimension(150, 45));
             submit.setMaximumSize(new Dimension(150, 45));
             submit.setAlignmentX(0.5f);
+
+            submit.addActionListener(e -> {
+                String email = usr_name.getText();
+                String pwd = new String(password.getPassword());
+
+                try {
+                    AuthService authService = new AuthService();
+                    RegisterResDTO user = authService.register("Name1", email, pwd);
+                    JOptionPane.showMessageDialog(this, "Registered successfully!");
+                    this.dispose(); // Close Signup window
+                    new Login();    // Open Login window
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+                }
+            });
+
 
             // Add vertical glue for “justify-between” effect
             gbc.gridx = 0;

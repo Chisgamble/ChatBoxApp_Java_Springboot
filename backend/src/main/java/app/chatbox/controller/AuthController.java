@@ -3,6 +3,7 @@ package app.chatbox.controller;
 import app.chatbox.dto.request.LoginReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.LoginResDTO;
+import app.chatbox.dto.response.RegisterResDTO;
 import app.chatbox.dto.response.UserResDTO;
 import app.chatbox.services.InboxService;
 import app.chatbox.services.InboxMsgService;
@@ -31,7 +32,7 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder; // inject encoder
 
     @PostMapping("/register")
-    public UserResDTO register(@RequestBody RegisterReqDTO req) {
+    public RegisterResDTO register(@RequestBody RegisterReqDTO req) {
         // Check if user already exists
         if (userRepo.existsByEmail(req.email())) {
             throw new RuntimeException("Email already registered");
@@ -43,10 +44,11 @@ public class AuthController {
         user.setEmail(req.email());
         user.setPassword(passwordEncoder.encode(req.password())); // hash password
         user.setIsActive(true); // default active
+        user.setRole("user");
 
         AppUser saved = userRepo.save(user);
 
-        return userMapper.toUserResDTO(saved);
+        return  userMapper.toRegisterResDTO(saved);
     }
 
     @PostMapping("/login")

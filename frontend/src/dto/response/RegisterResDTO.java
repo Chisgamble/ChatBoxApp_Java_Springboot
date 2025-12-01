@@ -1,4 +1,4 @@
-package app.chatbox.dto.response;
+package dto.response;
 
 public record RegisterResDTO(
     long id,

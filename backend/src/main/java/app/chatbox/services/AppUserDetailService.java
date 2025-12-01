@@ -23,7 +23,7 @@ public class AppUserDetailService implements UserDetailsService {
 
         return User.withUsername(user.getEmail())
                 .password(user.getPassword())
-                .roles(user.getRole()) // USER, ADMIN, etc.
+                .roles(user.getRole().toUpperCase()) // USER, ADMIN, etc.
                 .build();
     }
 }

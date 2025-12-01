@@ -1,5 +1,8 @@
 package ui;
 
+import dto.response.LoginResDTO;
+import dto.response.RegisterResDTO;
+import services.AuthService;
 import util.Utility;
 import components.MyColor;
 import components.RoundedButton;
@@ -100,6 +103,21 @@ public class Login extends JFrame{
             submit.setPreferredSize(new Dimension(150, 45));
             submit.setMaximumSize(new Dimension(150, 45));
             submit.setAlignmentX(0.5f);
+
+            submit.addActionListener(e -> {
+                String email = usr_name.getText();
+                String pwd = new String(password.getPassword());
+
+                try {
+                    AuthService authService = new AuthService();
+                    LoginResDTO user = authService.login(email, pwd);
+                    JOptionPane.showMessageDialog(this, "Login successfully!");
+                    this.dispose();
+                    new ChatScreen(user);
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+                }
+            });
 
             // Add vertical glue for “justify-between” effect
             gbc.gridx = 0;
