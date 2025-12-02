@@ -3,6 +3,7 @@ package panels;
 import components.Avatar;
 import components.ConfirmPopup;
 import components.user.*;
+import dto.FriendCardDTO;
 import listener.SearchBarListener;
 import model.Msg;
 import model.User;
@@ -255,7 +256,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         listContainer.repaint();
     }
 
-    void updateMemberList(List<User> members){
+    void updateMemberList(List<FriendCardDTO> members){
         this.remove(listContainer);
         listContainer = new FriendCardList(members, getWidth()-15);
         // Revalidate and repaint the list
@@ -360,7 +361,9 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
                     }
                 }
             }
-            updateMemberList(filteredMembers);  // Update the list with the filtered users
+
+            //TODO: uncomment and replace with real member dto
+//            updateMemberList(filteredMembers);  // Update the list with the filtered users
         }
     }
 

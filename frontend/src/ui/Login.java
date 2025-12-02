@@ -1,7 +1,6 @@
 package ui;
 
 import dto.response.LoginResDTO;
-import dto.response.RegisterResDTO;
 import services.AuthService;
 import util.Utility;
 import components.MyColor;
@@ -12,8 +11,6 @@ import components.RoundedTextField;
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
-import java.io.InputStream;
-
 
 public class Login extends JFrame{
     public Login() throws IOException, FontFormatException {

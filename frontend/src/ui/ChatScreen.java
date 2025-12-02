@@ -4,6 +4,7 @@ import java.awt.*;
 
 import java.util.List;
 
+import dto.FriendCardDTO;
 import dto.InboxDTO;
 import dto.response.LoginResDTO;
 import listener.CreateGroupListener;
@@ -12,13 +13,18 @@ import model.Group;
 import panels.ChatPanel;
 import panels.ChatUtilPanel;
 import panels.UserUtilPanel;
+import services.FriendService;
 
 public class ChatScreen extends JFrame implements CreateGroupListener, LogoutListener {
     LoginResDTO user;
     List<InboxDTO> inboxes;
+    List<FriendCardDTO> friends;
+    FriendService friendService = new FriendService();
 
     public ChatScreen(LoginResDTO user){
         this.user = user;
+        friends = friendService.getAll(user.id());
+
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
         this.setLayout(new BorderLayout());
@@ -31,7 +37,7 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
 
         this.add(new ChatPanel(width * 5, height), BorderLayout.CENTER);
         this.add(new ChatUtilPanel(this, width * 2, height, true, false), BorderLayout.EAST);
-        this.add(new UserUtilPanel(width * 2, height, inboxes), BorderLayout.WEST);
+        this.add(new UserUtilPanel(width * 2, height, inboxes, friends), BorderLayout.WEST);
 
         this.setVisible(true);
     }

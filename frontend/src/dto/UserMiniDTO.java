@@ -1,4 +1,4 @@
-package app.chatbox.dto;
+package dto;
 
 public record UserMiniDTO(
         long id,

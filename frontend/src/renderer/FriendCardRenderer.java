@@ -1,16 +1,16 @@
 package renderer;
 
 import components.Avatar;
+import dto.FriendCardDTO;
 import model.User;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 
-public class FriendCardRenderer extends JPanel implements ListCellRenderer<User> {
+public class FriendCardRenderer extends JPanel implements ListCellRenderer<FriendCardDTO> {
 
     private final Avatar avatar;
     private final JLabel nameLabel;
@@ -52,22 +52,23 @@ public class FriendCardRenderer extends JPanel implements ListCellRenderer<User>
 
     @Override
     public Component getListCellRendererComponent(
-            JList<? extends User> list,
-            User user,
+            JList<? extends FriendCardDTO> list,
+            FriendCardDTO user,
             int index,
             boolean isSelected,
             boolean cellHasFocus
     ) {
         // Update data
-        avatar.setInitials(user.getInitials());
-        nameLabel.setText(user.getName());
+        avatar.setInitials(user.user().initials());
+        nameLabel.setText(user.user().username());
         FlatSVGIcon icon;
-        if (user.isActive())
+        if (user.user().isActive())
             icon = new FlatSVGIcon("assets/online-icon.svg", 10, 10);
         else
             icon = new FlatSVGIcon("assets/offline-icon.svg", 10, 10);
         nameLabel.setIcon(icon);
-        userLabel.setText(user.getLastMsg());
+        if (user.lastMsg() != null)
+            userLabel.setText(user.lastMsg().content());
 
         // Selection effect
         if (isSelected) {

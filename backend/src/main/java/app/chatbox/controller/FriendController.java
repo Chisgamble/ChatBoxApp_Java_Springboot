@@ -1,6 +1,7 @@
 package app.chatbox.controller;
 
 import app.chatbox.dto.FriendCardDTO;
+import app.chatbox.dto.FriendCardListDTO;
 import app.chatbox.services.FriendService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,7 +19,7 @@ public class FriendController {
 
     @PreAuthorize("#id == authentication.principal.id or hasRole('ADMIN')")
     @GetMapping("/{id}")
-    public List<FriendCardDTO> getAllFriendCards(@PathVariable Long id){
+    public FriendCardListDTO getAllFriendCards(@PathVariable Long id){
         return friendService.getAllFriends(id);
     }
 }

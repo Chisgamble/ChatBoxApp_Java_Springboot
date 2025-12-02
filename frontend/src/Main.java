@@ -16,10 +16,10 @@ public class Main {
         SwingUtilities.invokeLater(() ->{
             try {
 //                AdminDashboard cs = new AdminDashboard();
-//                new Signup();
-                AuthService authService = new AuthService();
-                LoginResDTO user = authService.login("ryoshu@gmail.com", "OLPASMTHNWTRTBTLIU");
-                new ChatScreen(user);
+                new Login();
+//                AuthService authService = new AuthService();
+//                LoginResDTO user = authService.login("ryoshu@gmail.com", "OLPASMTHNWTRTBTLIU");
+//                new ChatScreen(user);
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }

@@ -10,6 +10,7 @@ import javax.swing.border.Border;
 import components.MyColor;
 import components.RoundedComboBox;
 import components.user.*;
+import dto.FriendCardDTO;
 import dto.InboxDTO;
 import dto.response.RegisterResDTO;
 import listener.SearchBarListener;
@@ -27,6 +28,7 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     SearchBar sb;
     Component list = null;
     List<InboxDTO> inboxes;
+    List<FriendCardDTO> friends;
     List<User> allUsers = new ArrayList<>( List.of(
             new User("Sammael"),
             new User("Chris"),
@@ -50,9 +52,10 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     );
     String cur_option;
 
-    public UserUtilPanel(int width, int height, List<InboxDTO> inboxes) {
+    public UserUtilPanel(int width, int height, List<InboxDTO> inboxes, List<FriendCardDTO> friends) {
         this.cur_option = "Friends";
         this.inboxes = inboxes;
+        this.friends = friends;
 
         this.setPreferredSize(new Dimension(width, height));
         this.setLayout(new BorderLayout());
@@ -84,7 +87,7 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
         centerContainer.setPreferredSize(new Dimension(width - 10, height - 60));
         centerContainer.setOpaque(false);
 
-        list = new FriendCardList(allUsers, width - 10);
+        list = new FriendCardList(friends, width - 10);
 
         JScrollPane scrollPane = new JScrollPane(list);
         scrollPane.setBorder(null);
@@ -130,7 +133,7 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
         if (cur_option.equals("Friend request") ){
             list = new FriendRequestList(users, getWidth() - 15);
         }else if(cur_option.equals("Friends")){
-            list = new FriendCardList(users, getWidth() - 15);
+            list = new FriendCardList(friends, getWidth() - 15);
             showOnline = true;
         }else if (cur_option.equals("SearchMsg")){
             list = new MsgCardList(all_msgs, getWidth() - 15);
