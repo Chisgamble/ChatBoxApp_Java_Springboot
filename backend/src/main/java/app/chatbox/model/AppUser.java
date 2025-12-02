@@ -53,6 +53,7 @@ public class AppUser {
     @Column(name = "role", nullable = false)
     private String role;
 
+    @Column(name="is_locked")
     private Boolean is_locked = false;
 
     @Column(name = "created_at",updatable = false)
