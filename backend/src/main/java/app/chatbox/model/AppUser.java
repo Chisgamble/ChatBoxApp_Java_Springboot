@@ -55,6 +55,9 @@ public class AppUser {
 
     private Boolean is_locked = false;
 
-    private Instant created_at = Instant.now();
-    private Instant updated_at = Instant.now();
+    @Column(name = "created_at",updatable = false)
+    private Instant createdAt = Instant.now();
+
+    @Column(name = "updated_at")
+    private Instant updatedAt = Instant.now();
 }

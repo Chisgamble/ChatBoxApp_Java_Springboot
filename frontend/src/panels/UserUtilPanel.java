@@ -11,10 +11,13 @@ import components.MyColor;
 import components.RoundedComboBox;
 import components.user.*;
 import dto.InboxDTO;
+import dto.response.RegisterResDTO;
 import listener.SearchBarListener;
 import listener.UserMenuListener;
 import model.Msg;
 import model.User;
+import services.AuthService;
+import ui.Login;
 import ui.ProfilePopup;
 
 public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBarListener {
@@ -137,6 +140,13 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
             list = new MsgCardList(all_msgs, getWidth() - 15);
         }else if (cur_option.equals("Find User")){
             list = new StrangerCardList(allUsers, getWidth() - 15);
+        }else if (cur_option.equals("Logout")) {
+            try {
+                AuthService authService = new AuthService();
+                authService.logout();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
+            }
         }
 
         this.remove(centerContainer);

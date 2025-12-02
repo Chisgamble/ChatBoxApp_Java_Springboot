@@ -1,11 +1,50 @@
 package app.chatbox.services;
 
-import app.chatbox.dto.UserDTO;
+import app.chatbox.dto.request.LoginReqDTO;
+import app.chatbox.dto.request.RegisterReqDTO;
+import app.chatbox.dto.response.LoginResDTO;
+import app.chatbox.dto.response.RegisterResDTO;
+import app.chatbox.mapper.UserMapper;
+import app.chatbox.model.AppUser;
+import app.chatbox.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
-public interface UserService {
-//    UserDTO findByUsername(String username);
-//    UserDTO findById(Long id);
-//    UserDTO createUser(CreateUserRequest request);
-//    UserDTO updateUser(Long id, UpdateUserRequest request);
-//    void lockUser(Long id);
+@Service
+@RequiredArgsConstructor
+public class UserService {
+    private final UserRepository userRepo;
+    private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
+
+    public boolean exist(String email){
+        return userRepo.existsByEmail(email);
+    }
+
+    public RegisterResDTO register(RegisterReqDTO req) {
+        // Check if user already exists
+        if (exist(req.email())) {
+            throw new RuntimeException("Email already registered");
+        }
+
+        // Create new user
+        AppUser user = new AppUser();
+        user.setUsername(req.username());
+        user.setEmail(req.email());
+        user.setPassword(passwordEncoder.encode(req.password())); // hash password
+        user.setIsActive(true); // default active
+        user.setRole("user");
+
+        AppUser saved = userRepo.save(user);
+
+        return userMapper.toRegisterResDTO(saved);
+    }
+
+    public LoginResDTO login(LoginReqDTO req) {
+        AppUser user = userRepo.findByEmail(req.email())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return userMapper.toLoginResDTO(user);
+    }
 }

@@ -4,7 +4,6 @@ import components.MyColor;
 import components.RoundedButton;
 import components.RoundedDialog;
 import listener.CreateGroupListener;
-import listener.CreateGroupListener;
 import model.User;
 import model.Group;
 

@@ -15,14 +15,14 @@ import java.time.Instant;
 @Builder
 public class InboxMsg {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "inbox_id", nullable = false)
     private Inbox inbox;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "sender_id", nullable = false)
     private AppUser sender;
 
@@ -33,7 +33,9 @@ public class InboxMsg {
     @Column(length = 500)
     private String content;
 
-    @Column(updatable = false)
+    @Column(name = "created_at",updatable = false)
     private Instant createdAt = Instant.now();
+
+    @Column(name = "updated_at")
     private Instant updatedAt = Instant.now();
 }

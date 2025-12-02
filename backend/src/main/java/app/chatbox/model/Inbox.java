@@ -14,7 +14,7 @@ import java.time.Instant;
 @Builder
 public class Inbox {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -42,7 +42,9 @@ public class Inbox {
     )
     private InboxMsg userBLastSeen;
 
-    @Column(updatable = false)
-    private Instant created_at = Instant.now();
-    private Instant updated_at = Instant.now();
+    @Column(name = "created_at",updatable = false)
+    private Instant createdAt = Instant.now();
+
+    @Column(name = "updated_at")
+    private Instant updatedAt = Instant.now();
 }

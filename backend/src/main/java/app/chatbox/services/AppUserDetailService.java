@@ -1,5 +1,6 @@
 package app.chatbox.services;
 
+import app.chatbox.config.CustomUserDetails;
 import app.chatbox.model.AppUser;
 import app.chatbox.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +22,7 @@ public class AppUserDetailService implements UserDetailsService {
         AppUser user = repo.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return User.withUsername(user.getEmail())
-                .password(user.getPassword())
-                .roles(user.getRole().toUpperCase()) // USER, ADMIN, etc.
-                .build();
+        return new CustomUserDetails(user);
+
     }
 }

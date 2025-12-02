@@ -20,4 +20,8 @@ public class AuthService {
         LoginReqDTO dto = new LoginReqDTO(email, password);
         return api.login(dto);
     }
+
+    public void logout() {
+        api.logout();
+    }
 }

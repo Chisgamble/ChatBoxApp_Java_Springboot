@@ -32,12 +32,12 @@ public class InboxService {
 
             // return DTO with messages included
             return new InboxDTO(
-                    dto.id(),
-                    dto.userAId(),
-                    dto.userBId(),
-                    dto.userALastSeenMsgId(),
-                    dto.userBLastSeenMsgId(),
-                    msgs
+                dto.id(),
+                dto.userAId(),
+                dto.userBId(),
+                dto.userALastSeenMsgId(),
+                dto.userBLastSeenMsgId(),
+                msgs
             );
         }).toList();
     }

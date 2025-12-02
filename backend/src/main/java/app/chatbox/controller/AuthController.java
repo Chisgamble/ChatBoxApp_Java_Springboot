@@ -4,20 +4,20 @@ import app.chatbox.dto.request.LoginReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.LoginResDTO;
 import app.chatbox.dto.response.RegisterResDTO;
-import app.chatbox.dto.response.UserResDTO;
-import app.chatbox.services.InboxService;
-import app.chatbox.services.InboxMsgService;
 import app.chatbox.mapper.UserMapper;
-import app.chatbox.model.AppUser;
-import app.chatbox.repository.UserRepository;
 
+
+import app.chatbox.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,48 +26,28 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final AuthenticationManager authManager;
-    private final UserRepository userRepo;
+    private final UserService userService;
     private final UserMapper userMapper;
-    private final InboxService inboxService;
     private final PasswordEncoder passwordEncoder; // inject encoder
 
     @PostMapping("/register")
     public RegisterResDTO register(@RequestBody RegisterReqDTO req) {
-        // Check if user already exists
-        if (userRepo.existsByEmail(req.email())) {
-            throw new RuntimeException("Email already registered");
-        }
-
-        // Create new user
-        AppUser user = new AppUser();
-        user.setUsername(req.username());
-        user.setEmail(req.email());
-        user.setPassword(passwordEncoder.encode(req.password())); // hash password
-        user.setIsActive(true); // default active
-        user.setRole("user");
-
-        AppUser saved = userRepo.save(user);
-
-        return  userMapper.toRegisterResDTO(saved);
+        return userService.register(req);
     }
 
     @PostMapping("/login")
-    public LoginResDTO login(@RequestBody LoginReqDTO req, HttpServletRequest http) {
+    public LoginResDTO login(@RequestBody LoginReqDTO req, HttpServletRequest http, HttpServletResponse res) {
 
         Authentication auth = authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.email(), req.password())
         );
 
-        SecurityContextHolder.getContext().setAuthentication(auth);
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(auth);
         http.getSession(true); // Creates JSESSIONID
+        new HttpSessionSecurityContextRepository().saveContext(securityContext, http, res);
 
-        AppUser user = userRepo.findByEmail(req.email())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        return new LoginResDTO(
-                userMapper.toUserResDTO(user),
-                inboxService.getInboxesWithLatestMsgs(user)
-        );
+        return userService.login(req);
     }
 
     @GetMapping("/logout")
