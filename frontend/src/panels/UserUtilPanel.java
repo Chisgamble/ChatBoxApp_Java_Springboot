@@ -18,10 +18,12 @@ import listener.UserMenuListener;
 import model.Msg;
 import model.User;
 import services.AuthService;
+import ui.ChatScreen;
 import ui.Login;
 import ui.ProfilePopup;
 
 public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBarListener {
+    ChatScreen mainFrame;
     JPanel topContainer;
     JPanel centerContainer;
     RoundedComboBox<String> comboBox;
@@ -52,8 +54,9 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     );
     String cur_option;
 
-    public UserUtilPanel(int width, int height, List<InboxDTO> inboxes, List<FriendCardDTO> friends) {
+    public UserUtilPanel(ChatScreen mainFrame, int width, int height, List<InboxDTO> inboxes, List<FriendCardDTO> friends) {
         this.cur_option = "Friends";
+        this.mainFrame = mainFrame;
         this.inboxes = inboxes;
         this.friends = friends;
 
@@ -147,6 +150,7 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
             try {
                 AuthService authService = new AuthService();
                 authService.logout();
+                mainFrame.onLogout();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
             }

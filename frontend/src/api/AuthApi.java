@@ -1,6 +1,7 @@
 package api;
 
 import dto.request.LoginReqDTO;
+import dto.response.LogoutResDTO;
 import dto.request.RegisterReqDTO;
 import dto.response.LoginResDTO;
 import dto.response.RegisterResDTO;
@@ -25,7 +26,7 @@ public class AuthApi {
 
     public void logout() {
         String url = BASE_URL + "/logout";
-        HttpClientUtil.get(url, String.class);  // Sending GET request to logout
+        HttpClientUtil.get(url, LogoutResDTO.class);
         HttpClientUtil.resetCookieManager();
     }
 }

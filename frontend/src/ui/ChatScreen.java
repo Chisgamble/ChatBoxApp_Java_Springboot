@@ -37,7 +37,7 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
 
         this.add(new ChatPanel(width * 5, height), BorderLayout.CENTER);
         this.add(new ChatUtilPanel(this, width * 2, height, true, false), BorderLayout.EAST);
-        this.add(new UserUtilPanel(width * 2, height, inboxes, friends), BorderLayout.WEST);
+        this.add(new UserUtilPanel(this,width * 2, height, inboxes, friends), BorderLayout.WEST);
 
         this.setVisible(true);
     }

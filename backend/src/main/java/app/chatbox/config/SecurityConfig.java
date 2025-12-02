@@ -1,5 +1,7 @@
 package app.chatbox.config;
 
+import app.chatbox.dto.response.LogoutResDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,7 +33,17 @@ public class SecurityConfig {
             .httpBasic(AbstractHttpConfigurer::disable)
             .logout(logout -> logout
                     .logoutUrl("/api/auth/logout")
-                    .logoutSuccessHandler((req, res, auth) -> res.setStatus(200))
+                    .logoutSuccessHandler((req, res, auth) ->{
+                        res.setContentType("application/json");
+                        res.setStatus(HttpServletResponse.SC_OK);
+
+                        ObjectMapper mapper = new ObjectMapper();
+                        LogoutResDTO logoutRes = new LogoutResDTO("Logged out");
+                        String json = mapper.writeValueAsString(logoutRes);
+
+                        res.getWriter().write(json);
+                        res.getWriter().flush();
+                    })
             );
 
         return http.build();
