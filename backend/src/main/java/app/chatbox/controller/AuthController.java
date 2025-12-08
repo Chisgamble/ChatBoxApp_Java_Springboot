@@ -3,6 +3,7 @@ package app.chatbox.controller;
 import app.chatbox.dto.request.LoginReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.LoginResDTO;
+import app.chatbox.dto.response.LogoutResDTO;
 import app.chatbox.dto.response.RegisterResDTO;
 import app.chatbox.mapper.UserMapper;
 
@@ -19,6 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -51,9 +54,9 @@ public class AuthController {
     }
 
     @GetMapping("/logout")
-    public String logout(HttpServletRequest req) {
+    public LogoutResDTO logout(HttpServletRequest req) {
         req.getSession().invalidate();
-        return "Logged out";
+        return new LogoutResDTO("Logged out");
     }
 }
 
