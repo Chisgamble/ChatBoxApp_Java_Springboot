@@ -20,18 +20,14 @@ public abstract class MainPanel extends JPanel {
     protected abstract void buildFilterPanel();
     protected abstract void setUpTable();
 
-    // Trong file components.admin.UserList.java
+    protected void refreshTable() {
+        SwingUtilities.invokeLater(() -> {
+            removeAll();
+            revalidate();
+            repaint();
 
-    public void refreshTable() {
-        // 1. Xóa tất cả các component cũ đang hiển thị
-        this.removeAll();
-
-        // 2. Xây dựng lại giao diện (Filter và Table)
-        buildFilterPanel();
-        setUpTable();
-
-        // 3. QUAN TRỌNG: Ra lệnh cho Swing tính toán lại bố cục và vẽ lại
-        this.revalidate(); // Tính toán lại layout (kích thước, vị trí các component)
-        this.repaint();    // Vẽ lại màu sắc, hình ảnh lên màn hình
+            buildFilterPanel();
+            setUpTable();
+        });
     }
 }
