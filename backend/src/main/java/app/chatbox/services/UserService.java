@@ -1,5 +1,8 @@
 package app.chatbox.services;
 
+import app.chatbox.dto.FriendCardListDTO;
+import app.chatbox.dto.UserDTO;
+import app.chatbox.dto.UserListDTO;
 import app.chatbox.dto.request.LoginReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.LoginResDTO;
@@ -23,6 +26,11 @@ public class UserService {
 
     public boolean exist(String email){
         return userRepo.existsByEmail(email);
+    }
+
+    public UserListDTO getAllUsersAndData(){
+        List<AppUser> users = userRepo.findAll();
+        return new UserListDTO(mapper.toAppUserDTOList(users));
     }
 
     public List<UserResDTO> getAllUsers() {

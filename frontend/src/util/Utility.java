@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalDate;
 import java.util.List;
 
 public class Utility {
@@ -40,5 +41,17 @@ public class Utility {
             }
         }
         return result;
+    }
+
+    static public String safeString(String s) {
+        return s == null ? "" : s;
+    }
+
+    static public String safeBool(Boolean b) {
+        return b == null ? "" : b.toString();
+    }
+
+    static public String safeDate(LocalDate d) {
+        return d == null ? "" : d.toString();
     }
 }

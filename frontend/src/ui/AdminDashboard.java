@@ -52,6 +52,8 @@ public class AdminDashboard extends JFrame {
         sidebar.setButtonListener(buttonName -> {
             // buttonName should match your card names above
             cardLayout.show(cardPanel, buttonName);
+            cardPanel.revalidate();
+            cardPanel.repaint();
         });
         pack();
         setVisible(true);

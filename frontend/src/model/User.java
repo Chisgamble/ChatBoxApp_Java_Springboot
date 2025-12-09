@@ -14,6 +14,7 @@ public class User {
     String last_msg;
     Random rand = new Random();
     boolean is_admin;
+    boolean is_banned;
 
     public User(){
         this.initials = "A";

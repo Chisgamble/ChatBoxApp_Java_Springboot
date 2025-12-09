@@ -1,5 +1,6 @@
 package components.admin;
 
+import api.admin.UserListApi;
 import components.*;
 
 import java.awt.event.MouseAdapter;
@@ -9,6 +10,9 @@ import java.util.List;
 import java.util.ArrayList;
 
 import components.user.FriendCard;
+import dto.UserListDTO;
+import dto.UserDTO;
+import services.admin.UserListService;
 import model.User;
 import util.Utility;
 import javax.swing.*;
@@ -19,18 +23,28 @@ public class UserList extends MainPanel {
     private List<String> usernameFilter;
     private List<String> nameFilter;
     private List<String> statusFilter;
+    private UserListService userService;
 
     public UserList() {
+        userService = new UserListService();
+        List<UserDTO> users = userService.getAll();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(MyColor.WHITE_BG);
 
         //=== Data ===
-        data = Arrays.asList(
-                Arrays.asList("\uD83D\uDD12thaibao", "Nguyễn Thái Bảo", "Active", "Ho Chi Minh City", "2003-05-20", "Male", "bao@gmail.com", ""),
-                Arrays.asList("linhngoc", "Phạm Ngọc Linh", "Banned", "Da Nang", "2002-11-02", "Female", "linh@gmail.com", ""),
-                Arrays.asList("minhduc", "Trần Minh Đức", "Active", "Hanoi", "2001-08-12", "Male", "duc@gmail.com", "")
-        );
+        data = users.stream()
+                .map(u -> List.of(
+                        Utility.safeString(u.username()),
+                        Utility.safeString(u.name()),
+                        Utility.safeBool(u.is_active()),
+                        Utility.safeString(u.address()),
+                        Utility.safeString(u.dob()),
+                        Utility.safeString(u.gender()),
+                        Utility.safeString(u.email())
+                ))
+                .toList();
+
         filtered = new ArrayList<>(data);
         usernameFilter = new ArrayList<>();
         nameFilter = new ArrayList<>();

@@ -6,6 +6,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 
 public class HttpClientUtil {
 
@@ -54,6 +55,23 @@ public class HttpClientUtil {
 //        cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);  // Create a new CookieManager
         System.out.println("CookieManager has been reset.");
     }
+
+    public static <T> List<T> getList(String url, Class<T> responseType) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(url))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            return JsonUtil.fromJsonList(response.body(), responseType);
+        } catch (Exception e) {
+            throw new RuntimeException("GET request failed", e);
+        }
+    }
+
 
     // Get the current HttpClient (for making requests)
     public static HttpClient getClient() {

@@ -7,8 +7,8 @@ public class Main {
     public static void main(String[] args){
         SwingUtilities.invokeLater(() ->{
             try {
-//                AdminDashboard cs = new AdminDashboard();
-                new Login();
+                AdminDashboard cs = new AdminDashboard();
+//                new Login();
 //                AuthService authService = new AuthService();
 //                LoginResDTO user = authService.login("ryoshu@gmail.com", "OLPASMTHNWTRTBTLIU");
 //                new ChatScreen(user);

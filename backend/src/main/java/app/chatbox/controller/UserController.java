@@ -1,5 +1,7 @@
 package app.chatbox.controller;
 
+import app.chatbox.dto.UserDTO;
+import app.chatbox.dto.UserListDTO;
 import app.chatbox.dto.request.LoginReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.LoginResDTO;
@@ -22,6 +24,9 @@ public class UserController {
     public List<UserResDTO> getAllUsers() {
         return userService.getAllUsers();
     }
+
+    @GetMapping("/getall/data")
+    public UserListDTO getAllUsersAndData() {return userService.getAllUsersAndData();}
 
     @GetMapping("/{id}")
     public UserResDTO getById(@PathVariable Long id) {
