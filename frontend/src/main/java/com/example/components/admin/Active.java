@@ -1,0 +1,84 @@
+package com.example.components.admin;
+
+import com.example.components.MyColor;
+import com.example.components.RoundedComboBox;
+import com.example.util.Utility;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class Active extends JPanel {
+
+    public Active() {
+        Font roboto = new Font("Roboto", Font.PLAIN, 16);
+
+        // Main page panel
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setBackground(MyColor.LIGHT_BLUE);
+
+        // === Filter Panel ===
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEADING, 10, 10));
+        filterPanel.setBackground(MyColor.WHITE_BG);
+        filterPanel.setPreferredSize(new Dimension(1920, 60));
+        filterPanel.setMaximumSize(new Dimension(1950, 70));
+
+        // ComboBoxes & filters
+        String[] comparatorOptions = {"<", ">", "="};
+        RoundedComboBox<String> compBox = new RoundedComboBox<>(comparatorOptions);
+        compBox.setForeground(MyColor.DARK_GRAY);
+        compBox.setFont(roboto);
+
+        String[] activityOptions = {"Open", "Person", "Group"};
+        RoundedComboBox<String> actBox = new RoundedComboBox<>(activityOptions);
+        actBox.setForeground(MyColor.DARK_GRAY);
+        actBox.setFont(roboto);
+
+        FilterButton number = new FilterButton("Enter number..", 5);
+        FilterButton nameFilter = new FilterButton("Filter by name");
+        FilterButton timeFilter = new FilterButton("Filter by time");
+        JLabel orderby = Utility.makeText("Order by:", roboto, 16f, Font.PLAIN, MyColor.DARK_GRAY, null);
+
+        String[] options = {"Name", "Group Age"};
+        RoundedComboBox<String> comboBox = new RoundedComboBox<>(options);
+        comboBox.setForeground(MyColor.DARK_GRAY);
+        comboBox.setFont(roboto);
+
+        String[] sortOptions = {"Ascending", "Descending"};
+        RoundedComboBox<String> asc_des = new RoundedComboBox<>(sortOptions);
+        asc_des.setForeground(MyColor.DARK_GRAY);
+        asc_des.setFont(roboto);
+
+        // Add filter controls
+        filterPanel.add(actBox);
+        filterPanel.add(compBox);
+        filterPanel.add(number);
+        filterPanel.add(nameFilter);
+        filterPanel.add(timeFilter);
+        filterPanel.add(Box.createHorizontalStrut(20));
+        filterPanel.add(orderby);
+        filterPanel.add(comboBox);
+        filterPanel.add(asc_des);
+
+        add(filterPanel);
+
+        // === Table ===
+        String[] headers = {"Username", "Open", "Chat with person", "Chat with group", "Time created"};
+        String[][] data = {
+                {"thaibao", "100", "2002", "12", "20/12/2005"},
+                {"thaibao", "100", "2002", "12", "20/12/2005"},
+                {"thaibao", "100", "2002", "12", "20/12/2005"},
+                {"thaibao", "100", "2002", "12", "20/12/2005"},
+                {"thaibao", "100", "2002", "12", "20/12/2005"},
+                {"thaibao", "100", "2002", "12", "20/12/2005"}
+        };
+
+        CustomTable table = new CustomTable(data, headers);
+        JScrollPane scroll = new JScrollPane(table);
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.setPreferredSize(new Dimension(1920, 800));
+        add(scroll);
+
+        // Stretch content
+        add(Box.createVerticalGlue());
+    }
+}
