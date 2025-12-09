@@ -117,7 +117,7 @@ public class ProfilePopup extends JDialog {
         //Add new password fields
         addField(gbc, row++, "Old Password:", new JPasswordField(20));
         addField(gbc, row++, "New Password:", new JPasswordField(20));
-        addField(gbc, row++, "Confirm New:", new JPasswordField(20));
+        addField(gbc, row++, "Confirm New Password:", new JPasswordField(20));
 
         //Add Submit button (bottom-right)
         RoundedButton back = new RoundedButton(20);

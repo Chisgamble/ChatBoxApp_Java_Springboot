@@ -17,6 +17,7 @@ public class UserService {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
+    private final EmailService emailService;
 
     public boolean exist(String email){
         return userRepo.existsByEmail(email);
@@ -46,5 +47,40 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         return userMapper.toLoginResDTO(user);
+    }
+
+    public void resetPasswordAndSendEmail(String email) {
+
+        AppUser user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // 1) Tạo mật khẩu random
+        String newPass = generateRandomPassword(10);
+
+        // 2) encode và save
+        user.setPassword(passwordEncoder.encode(newPass));
+        userRepo.save(user);
+
+        // 3) gửi email
+        emailService.sendMail(email,
+                "Password Reset",
+                "Your new password for ChatBox's account is: " + newPass
+        );
+    }
+
+    public void updatePassword(Long userId, String newPassword) {
+
+        AppUser user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepo.save(user);
+    }
+
+    private String generateRandomPassword(int length) {
+        return java.util.UUID.randomUUID()
+                .toString()
+                .replace("-", "")
+                .substring(0, length);
     }
 }

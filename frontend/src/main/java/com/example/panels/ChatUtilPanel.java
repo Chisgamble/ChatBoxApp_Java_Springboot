@@ -25,6 +25,7 @@ import java.util.List;
 public class ChatUtilPanel extends JPanel implements SearchBarListener {
     ChatScreen mainFrame;
 
+
     JPanel topContainer = new JPanel();
     JPanel centerContainer = new JPanel();
     Component listContainer = null;

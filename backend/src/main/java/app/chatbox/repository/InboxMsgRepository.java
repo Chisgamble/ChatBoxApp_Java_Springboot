@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface InboxMsgRepository extends JpaRepository<InboxMsg, Long> {
     List<InboxMsg> findTop20ByInbox_IdOrderByCreatedAtDesc(long inboxId);
+    List<InboxMsg> findTopByInbox_IdOrderByCreatedAtDesc(Long inboxId);
 }

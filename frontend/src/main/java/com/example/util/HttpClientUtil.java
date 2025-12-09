@@ -51,12 +51,8 @@ public class HttpClientUtil {
 
     public static void resetCookieManager() {
         cookieManager.getCookieStore().removeAll();
-//        cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);  // Create a new CookieManager
+        cookieManager = new CookieManager(null, CookiePolicy.ACCEPT_ALL);  // Create a new CookieManager
         System.out.println("CookieManager has been reset.");
     }
 
-    // Get the current HttpClient (for making requests)
-    public static HttpClient getClient() {
-        return client;
-    }
 }

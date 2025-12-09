@@ -1,10 +1,9 @@
 package com.example.api;
 
+import com.example.dto.request.ChangePasswordReqDTO;
 import com.example.dto.request.LoginReqDTO;
-import com.example.dto.response.LogoutResDTO;
+import com.example.dto.response.*;
 import com.example.dto.request.RegisterReqDTO;
-import com.example.dto.response.LoginResDTO;
-import com.example.dto.response.RegisterResDTO;
 import com.example.util.HttpClientUtil;
 
 public class AuthApi {
@@ -28,5 +27,15 @@ public class AuthApi {
         String url = BASE_URL + "/logout";
         HttpClientUtil.get(url, LogoutResDTO.class);
         HttpClientUtil.resetCookieManager();
+    }
+
+    public GeneralResDTO changePassword(ChangePasswordReqDTO dto){
+        String url = BASE_URL + "/change-password";
+        return HttpClientUtil.postJson(url, dto, GeneralResDTO.class);
+    }
+
+    public GeneralResDTO resetPassword(ResetPasswordReqDTO dto){
+        String url = BASE_URL + "/reset-password";
+        return HttpClientUtil.postJson(url, dto, GeneralResDTO.class);
     }
 }

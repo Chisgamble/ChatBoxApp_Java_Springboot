@@ -6,6 +6,8 @@ import com.example.util.Utility;
 import com.example.components.*;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 
 
@@ -33,6 +35,18 @@ public class Signup extends JFrame{
             // or log in
             JLabel or_login = Utility.makeText("or login", font, 20f, Font.PLAIN, MyColor.LIGHT_BLUE, null);
             or_login.setAlignmentX(0.5f);
+            or_login.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            or_login.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    try {
+                        Signup.this.dispose();
+                        new Login();
+                    }catch(Exception ex){
+                        JOptionPane.showMessageDialog(Signup.this, "Error: " + ex.getMessage());
+                    }
+                }
+            });
 
             // Username
             JLabel usr_label = Utility.makeText("Username/email:", font, 20f, Font.BOLD, MyColor.LIGHT_BLACK, null);

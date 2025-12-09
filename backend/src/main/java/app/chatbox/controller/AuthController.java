@@ -1,7 +1,11 @@
 package app.chatbox.controller;
 
+import app.chatbox.config.CustomUserDetails;
+import app.chatbox.dto.request.ChangePasswordReqDTO;
 import app.chatbox.dto.request.LoginReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
+import app.chatbox.dto.request.ResetPasswordReqDTO;
+import app.chatbox.dto.response.GeneralResDTO;
 import app.chatbox.dto.response.LoginResDTO;
 import app.chatbox.dto.response.LogoutResDTO;
 import app.chatbox.dto.response.RegisterResDTO;
@@ -57,6 +61,28 @@ public class AuthController {
     public LogoutResDTO logout(HttpServletRequest req) {
         req.getSession().invalidate();
         return new LogoutResDTO("Logged out");
+    }
+
+    @PostMapping("/reset-password")
+    public GeneralResDTO resetPassword(@RequestBody ResetPasswordReqDTO req) {
+        userService.resetPasswordAndSendEmail(req.email());
+        return new GeneralResDTO("A new password has been sent to your email.");
+    }
+
+    @PostMapping("/change-password")
+    public GeneralResDTO changePassword(
+            @RequestBody ChangePasswordReqDTO req,
+            Authentication auth // lấy user hiện tại
+    ) {
+        CustomUserDetails user = (CustomUserDetails) auth.getPrincipal();
+
+        if (!passwordEncoder.matches(req.oldPassword(), user.getPassword())) {
+            throw new RuntimeException("Invalid old password");
+        }
+
+        userService.updatePassword(user.getId(), req.newPassword());
+
+        return new GeneralResDTO("Password updated successfully");
     }
 }
 
