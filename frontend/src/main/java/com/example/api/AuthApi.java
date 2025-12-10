@@ -12,7 +12,6 @@ public class AuthApi {
 
     public LoginResDTO login(LoginReqDTO dto){
         String url = BASE_URL + "/login";
-        HttpClientUtil.resetCookieManager();
         LoginResDTO response = HttpClientUtil.postJson(url, dto, LoginResDTO.class);
         return response;
     }

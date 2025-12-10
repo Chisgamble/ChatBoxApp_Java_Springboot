@@ -2,7 +2,10 @@ package com.example.ui;
 
 import com.example.components.MyColor;
 import com.example.components.RoundedButton;
+import com.example.dto.request.ChangePasswordReqDTO;
+import com.example.dto.response.GeneralResDTO;
 import com.example.model.User;
+import com.example.services.AuthService;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,6 +15,7 @@ public class ProfilePopup extends JDialog {
     JPanel content = new JPanel();
     JLabel title = new JLabel();
     JFrame parent;
+    static final AuthService authService = new AuthService();
 
     public ProfilePopup(JFrame parent) {
         super(parent, "Profile", true); // true = modal
@@ -80,6 +84,7 @@ public class ProfilePopup extends JDialog {
         confirm.setBackground(MyColor.LIGHT_BLUE);
         confirm.setForeground(Color.WHITE);
 
+
         gbc.gridx = 1;
         gbc.gridy = row;
         gbc.weightx = 1;
@@ -115,9 +120,12 @@ public class ProfilePopup extends JDialog {
         int row = 0;
 
         //Add new password fields
-        addField(gbc, row++, "Old Password:", new JPasswordField(20));
-        addField(gbc, row++, "New Password:", new JPasswordField(20));
-        addField(gbc, row++, "Confirm New Password:", new JPasswordField(20));
+        JPasswordField oldPassField = new JPasswordField( 20);
+        JPasswordField newPassField = new JPasswordField( 20);
+        JPasswordField confirmPassField = new JPasswordField( 20);
+        addField(gbc, row++, "Old Password", oldPassField);
+        addField(gbc, row++, "New Password:", newPassField);
+        addField(gbc, row++, "Confirm New Password:", confirmPassField);
 
         //Add Submit button (bottom-right)
         RoundedButton back = new RoundedButton(20);
@@ -138,6 +146,56 @@ public class ProfilePopup extends JDialog {
         submit.setText("Submit");
         submit.setBackground(MyColor.LIGHT_BLUE);
         submit.setForeground(Color.WHITE);
+
+        submit.addActionListener(e -> {
+            String oldPass = new String(oldPassField.getPassword());
+            String newPass = new String(newPassField.getPassword());
+            String confirmPass = new String(confirmPassField.getPassword());
+
+            if (oldPass.isEmpty() || newPass.isEmpty() || confirmPass.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Please fill all fields.");
+                return;
+            }
+
+            if (!newPass.equals(confirmPass)) {
+                JOptionPane.showMessageDialog(this, "New passwords do not match.");
+                return;
+            }
+
+            // Disable button during loading
+            submit.setEnabled(false);
+
+            // Run API call in background
+            SwingWorker<GeneralResDTO, Void> worker = new SwingWorker<>() {
+                @Override
+                protected GeneralResDTO doInBackground() throws Exception {
+                    return authService.changePassword(oldPass, newPass);
+                }
+
+                @Override
+                protected void done() {
+                    submit.setEnabled(true); // re-enable
+                    try {
+                        GeneralResDTO res = get();
+                        JOptionPane.showMessageDialog(
+                            ProfilePopup.this,
+                            res.message() != null ? res.message() : "Password changed!"
+                        );
+                        showProfile();
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(
+                            ProfilePopup.this,
+                            "Error: " + ex.getMessage(),
+                            "Failed",
+                            JOptionPane.ERROR_MESSAGE
+                        );
+                    }
+                }
+            };
+
+            worker.execute();
+        });
+
 
         gbc.gridx = 1;
         gbc.gridy = row;

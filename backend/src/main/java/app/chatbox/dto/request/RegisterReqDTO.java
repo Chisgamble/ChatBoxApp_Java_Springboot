@@ -5,3 +5,4 @@ public record RegisterReqDTO(
     String email,
     String password
 ){}
+

@@ -16,7 +16,10 @@ import app.chatbox.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -43,18 +46,29 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public LoginResDTO login(@RequestBody LoginReqDTO req, HttpServletRequest http, HttpServletResponse res) {
+    public ResponseEntity<LoginResDTO> login(@RequestBody LoginReqDTO req, HttpServletRequest http, HttpServletResponse res) {
+        try {
+            Authentication auth = authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(req.email(), req.password())
+            );
 
-        Authentication auth = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.email(), req.password())
-        );
+            SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+            securityContext.setAuthentication(auth);
+            http.getSession(true); // Creates JSESSIONID
+            new HttpSessionSecurityContextRepository().saveContext(securityContext, http, res);
 
-        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-        securityContext.setAuthentication(auth);
-        http.getSession(true); // Creates JSESSIONID
-        new HttpSessionSecurityContextRepository().saveContext(securityContext, http, res);
-
-        return userService.login(req);
+            LoginResDTO loginRes = userService.login(req);
+            return ResponseEntity.ok(loginRes);
+        } catch (BadCredentialsException ex) {
+            // 401 Unauthorized for invalid credentials
+            LoginResDTO loginRes = new LoginResDTO(null, null, null, "Invalid email or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(loginRes);
+        } catch (Exception e) {
+            // 500 Internal Server Error for any other issue
+            LoginResDTO loginRes = new LoginResDTO(null, null, null,
+                    "Login failed: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(loginRes);
+        }
     }
 
     @GetMapping("/logout")

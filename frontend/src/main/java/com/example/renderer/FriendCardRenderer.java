@@ -58,16 +58,16 @@ public class FriendCardRenderer extends JPanel implements ListCellRenderer<Frien
             boolean cellHasFocus
     ) {
         // Update data
-        avatar.setInitials(user.user().initials());
-        nameLabel.setText(user.user().username());
+        avatar.setInitials(user.getUsername().substring(0,1).toUpperCase());
+        nameLabel.setText(user.getUsername());
         FlatSVGIcon icon;
-        if (user.user().isActive())
+        if (user.getIsActive())
             icon = new FlatSVGIcon("assets/online-icon.svg", 10, 10);
         else
             icon = new FlatSVGIcon("assets/offline-icon.svg", 10, 10);
         nameLabel.setIcon(icon);
-        if (user.lastMsg() != null)
-            userLabel.setText(user.lastMsg().content());
+        if (user.getContent() != null)
+            userLabel.setText(user.getContent());
 
         // Selection effect
         if (isSelected) {

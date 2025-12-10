@@ -10,6 +10,6 @@ public class FriendService {
     private final FriendApi api = new FriendApi();
 
     public List<FriendCardDTO> getAll (Long id){
-        return api.getAllFriends(id).friends();
+        return api.getAllFriends(id);
     }
 }

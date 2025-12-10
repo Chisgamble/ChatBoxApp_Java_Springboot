@@ -1,8 +1,10 @@
 package com.example.services;
 
 import com.example.api.AuthApi;
+import com.example.dto.request.ChangePasswordReqDTO;
 import com.example.dto.request.LoginReqDTO;
 import com.example.dto.request.RegisterReqDTO;
+import com.example.dto.response.GeneralResDTO;
 import com.example.dto.response.LoginResDTO;
 import com.example.dto.response.RegisterResDTO;
 
@@ -22,5 +24,10 @@ public class AuthService {
 
     public void logout() {
         api.logout();
+    }
+
+    public GeneralResDTO changePassword(String oldPass, String newPass){
+        ChangePasswordReqDTO dto = new ChangePasswordReqDTO(oldPass, newPass);
+        return api.changePassword(dto);
     }
 }

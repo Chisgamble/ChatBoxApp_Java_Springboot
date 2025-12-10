@@ -46,6 +46,12 @@
             <version>2.20.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Other Swing or utility dependencies if needed -->
     </dependencies>
 
