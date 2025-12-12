@@ -46,6 +46,7 @@ public class UserController {
         return userService.getAllUsers();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/getall/data")
     public UserListDTO getAllUsersAndData() {return userService.getAllUsersAndData();}
 
@@ -68,8 +69,6 @@ public class UserController {
     public void delete(@PathVariable Long id) {
         userService.delete(id);
     }
-
-
 
     @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")
     @GetMapping("/{id}/friends")

@@ -20,7 +20,7 @@ import java.util.List;
 public class FriendRequestController {
     private final FriendRequestService service;
 
-    @PreAuthorize("@authz.isCurrentUser(#req.userId) or hasRole('ADMIN')")
+    @PreAuthorize("@authz.currentUserId() == #req.receiverId or hasRole('ADMIN')")
     @PostMapping("/{id}")
     public ResponseEntity<UpdateFriendRequestResDTO> updateFriendRequest(
             @RequestBody UpdateFriendRequestReqDTO req,

@@ -16,4 +16,20 @@ public class AuthorizationHelper {
 
         return user.getId() == userId;  // So sánh session userId với client userId
     }
+
+    public Long currentUserId() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails user = (CustomUserDetails) auth.getPrincipal();
+        return user.getId();
+    }
+
+    public boolean isAdmin() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    }
+
+    public boolean isAuthenticatedUser() {
+        return SecurityContextHolder.getContext().getAuthentication().isAuthenticated();
+    }
 }
