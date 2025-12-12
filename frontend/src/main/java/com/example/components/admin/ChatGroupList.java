@@ -88,7 +88,7 @@ public class ChatGroupList extends MainPanel {
 
     @Override
     protected void setUpTable() {
-    String[] headers = {"Chat group name", "Time created", ""};
+        String[] headers = {"Chat group name", "Time created", ""};
 
         table = new CustomTable(filtered, headers);
         JScrollPane scroll = new JScrollPane(table);
@@ -97,25 +97,25 @@ public class ChatGroupList extends MainPanel {
         add(scroll);
 
         // === Table buttons ===
-        for (int i = 0; i < data.size(); i++) {
-            // View Participants button
-            RoundedButton participants = new RoundedButton(15);
-            participants.setText("View Participants");
-            participants.setBackground(MyColor.LIGHT_BLUE);
-            participants.setForeground(Color.WHITE);
-            participants.setFocusPainted(false);
-            participants.setBorder(BorderFactory.createEmptyBorder(3, 10, 4, 10));
-            participants.setFont(ROBOTO.deriveFont(Font.PLAIN, 14f));
-
-            final int a = i;
-            participants.addActionListener(e -> openParticipantsDialog(data.get(a)));
-
-            JPanel participantsWrapper = new JPanel(new GridBagLayout());
-            participantsWrapper.setBackground(Color.WHITE);
-            participantsWrapper.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-            participantsWrapper.add(participants);
-            table.setCellComponent(i, 2, participantsWrapper);
-        }
+//        for (int i = 0; i < data.size(); i++) {
+//            // View Participants button
+//            RoundedButton participants = new RoundedButton(15);
+//            participants.setText("View Participants");
+//            participants.setBackground(MyColor.LIGHT_BLUE);
+//            participants.setForeground(Color.WHITE);
+//            participants.setFocusPainted(false);
+//            participants.setBorder(BorderFactory.createEmptyBorder(3, 10, 4, 10));
+//            participants.setFont(ROBOTO.deriveFont(Font.PLAIN, 14f));
+//
+//            final int a = i;
+//            participants.addActionListener(e -> openParticipantsDialog(data.get(a)));
+//
+//            JPanel participantsWrapper = new JPanel(new GridBagLayout());
+//            participantsWrapper.setBackground(Color.WHITE);
+//            participantsWrapper.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
+//            participantsWrapper.add(participants);
+//            table.setCellComponent(i, 2, participantsWrapper);
+//        }
 
         // Stretch content to fill
         add(Box.createVerticalGlue());

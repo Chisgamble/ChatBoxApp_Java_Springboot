@@ -1,16 +1,22 @@
 package app.chatbox.services;
 
 import app.chatbox.dto.UserMiniDTO;
+import app.chatbox.dto.FriendCardListDTO;
+import app.chatbox.dto.UserDTO;
+import app.chatbox.dto.UserListDTO;
 import app.chatbox.dto.request.LoginReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.LoginResDTO;
 import app.chatbox.dto.response.RegisterResDTO;
+import app.chatbox.dto.response.UserResDTO;
 import app.chatbox.mapper.UserMapper;
 import app.chatbox.model.AppUser;
 import app.chatbox.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +28,28 @@ public class UserService {
 
     public boolean exist(String email){
         return userRepo.existsByEmail(email);
+    }
+
+    public UserListDTO getAllUsersAndData(){
+        List<AppUser> users = userRepo.findAll();
+        return new UserListDTO(userMapper.toAppUserDTOList(users));
+    }
+
+    public List<UserResDTO> getAllUsers() {
+        return userRepo.findAll()
+                .stream()
+                .map(userMapper::toUserResDTO)
+                .toList();
+    }
+
+    public UserResDTO getById(Long id) {
+        AppUser user = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userMapper.toUserResDTO(user);
+    }
+
+    public void delete(Long id) {
+        userRepo.deleteById(id);
     }
 
     public RegisterResDTO register(RegisterReqDTO req) {

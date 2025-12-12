@@ -4,13 +4,15 @@ import com.example.components.*;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
 import com.example.components.user.FriendCard;
+import com.example.dto.UserDTO;
 import com.example.model.User;
 import com.example.util.Utility;
+import com.example.services.admin.UserListService;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -19,18 +21,28 @@ public class UserList extends MainPanel {
     private List<String> usernameFilter;
     private List<String> nameFilter;
     private List<String> statusFilter;
+    private UserListService userService;
 
     public UserList() {
+        userService = new UserListService();
+        List<UserDTO> users = userService.getAll();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(MyColor.WHITE_BG);
 
         //=== Data ===
-        data = Arrays.asList(
-                Arrays.asList("\uD83D\uDD12thaibao", "Nguyễn Thái Bảo", "Active", "Ho Chi Minh City", "2003-05-20", "Male", "bao@gmail.com", ""),
-                Arrays.asList("linhngoc", "Phạm Ngọc Linh", "Banned", "Da Nang", "2002-11-02", "Female", "linh@gmail.com", ""),
-                Arrays.asList("minhduc", "Trần Minh Đức", "Active", "Hanoi", "2001-08-12", "Male", "duc@gmail.com", "")
-        );
+        data = users.stream()
+                .map(u -> List.of(
+                        Utility.safeString(u.username()),
+                        Utility.safeString(u.name()),
+                        Utility.safeBool(u.is_active()),
+                        Utility.safeString(u.address()),
+                        Utility.safeString(u.dob()),
+                        Utility.safeString(u.gender()),
+                        Utility.safeString(u.email())
+                ))
+                .toList();
+
         filtered = new ArrayList<>(data);
         usernameFilter = new ArrayList<>();
         nameFilter = new ArrayList<>();
@@ -39,90 +51,25 @@ public class UserList extends MainPanel {
         refreshTable();
     }
 
-    protected void setUpTable(){
-        String[] headers = {"Username","Full name","Status","Address","Date of birth","Gender","Email",""};
+    protected void setUpTable() {
+        // 1. Bỏ header rỗng cuối cùng đi (chỉ còn 7 cột)
+        String[] headers = {"Username", "Full name", "Status", "Address", "Date of birth", "Gender", "Email"};
 
         table = new CustomTable(filtered, headers);
-
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder());
-        scroll.setPreferredSize(new Dimension(1920, 800));
+        scroll.setPreferredSize(new Dimension(1850, 600));
         add(scroll);
-        // === Status + Action column customization ===
+
         for (int i = 0; i < filtered.size(); i++) {
-
-            // button column
-            String[] options = {"Lock","Login history", "Update","Update password", "Refresh password","Friend list","Delete"};
-            JLabel option = new JLabel("…"); // Unicode 2026
-            option.setFont(new Font("Arial", Font.BOLD, 24));
-            option.setForeground(Color.DARK_GRAY);
-            option.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            JPopupMenu popupMenu = new JPopupMenu();
-
-            for (String item : options){
-                String text = item;
-                final int index = i;
-                if(filtered.get(i).get(0).contains("\uD83D\uDD12") && item.equals("Lock")){
-                    text = "Unlock";
-                }
-                JMenuItem promoteItem = new JMenuItem(text);
-                popupMenu.add(promoteItem);
-                if(item.equals("Lock")){
-                    promoteItem.addActionListener(e ->{
-                        if(filtered.get(index).get(0).contains("\uD83D\uDD12")){
-                            filtered.get(index).set(0, filtered.get(index).get(0).replace("\uD83D\uDD12", ""));
-                        }
-                        else{
-                            filtered.get(index).set(0, "\uD83D\uDD12" + filtered.get(index).get(0));
-                        }
-                        refreshTable();
-                    });
-                }
-                if(item.equals("Friend list")){
-                    promoteItem.addActionListener(e -> {
-                        userFriendPopup();
-                    });
-                }
-                if(item.equals("Update")){
-                    promoteItem.addActionListener(e -> {
-                        updateUserPopup();
-                    });
-                }
-                if(item.equals("Login history")){
-                    promoteItem.addActionListener(e ->{
-                        userLoginPopup(filtered.get(index).get(0));
-                    });
-                }
-                if(item.equals("Update password")){
-                    promoteItem.addActionListener(e -> {
-                        updatePasswordPopup(filtered.get(index).get(0));
-                    });
-                }
-            }
-
-            option.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    popupMenu.show(option, 0, option.getHeight());
-                    System.out.print(true);
-                }
-            });
-
-            JPanel btnWrap = new JPanel(new GridBagLayout());
-            btnWrap.add(option);
-            btnWrap.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-            table.setCellComponent(i, 7, btnWrap);
-
-            // status color
             String status = filtered.get(i).get(2).toLowerCase();
             Color statusColor = switch (status) {
-                case "active" -> Color.GREEN;
-                case "banned" -> Color.RED;
+                case "true" -> Color.GREEN;
+                case "false" -> Color.RED;
                 case "offline" -> Color.GRAY;
                 default -> Color.BLACK;
             };
 
-            // circle
             JPanel circle = new JPanel() {
                 @Override
                 protected void paintComponent(Graphics g) {
@@ -141,7 +88,84 @@ public class UserList extends MainPanel {
 
             table.setCellComponent(i, 2, statusWrap);
         }
+
+//      Chuot phai
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                handleContextMenu(e);
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+                handleContextMenu(e);
+            }
+
+            private void handleContextMenu(MouseEvent e) {
+                // Kiểm tra xem có phải là nút kích hoạt popup (thường là chuột phải)
+                if (e.isPopupTrigger()) {
+                    // Lấy vị trí dòng dựa trên toạ độ chuột
+                    int row = table.rowAtPoint(e.getPoint());
+
+                    // Nếu click vào một dòng hợp lệ
+                    if (row >= 0 && row < table.getRowCount()) {
+                        // Tự động bôi đen (select) dòng đó
+                        table.setRowSelectionInterval(row, row);
+
+                        // Hiển thị menu
+                        showUserActionMenu(e, row);
+                    }
+                }
+            }
+        });
+
         add(Box.createVerticalGlue());
+    }
+
+    // === Hàm tạo và hiển thị Menu (Tách ra cho gọn) ===
+    private void showUserActionMenu(MouseEvent e, int index) {
+        JPopupMenu popupMenu = new JPopupMenu();
+        String[] options = {"Lock", "Login history", "Update", "Update password", "Refresh password", "Friend list", "Delete"};
+
+        String currentUsername = filtered.get(index).get(0);
+
+        for (String item : options) {
+            String text = item;
+
+            if (currentUsername.contains("\uD83D\uDD12") && item.equals("Lock")) {
+                text = "Unlock";
+            }
+
+            JMenuItem menuItem = new JMenuItem(text);
+            popupMenu.add(menuItem);
+
+            // --- Xử lý sự kiện cho từng menu item ---
+            if (item.equals("Lock")) {
+                menuItem.addActionListener(evt -> {
+                    if (filtered.get(index).get(0).contains("\uD83D\uDD12")) {
+                        filtered.get(index).set(0, filtered.get(index).get(0).replace("\uD83D\uDD12", ""));
+                    } else {
+                        filtered.get(index).set(0, "\uD83D\uDD12" + filtered.get(index).get(0));
+                    }
+                    refreshTable();
+                });
+            }
+            else if (item.equals("Friend list")) {
+                menuItem.addActionListener(evt -> userFriendPopup());
+            }
+            else if (item.equals("Update")) {
+                menuItem.addActionListener(evt -> updateUserPopup());
+            }
+            else if (item.equals("Login history")) {
+                menuItem.addActionListener(evt -> userLoginPopup(currentUsername));
+            }
+            else if (item.equals("Update password")) {
+                menuItem.addActionListener(evt -> updatePasswordPopup(currentUsername));
+            }
+            // Thêm các case khác (Refresh password, Delete) nếu cần
+        }
+
+        popupMenu.show(e.getComponent(), e.getX(), e.getY());
     }
 
     protected void  buildFilterPanel() {
@@ -166,7 +190,6 @@ public class UserList extends MainPanel {
         usernameFilterBtn.addFilterAction(usernameFilter, this::setUpFiltered, this::refreshTable);
         filterPanel.add(usernameFilterBtn);
 
-        //username filter tags
         for(String item : usernameFilter){
             RoundedButton b = new RoundedButton(10);
             b.setText(item);

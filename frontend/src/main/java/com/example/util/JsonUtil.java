@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.util.List;
+
 public class JsonUtil {
 
     private static final ObjectMapper mapper = new ObjectMapper();
@@ -32,6 +34,18 @@ public class JsonUtil {
             return mapper.readValue(json, typeRef);
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse JSON to generic type", e);
+        }
+    }
+
+    public static <T> List<T> fromJsonList(String json, Class<T> clazz) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(
+                    json,
+                    mapper.getTypeFactory().constructCollectionType(List.class, clazz)
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse JSON", e);
         }
     }
 }

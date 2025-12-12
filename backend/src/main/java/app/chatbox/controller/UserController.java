@@ -1,7 +1,13 @@
 package app.chatbox.controller;
 
 import app.chatbox.dto.FriendCardDTO;
+import app.chatbox.dto.UserDTO;
+import app.chatbox.dto.UserListDTO;
+import app.chatbox.dto.request.LoginReqDTO;
+import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.FriendRequestResDTO;
+import app.chatbox.dto.response.LoginResDTO;
+import app.chatbox.dto.response.RegisterResDTO;
 import app.chatbox.dto.response.UserResDTO;
 import app.chatbox.model.AppUser;
 import app.chatbox.services.FriendRequestService;
@@ -21,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 import app.chatbox.repository.UserRepository;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -32,15 +39,24 @@ public class UserController {
     private final UserRepository repo;
     private final FriendService friendService;
     private final FriendRequestService friendRequestService;
+    private final UserService userService;
 
     @GetMapping("/getall")
-    public List<AppUser> getAllUsers() {
-        return repo.findAll();
+    public List<UserResDTO> getAllUsers() {
+        return userService.getAllUsers();
     }
 
+    @GetMapping("/getall/data")
+    public UserListDTO getAllUsersAndData() {return userService.getAllUsersAndData();}
+
     @GetMapping("/{id}")
-    public AppUser getUser(@PathVariable Long id) {
-        return repo.findById(id).orElse(null);
+    public UserResDTO getById(@PathVariable Long id) {
+        return userService.getById(id);
+    }
+
+    @PostMapping("/register")
+    public RegisterResDTO register(@RequestBody RegisterReqDTO req) {
+        return userService.register(req);
     }
 
 //    @PostMapping
@@ -49,8 +65,8 @@ public class UserController {
 //    }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
-        repo.deleteById(id);
+    public void delete(@PathVariable Long id) {
+        userService.delete(id);
     }
 
 

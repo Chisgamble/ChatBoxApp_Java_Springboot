@@ -28,6 +28,9 @@ public class AppUser {
     @Column(name="username", length = 50, nullable = false)
     private String username;
 
+    @Column(name="name", length = 50)
+    private String name;
+
     @Column(name="password", length = 100, nullable=false)
     private String password; // lưu hash (bcrypt)
 
@@ -50,6 +53,7 @@ public class AppUser {
     @Column(name = "role", nullable = false)
     private String role;
 
+    @Column(name="is_locked")
     private Boolean is_locked = false;
 
     @Column(name = "created_at",updatable = false)
