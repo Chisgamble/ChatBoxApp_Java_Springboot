@@ -1,16 +1,20 @@
 package com.example.ui;
 
 import com.example.components.admin.*;
+import com.example.dto.UserMiniDTO;
+import com.example.dto.response.LoginResDTO;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class AdminDashboard extends JFrame {
-
+    UserMiniDTO user;
     private CardLayout cardLayout;
     private JPanel cardPanel;
 
-    public AdminDashboard() {
+    public AdminDashboard(UserMiniDTO user) {
+        this.user = user;
+
         // Sidebar and TopBar
         Sidebar sidebar = new Sidebar();
         TopBar topbar = new TopBar();

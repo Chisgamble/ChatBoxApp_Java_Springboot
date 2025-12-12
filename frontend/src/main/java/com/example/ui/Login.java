@@ -110,7 +110,10 @@ public class Login extends JFrame{
                     LoginResDTO user = authService.login(email, pwd);
                     JOptionPane.showMessageDialog(this, "Login successfully!");
                     this.dispose();
-                    new ChatScreen(user.getUser());
+                    if (user.getUser().getRole().equals("user"))
+                        new ChatScreen(user.getUser());
+                    else
+                        new AdminDashboard(user.getUser());
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
                 }
