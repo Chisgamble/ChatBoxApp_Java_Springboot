@@ -1,5 +1,6 @@
 package app.chatbox.services;
 
+import app.chatbox.dto.UserMiniDTO;
 import app.chatbox.dto.request.LoginReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.LoginResDTO;
@@ -42,11 +43,10 @@ public class UserService {
         return userMapper.toRegisterResDTO(saved);
     }
 
-    public LoginResDTO login(LoginReqDTO req) {
-        AppUser user = userRepo.findByEmail(req.email())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public UserMiniDTO login(LoginReqDTO req) {
+        UserMiniDTO user = userRepo.findMiniByEmail(req.email());
 
-        return userMapper.toLoginResDTO(user);
+        return user;
     }
 
     public void resetPasswordAndSendEmail(String email) {

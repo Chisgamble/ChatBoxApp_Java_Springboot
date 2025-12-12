@@ -1,13 +1,16 @@
 package app.chatbox.controller;
 
+import app.chatbox.dto.request.UpdateFriendRequestReqDTO;
 import app.chatbox.dto.response.FriendRequestResDTO;
+import app.chatbox.dto.response.UpdateFriendRequestResDTO;
 import app.chatbox.model.AppUser;
 import app.chatbox.services.FriendRequestService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatusCode;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -17,9 +20,12 @@ import java.util.List;
 public class FriendRequestController {
     private final FriendRequestService service;
 
-    @GetMapping("/incoming")
-    public List<FriendRequestResDTO> getIncomingRequests(
-            @AuthenticationPrincipal AppUser currentUser) {
-        return service.getIncomingRequests(currentUser.getId());
+    @PreAuthorize("@authz.isCurrentUser(#req.userId) or hasRole('ADMIN')")
+    @PostMapping("/{id}")
+    public ResponseEntity<UpdateFriendRequestResDTO> updateFriendRequest(
+            @RequestBody UpdateFriendRequestReqDTO req,
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(service.updateFriendRequest(req, id));
     }
 }

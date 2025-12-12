@@ -30,29 +30,4 @@ public class FriendCardDTO {
         this.content = content;
     }
 
-    // Getters and Setters
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public void setSenderId(long senderId) {
-        this.senderId = senderId;
-    }
-
-    public void setInboxId(long inboxId) {
-        this.inboxId = inboxId;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public void setIsActive(Boolean isActive) {
-        this.isActive = isActive;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
-    }
 }

@@ -1,14 +1,18 @@
 package app.chatbox.repository;
 
 import app.chatbox.dto.FriendCardDTO;
+import app.chatbox.model.AppUser;
 import app.chatbox.model.Friend;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface FriendRepository extends JpaRepository<Friend, Long> {
     List<Friend> findByUserA_IdOrUserB_Id(Long userAId, Long userBId);
+    Friend findByUserA_IdAndUserB_Id(Long userAId, Long userBId);
+    Optional<Friend> findByUserAAndUserB(AppUser userA, AppUser userB);
 
     @Query(value = """
         SELECT 

@@ -1,6 +1,7 @@
 package app.chatbox.controller;
 
 import app.chatbox.config.CustomUserDetails;
+import app.chatbox.dto.UserMiniDTO;
 import app.chatbox.dto.request.ChangePasswordReqDTO;
 import app.chatbox.dto.request.LoginReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
@@ -57,36 +58,37 @@ public class AuthController {
             http.getSession(true); // Creates JSESSIONID
             new HttpSessionSecurityContextRepository().saveContext(securityContext, http, res);
 
-            LoginResDTO loginRes = userService.login(req);
+            UserMiniDTO user = userService.login(req);
+            LoginResDTO loginRes = new LoginResDTO(user, "Success");
             return ResponseEntity.ok(loginRes);
         } catch (BadCredentialsException ex) {
             // 401 Unauthorized for invalid credentials
-            LoginResDTO loginRes = new LoginResDTO(null, null, null, "Invalid email or password");
+            LoginResDTO loginRes = new LoginResDTO(null,  "Invalid email or password");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(loginRes);
         } catch (Exception e) {
             // 500 Internal Server Error for any other issue
-            LoginResDTO loginRes = new LoginResDTO(null, null, null,
+            LoginResDTO loginRes = new LoginResDTO(null,
                     "Login failed: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(loginRes);
         }
     }
 
     @GetMapping("/logout")
-    public LogoutResDTO logout(HttpServletRequest req) {
+    public ResponseEntity<LogoutResDTO> logout(HttpServletRequest req) {
         req.getSession().invalidate();
-        return new LogoutResDTO("Logged out");
+        return ResponseEntity.ok(new LogoutResDTO("Logged out"));
     }
 
     @PostMapping("/reset-password")
-    public GeneralResDTO resetPassword(@RequestBody ResetPasswordReqDTO req) {
+    public ResponseEntity<GeneralResDTO> resetPassword(@RequestBody ResetPasswordReqDTO req) {
         userService.resetPasswordAndSendEmail(req.email());
-        return new GeneralResDTO("A new password has been sent to your email.");
+        return ResponseEntity.ok(new GeneralResDTO("A new password has been sent to your email."));
     }
 
     @PostMapping("/change-password")
-    public GeneralResDTO changePassword(
+    public ResponseEntity<GeneralResDTO> changePassword(
             @RequestBody ChangePasswordReqDTO req,
-            Authentication auth // lấy user hiện tại
+            Authentication auth
     ) {
         CustomUserDetails user = (CustomUserDetails) auth.getPrincipal();
 
@@ -95,8 +97,7 @@ public class AuthController {
         }
 
         userService.updatePassword(user.getId(), req.newPassword());
-
-        return new GeneralResDTO("Password updated successfully");
+        return ResponseEntity.ok(new GeneralResDTO("Password updated successfully"));
     }
 }
 

@@ -1,11 +1,17 @@
 package app.chatbox.controller;
 
+import app.chatbox.dto.FriendCardDTO;
+import app.chatbox.dto.response.FriendRequestResDTO;
 import app.chatbox.dto.response.UserResDTO;
 import app.chatbox.model.AppUser;
+import app.chatbox.services.FriendRequestService;
+import app.chatbox.services.FriendService;
 import app.chatbox.services.UserService;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,13 +26,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserRepository repo;
-
-    public UserController(UserRepository repo) {
-        this.repo = repo;
-    }
+    private final FriendService friendService;
+    private final FriendRequestService friendRequestService;
 
     @GetMapping("/getall")
     public List<AppUser> getAllUsers() {
@@ -48,18 +53,19 @@ public class UserController {
         repo.deleteById(id);
     }
 
-//    @PostMapping("/login")
-//    public AppUser login(@RequestBody AppUser user) {
-//        return repo.save(user);
-//    }
-//
-//    @PostMapping("/register")
-//    public int signup(@RequestBody AppUser user) {
-//        if (user.getUsername().trim().isEmpty()){
-//
-//        }
-//        return repo.save(user);
-//    }
+
+
+    @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")
+    @GetMapping("/{id}/friends")
+    public ResponseEntity<List<FriendCardDTO>> getAllFriendCards(@PathVariable Long id) {
+        return ResponseEntity.ok(friendService.getAllFriends(id));
+    }
+
+    @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")
+    @GetMapping("/{id}/friend-requests")
+    public ResponseEntity<List<FriendRequestResDTO>> getIncomingRequests(@PathVariable Long id) {
+        return ResponseEntity.ok(friendRequestService.getIncomingRequests(id));
+    }
 
     @GetMapping("/hello")
     public ResponseEntity<String> sayHello() {

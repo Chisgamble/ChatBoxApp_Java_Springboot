@@ -11,23 +11,36 @@ import com.example.components.RoundedComboBox;
 import com.example.components.user.*;
 import com.example.dto.FriendCardDTO;
 import com.example.dto.InboxDTO;
+import com.example.dto.UserMiniDTO;
+import com.example.dto.response.FriendRequestResDTO;
+import com.example.listener.FriendRequestListener;
 import com.example.listener.SearchBarListener;
 import com.example.listener.UserMenuListener;
 import com.example.model.Msg;
 import com.example.model.User;
 import com.example.services.AuthService;
+import com.example.services.FriendRequestService;
+import com.example.services.FriendService;
+import com.example.services.UserService;
 import com.example.ui.ChatScreen;
 import com.example.ui.ProfilePopup;
 
-public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBarListener {
+public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBarListener, FriendRequestListener {
     ChatScreen mainFrame;
     JPanel topContainer;
     JPanel centerContainer;
     RoundedComboBox<String> comboBox;
     SearchBar sb;
     Component list = null;
+
+    UserService userService = new UserService();
+    FriendService friendService = new FriendService();
+    FriendRequestService friendRequestService = new FriendRequestService();
+
+    UserMiniDTO user;
     List<InboxDTO> inboxes;
     List<FriendCardDTO> friends;
+    List<FriendRequestResDTO> friend_requests;
     List<User> allUsers = new ArrayList<>( List.of(
             new User("Sammael"),
             new User("Chris"),
@@ -51,11 +64,12 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     );
     String cur_option;
 
-    public UserUtilPanel(ChatScreen mainFrame, int width, int height, List<InboxDTO> inboxes, List<FriendCardDTO> friends) {
+    public UserUtilPanel(ChatScreen mainFrame, int width, int height, UserMiniDTO user) {
         this.cur_option = "Friends";
         this.mainFrame = mainFrame;
-        this.inboxes = inboxes;
-        this.friends = friends;
+        this.inboxes = null;
+        this.user = user;
+        this.friends = userService.getAllFriends(user.getId());
 
         this.setPreferredSize(new Dimension(width, height));
         this.setLayout(new BorderLayout());
@@ -131,7 +145,8 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     void updateList(List<User> users){
         boolean showOnline = false;
         if (cur_option.equals("Friend request") ){
-            list = new FriendRequestList(users, getWidth() - 15);
+            List<FriendRequestResDTO> friend_requests = userService.getAllFriendRequests(user.getId());
+            list = new FriendRequestList(friend_requests, getWidth() - 15, this);
         }else if(cur_option.equals("Friends")){
             list = new FriendCardList(friends, getWidth() - 15);
             showOnline = true;
@@ -172,5 +187,54 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
         comboBox.setVisible(showOnline);
         sb.setPreferredSize(new Dimension(getWidth() - (showOnline ? 110 : 20), 30));
     }
+
+//    @Override
+//    public void onPromote(User user) {
+//        api.promoteMember(user.getId(),
+//                () -> JOptionPane.showMessageDialog(this, "Promoted " + user.getName()),
+//                () -> JOptionPane.showMessageDialog(this, "Failed to promote")
+//        );
+//    }
+//
+//    @Override
+//    public void onRemove(User user) {
+//        api.removeMember(user.getId(),
+//                () -> JOptionPane.showMessageDialog(this, "Removed " + user.getName()),
+//                () -> JOptionPane.showMessageDialog(this, "Failed to remove")
+//        );
+//    }
+
+    @Override
+    public void onAccept(FriendRequestResDTO friend) {
+        try {
+            friendRequestService.updateFriendRequest(friend, this.user.getId(), "accepted");
+            JOptionPane.showMessageDialog(this, "You are now friend with " + friend.getSenderUsername());
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(this, "Failed to accept\n" + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onReject(FriendRequestResDTO friend) {
+        try {
+            friendRequestService.updateFriendRequest(friend, this.user.getId(), "rejected");
+            JOptionPane.showMessageDialog(this, "You are now friend with " + friend.getSenderUsername());
+        }catch(Exception e){
+            JOptionPane.showMessageDialog(this, "Failed to reject\n" + e.getMessage());
+        }
+    }
+
+
+    private void loadFriendRequests() {
+        List<FriendRequestResDTO> requests = friendRequestService.getAll(user.getId());
+        FriendRequestList list = new FriendRequestList(requests, 400, this);
+        add(list);
+    }
+
+//    private void loadGroupMembers() {
+//        List<User> members = api.getGroupMembers();
+//        MemberCardList list = new MemberCardList(members, 400, true, this);
+//        add(list);
+//    }
 
 }

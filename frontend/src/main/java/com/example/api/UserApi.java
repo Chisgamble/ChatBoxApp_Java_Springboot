@@ -1,0 +1,24 @@
+package com.example.api;
+
+import com.example.dto.FriendCardDTO;
+import com.example.dto.response.FriendRequestResDTO;
+import com.example.util.HttpClientUtil;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import java.util.List;
+
+public class UserApi {
+    private static final String BASE_URL = "http://localhost:8080/api/users";
+
+    public List<FriendCardDTO> getAllFriends(Long userId){
+        String url = BASE_URL + "/" + userId.toString() + "/friends";
+        List<FriendCardDTO> response = HttpClientUtil.get(url, new TypeReference<List<FriendCardDTO>>() {});
+        return response;
+    }
+
+    public List<FriendRequestResDTO> getAllFriendRequests(Long userId){
+        String url = BASE_URL + "/" + userId.toString() + "/friend-requests";
+        List<FriendRequestResDTO> response = HttpClientUtil.get(url, new TypeReference<List<FriendRequestResDTO>>() {});
+        return response;
+    }
+}

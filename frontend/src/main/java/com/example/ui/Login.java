@@ -1,5 +1,6 @@
 package com.example.ui;
 
+import com.example.dto.UserMiniDTO;
 import com.example.dto.response.LoginResDTO;
 import com.example.services.AuthService;
 import com.example.util.Utility;
@@ -109,7 +110,7 @@ public class Login extends JFrame{
                     LoginResDTO user = authService.login(email, pwd);
                     JOptionPane.showMessageDialog(this, "Login successfully!");
                     this.dispose();
-                    new ChatScreen(user);
+                    new ChatScreen(user.getUser());
                 } catch (Exception ex) {
                     JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
                 }

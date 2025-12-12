@@ -1,7 +1,8 @@
 package com.example.components.user;
 
 import com.example.components.Avatar;
-import com.example.model.User;
+import com.example.dto.response.FriendRequestResDTO;
+import com.example.listener.FriendRequestListener;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -10,7 +11,11 @@ import java.awt.*;
 
 public class FriendRequestCard extends JPanel {
 
-    public FriendRequestCard(User user, int width) {
+    public FriendRequestCard(
+            FriendRequestResDTO req,
+            int width,
+            FriendRequestListener listener,
+            FriendRequestList parentList) {
         this.setLayout(new BorderLayout(10, 0));
         this.setOpaque(false);
         this.setPreferredSize(new Dimension(width, 60));
@@ -20,13 +25,13 @@ public class FriendRequestCard extends JPanel {
                 new MatteBorder(0,0,1,0, Color.BLACK),  // LineBorder for the border
                 new EmptyBorder(5,0,5,0)  // EmptyBorder for padding (10px on all sides)
         ));
-        Avatar avatar = new Avatar(user.getInitials());
+        Avatar avatar = new Avatar(req.getSenderUsername().substring(0,1).toUpperCase());
 
         JPanel westWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
         westWrapper.setOpaque(false); // optional, to be transparent
         westWrapper.add(avatar);
 
-        JLabel nameLabel = new JLabel(user.getName());
+        JLabel nameLabel = new JLabel(req.getSenderUsername());
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD,16f));
 
         JPanel options = new JPanel();
@@ -48,6 +53,17 @@ public class FriendRequestCard extends JPanel {
         reject.setOpaque(false);
         reject.setContentAreaFilled(false);
         reject.setFocusPainted(false);
+
+        // EVENTS
+        accept.addActionListener(e -> {
+            listener.onAccept(req);
+            parentList.removeCard(this);   // remove UI
+        });
+
+        reject.addActionListener(e -> {
+            listener.onReject(req);
+            parentList.removeCard(this);
+        });
 
         options.add(Box.createHorizontalStrut(40));
         options.add(accept);

@@ -1,7 +1,8 @@
 package com.example.api;
 
 import com.example.dto.FriendCardDTO;
-import com.example.dto.FriendCardListDTO;
+import com.example.dto.response.FriendRequestResDTO;
+import com.example.dto.response.UpdateFriendRequestResDTO;
 import com.example.util.HttpClientUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -15,4 +16,5 @@ public class FriendApi {
         List<FriendCardDTO> response = HttpClientUtil.get(url, new TypeReference<List<FriendCardDTO>>() {});
         return response;
     }
+
 }

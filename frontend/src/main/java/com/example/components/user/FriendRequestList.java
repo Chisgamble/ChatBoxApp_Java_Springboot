@@ -1,29 +1,42 @@
 package com.example.components.user;
 
-import com.example.model.User;
+import com.example.dto.response.FriendRequestResDTO;
 
 import javax.swing.*;
 
 import java.util.List;
 
-import com.example.renderer.FriendRequestCardRenderer;
+import com.example.listener.FriendRequestListener;
 
 public class FriendRequestList extends JScrollPane {
-    public FriendRequestList(List<User> users, int width) {
-        DefaultListModel<User> model = new DefaultListModel<>();
-        users.forEach(model::addElement);
 
-        JList<User> list = new JList<>(model);
-        list.setCellRenderer(new FriendRequestCardRenderer(width));
-        list.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+    JPanel listPanel;
+    List<FriendRequestResDTO> data;
 
-        list.setOpaque(false);
-        list.setFixedCellHeight(70); // slight extra padding
-        list.setBorder(null);
+    public FriendRequestList(List<FriendRequestResDTO> users,
+                                 int width,
+                                 FriendRequestListener listener) {
 
-        this.setViewportView(list);
-        this.setBorder(null);
+        this.data = users;
+
+        listPanel = new JPanel();
+        listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
+        listPanel.setOpaque(false);
+
+        for (FriendRequestResDTO u : users) {
+            listPanel.add(new FriendRequestCard(u, width, listener, this));
+        }
+
+        this.setViewportView(listPanel);
         this.setOpaque(false);
         this.getViewport().setOpaque(false);
     }
+
+    // helper method để xóa item khỏi UI
+    public void removeCard(FriendRequestCard card) {
+        listPanel.remove(card);
+        listPanel.revalidate();
+        listPanel.repaint();
+    }
 }
+

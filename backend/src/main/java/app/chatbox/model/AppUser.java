@@ -23,16 +23,13 @@ public class AppUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="ID")
-    private Long id;
+    private long id;
 
     @Column(name="username", length = 50, nullable = false)
     private String username;
 
     @Column(name="password", length = 100, nullable=false)
     private String password; // lưu hash (bcrypt)
-
-    @Column(name="name", length = 50)
-    private String name;
 
     @Column(name="address", length = 100)
     private String address;
