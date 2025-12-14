@@ -1,14 +1,11 @@
 package app.chatbox.services;
 
 import app.chatbox.dto.UserMiniDTO;
-import app.chatbox.dto.FriendCardListDTO;
-import app.chatbox.dto.UserDTO;
 import app.chatbox.dto.UserListDTO;
 import app.chatbox.dto.request.LoginReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
-import app.chatbox.dto.response.LoginResDTO;
 import app.chatbox.dto.response.RegisterResDTO;
-import app.chatbox.dto.response.UserResDTO;
+import app.chatbox.dto.response.StrangerCardResDTO;
 import app.chatbox.mapper.UserMapper;
 import app.chatbox.model.AppUser;
 import app.chatbox.repository.UserRepository;
@@ -35,14 +32,18 @@ public class UserService {
         return new UserListDTO(userMapper.toAppUserDTOList(users));
     }
 
-    public List<UserResDTO> getAllUsers() {
-        return userRepo.findAll()
-                .stream()
-                .map(userMapper::toUserResDTO)
-                .toList();
+    public UserMiniDTO findMiniById(Long id){
+        AppUser user = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        return new UserMiniDTO(user.getId(), user.getEmail(), user.getUsername(), user.getRole());
     }
 
-    public UserResDTO getById(Long id) {
+    public List<StrangerCardResDTO> getAllStrangerCards(Long id) {
+        return userRepo.findAllStrangerCards(id);
+    }
+
+    public StrangerCardResDTO getById(Long id) {
         AppUser user = userRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return userMapper.toUserResDTO(user);

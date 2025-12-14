@@ -185,7 +185,7 @@ public class UserList extends MainPanel {
         });
         filterPanel.add(addButton);
 
-        FilterButton usernameFilterBtn = new FilterButton("Filter by username");
+        FilterButton usernameFilterBtn = new FilterButton("Filter by groupname");
         //Username filter event
         usernameFilterBtn.addFilterAction(usernameFilter, this::setUpFiltered, this::refreshTable);
         filterPanel.add(usernameFilterBtn);

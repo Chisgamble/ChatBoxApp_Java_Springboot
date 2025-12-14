@@ -20,8 +20,8 @@ public interface FriendMapper {
 //    UserMiniDTO toDTO(AppUser user);
 //
 //    default String getInitials(AppUser user) {
-//        if (user.getUsername() == null || user.getUsername().isEmpty()) return "";
-//        return user.getUsername().substring(0, 1).toUpperCase();
+//        if (user.getGroupname() == null || user.getGroupname().isEmpty()) return "";
+//        return user.getGroupname().substring(0, 1).toUpperCase();
 //    }
 //
 //    default FriendCardDTO toFriendCardDTO(Friend friend, Long currentUserId) {

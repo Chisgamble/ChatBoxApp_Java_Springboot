@@ -1,6 +1,8 @@
 package app.chatbox.controller;
 
+import app.chatbox.dto.request.CreateFriendRequestReqDTO;
 import app.chatbox.dto.request.UpdateFriendRequestReqDTO;
+import app.chatbox.dto.response.CreateFriendRequestResDTO;
 import app.chatbox.dto.response.FriendRequestResDTO;
 import app.chatbox.dto.response.UpdateFriendRequestResDTO;
 import app.chatbox.model.AppUser;
@@ -20,7 +22,7 @@ import java.util.List;
 public class FriendRequestController {
     private final FriendRequestService service;
 
-    @PreAuthorize("@authz.currentUserId() == #req.receiverId or hasRole('ADMIN')")
+    @PreAuthorize("@authz.currentUserId() == #req.userId or hasRole('ADMIN')")
     @PostMapping("/{id}")
     public ResponseEntity<UpdateFriendRequestResDTO> updateFriendRequest(
             @RequestBody UpdateFriendRequestReqDTO req,
@@ -28,4 +30,14 @@ public class FriendRequestController {
     ) {
         return ResponseEntity.ok(service.updateFriendRequest(req, id));
     }
+
+    @PreAuthorize("@authz.isCurrentUser(#req.senderId) or hasRole('ADMIN')")
+    @PostMapping
+    public ResponseEntity<CreateFriendRequestResDTO> createFriendRequest(
+            @RequestBody CreateFriendRequestReqDTO req
+    ) {
+        return ResponseEntity.ok(service.createFriendRequest(req));
+    }
+
+
 }

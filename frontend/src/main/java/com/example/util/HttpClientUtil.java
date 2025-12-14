@@ -52,12 +52,17 @@ public class HttpClientUtil {
                 .GET()
                 .build();
 
+            System.out.println("DEBUG URL: " + url);
+
             HttpResponse<String> response =
                 client.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("DEBUG Response Body: " + response.body());
+
+            System.out.println("DEBUG Response Code: " + response.statusCode());
 
             return JsonUtil.fromJson(response.body(), responseType);
         } catch (Exception e) {
-            throw new RuntimeException("GET request failed", e);
+            throw new RuntimeException("GET request failed - HTTPUtil.get Class: ", e);
         }
     }
 

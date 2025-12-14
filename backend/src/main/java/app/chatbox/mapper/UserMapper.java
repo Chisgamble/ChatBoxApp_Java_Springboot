@@ -1,12 +1,10 @@
 package app.chatbox.mapper;
 
-import app.chatbox.dto.FriendCardDTO;
 import app.chatbox.dto.UserDTO;
 import app.chatbox.dto.response.LoginResDTO;
 import app.chatbox.dto.response.RegisterResDTO;
-import app.chatbox.dto.response.UserResDTO;
+import app.chatbox.dto.response.StrangerCardResDTO;
 import app.chatbox.model.AppUser;
-import app.chatbox.model.Friend;
 import org.mapstruct.Mapper;
 
 import java.util.List;
@@ -15,7 +13,7 @@ import java.util.List;
 public interface UserMapper {
     UserDTO toDTO(AppUser entity);
     AppUser toEntity(UserDTO dto);
-    UserResDTO toUserResDTO(AppUser entity);
+    StrangerCardResDTO toUserResDTO(AppUser entity);
     RegisterResDTO toRegisterResDTO(AppUser entity);
     LoginResDTO toLoginResDTO(AppUser entity);
 

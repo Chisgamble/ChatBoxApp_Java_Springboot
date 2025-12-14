@@ -1,8 +1,6 @@
 package com.example.api;
 
 import com.example.dto.FriendCardDTO;
-import com.example.dto.response.FriendRequestResDTO;
-import com.example.dto.response.UpdateFriendRequestResDTO;
 import com.example.util.HttpClientUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 

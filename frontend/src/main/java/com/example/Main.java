@@ -1,5 +1,6 @@
 package com.example;
 
+import com.example.dto.UserMiniDTO;
 import com.example.ui.*;
 
 import javax.swing.*;
@@ -10,10 +11,11 @@ public class Main {
         SwingUtilities.invokeLater(() ->{
             try {
 //                AdminDashboard cs = new AdminDashboard();
-                new Signup();
+                new Login();
+                // UserMiniDTO user = new UserMiniDTO(3, "ryoshu@gmail.com", "Ryoshu", "user", "R");
 //                AuthService authService = new AuthService();
 //                LoginResDTO user = authService.login("ryoshu@gmail.com", "OLPASMTHNWTRTBTLIU");
-//                new ChatScreen(user);
+            //    new ChatScreen(user);
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }

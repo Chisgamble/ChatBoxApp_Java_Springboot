@@ -7,6 +7,8 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
+import java.util.function.Supplier;
+
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 public class FriendCardRenderer extends JPanel implements ListCellRenderer<FriendCardDTO> {
@@ -14,6 +16,9 @@ public class FriendCardRenderer extends JPanel implements ListCellRenderer<Frien
     private final Avatar avatar;
     private final JLabel nameLabel;
     private final JLabel userLabel;
+
+    private JList<?> list;
+    private Supplier<Integer> hoverIndexSupplier;
 
     public FriendCardRenderer(int width) {
         setLayout(new BorderLayout(10, 0));
@@ -49,6 +54,15 @@ public class FriendCardRenderer extends JPanel implements ListCellRenderer<Frien
         add(centerContainer, BorderLayout.CENTER);
     }
 
+    public void setHoverIndexSupplier(Supplier<Integer> supplier) {
+        this.hoverIndexSupplier = supplier;
+    }
+
+    public void setList(JList<?> list) {
+        this.list = list;
+    }
+
+
     @Override
     public Component getListCellRendererComponent(
             JList<? extends FriendCardDTO> list,
@@ -58,7 +72,7 @@ public class FriendCardRenderer extends JPanel implements ListCellRenderer<Frien
             boolean cellHasFocus
     ) {
         // Update data
-        avatar.setInitials(user.getUsername().substring(0,1).toUpperCase());
+        avatar.setInitials(user.getInitials());
         nameLabel.setText(user.getUsername());
         FlatSVGIcon icon;
         if (user.getIsActive())
@@ -66,15 +80,29 @@ public class FriendCardRenderer extends JPanel implements ListCellRenderer<Frien
         else
             icon = new FlatSVGIcon("assets/offline-icon.svg", 10, 10);
         nameLabel.setIcon(icon);
-        if (user.getContent() != null)
-            userLabel.setText(user.getContent());
 
-        // Selection effect
+        if (user.getContent() != null && !user.getContent().isBlank()) {
+            userLabel.setText(user.getContent());
+            userLabel.setVisible(true);
+        } else {
+            userLabel.setText("");          // reset
+            userLabel.setVisible(false);
+        }
+
+        boolean isHover = hoverIndexSupplier != null
+                && hoverIndexSupplier.get() == index;
+
         if (isSelected) {
-            setBackground(new Color(0xDDEAFF)); // light blue
+            setBackground(new Color(0xDDEAFF)); // xanh nhạt
+        } else if (isHover) {
+            setBackground(new Color(0xF0F0F0)); // xám nhạt
         } else {
             setBackground(Color.WHITE);
         }
+
+        // cursor
+        setCursor(isHover ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)
+                : Cursor.getDefaultCursor());
 
         return this;
     }

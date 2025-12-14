@@ -1,19 +1,14 @@
 package app.chatbox.controller;
 
 import app.chatbox.dto.FriendCardDTO;
-import app.chatbox.dto.UserDTO;
 import app.chatbox.dto.UserListDTO;
-import app.chatbox.dto.request.LoginReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.FriendRequestResDTO;
-import app.chatbox.dto.response.LoginResDTO;
 import app.chatbox.dto.response.RegisterResDTO;
-import app.chatbox.dto.response.UserResDTO;
-import app.chatbox.model.AppUser;
+import app.chatbox.dto.response.StrangerCardResDTO;
 import app.chatbox.services.FriendRequestService;
 import app.chatbox.services.FriendService;
 import app.chatbox.services.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 import app.chatbox.repository.UserRepository;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -36,14 +30,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserRepository repo;
     private final FriendService friendService;
     private final FriendRequestService friendRequestService;
     private final UserService userService;
 
-    @GetMapping("/getall")
-    public List<UserResDTO> getAllUsers() {
-        return userService.getAllUsers();
+//    @GetMapping("/")
+//    public List<StrangerCardResDTO> getAllUsers() {
+//        return userService.getAllStrangerCards();
+//    }
+    @PreAuthorize("@authz.isCurrentUser(#id)")
+    @GetMapping("/{id}/strangers")
+    public ResponseEntity<List<StrangerCardResDTO>> getAllStrangers(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getAllStrangerCards(id));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -51,7 +49,7 @@ public class UserController {
     public UserListDTO getAllUsersAndData() {return userService.getAllUsersAndData();}
 
     @GetMapping("/{id}")
-    public UserResDTO getById(@PathVariable Long id) {
+    public StrangerCardResDTO getById(@PathVariable Long id) {
         return userService.getById(id);
     }
 
@@ -61,7 +59,7 @@ public class UserController {
     }
 
 //    @PostMapping
-//    public UserResDTO addUser(@RequestBody @Valid UserRequest request) {
+//    public StrangerCardResDTO addUser(@RequestBody @Valid UserRequest request) {
 //        return UserService.addUser(request);
 //    }
 

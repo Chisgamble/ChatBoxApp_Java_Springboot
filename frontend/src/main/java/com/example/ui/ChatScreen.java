@@ -7,20 +7,32 @@ import java.util.List;
 import com.example.dto.FriendCardDTO;
 import com.example.dto.InboxDTO;
 import com.example.dto.UserMiniDTO;
+import com.example.dto.response.InboxUserResDTO;
 import com.example.dto.response.LoginResDTO;
 import com.example.listener.CreateGroupListener;
+import com.example.listener.FriendCardListener;
 import com.example.listener.LogoutListener;
 import com.example.model.Group;
 import com.example.panels.ChatPanel;
 import com.example.panels.ChatUtilPanel;
 import com.example.panels.UserUtilPanel;
+import com.example.services.AuthService;
 import com.example.services.FriendService;
+import com.example.services.InboxService;
 
-public class ChatScreen extends JFrame implements CreateGroupListener, LogoutListener {
+public class ChatScreen extends JFrame implements CreateGroupListener, LogoutListener, FriendCardListener {
     UserMiniDTO user;
     List<InboxDTO> inboxes;
     List<FriendCardDTO> friends;
     FriendService friendService = new FriendService();
+
+    final InboxService inboxService = new InboxService();
+
+    ChatPanel chatPanel;
+    ChatUtilPanel chatUtilPanel;
+    UserUtilPanel userUtilPanel;
+
+    ChatContext currentChat;
 
     public ChatScreen(UserMiniDTO user){
         this.user = user;
@@ -34,13 +46,74 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
         int width = screen.width / 9;
         int height = screen.height;
+        try {  
+            List<FriendCardDTO> friends = friendService.getAll(user.getId());
+            FriendCardDTO initialFriend = friends.get(0);
+            InboxUserResDTO initialInbox = inboxService.getInboxWithMessages(initialFriend.getInboxId());
 
-        this.add(new ChatPanel(width * 5, height), BorderLayout.CENTER);
-        this.add(new ChatUtilPanel(this, width * 2, height, true, false), BorderLayout.EAST);
-        this.add(new UserUtilPanel(this,width * 2, height, user), BorderLayout.WEST);
+            ChatContext ctx = new ChatContext();
+            ctx.setGroup(false);
+            ctx.setInboxId(initialFriend.getInboxId());
+            ctx.setTargetUser(initialInbox.getFriend());
 
-        this.setVisible(true);
+            this.currentChat = ctx;
+
+
+            chatPanel = new ChatPanel(width * 5, height);
+            chatUtilPanel = new ChatUtilPanel(this, width * 2, height, false, false, initialInbox.getFriend());
+            userUtilPanel = new UserUtilPanel(this,width * 2, height, user, friends);
+            this.add(chatPanel, BorderLayout.CENTER);
+            this.add(chatUtilPanel, BorderLayout.EAST);
+            this.add(userUtilPanel, BorderLayout.WEST);
+
+            this.setVisible(true);
+
+            SwingUtilities.invokeLater(() -> {
+                chatPanel.showMessages(initialInbox, user.getId());
+                userUtilPanel.selectFriendFromContext();
+            });
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Unable to load inbox: " + ex.getMessage());
+            System.out.println("[ERROR]  " + ex.getMessage());
+        }
     }
+
+    public ChatContext getContext(){
+        return currentChat;
+    }
+
+    public void openInbox(FriendCardDTO friend) {
+        try {
+            InboxUserResDTO inbox =
+                    inboxService.getInboxWithMessages(friend.getInboxId());
+
+            ChatContext ctx = new ChatContext();
+            ctx.setGroup(false);
+            ctx.setInboxId(friend.getInboxId());
+            ctx.setTargetUser(inbox.getFriend());
+
+            this.currentChat = ctx;
+
+            chatPanel.showMessages(inbox, user.getId());
+            chatUtilPanel.showUser(inbox.getFriend());
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(this, "Unable to load inbox: " + ex.getMessage());
+        }
+    }
+
+//    public void openGroupChat(GroupDTO group) {
+//
+//        ChatContext ctx = new ChatContext();
+//        ctx.setGroup(true);
+//        ctx.setGroupId(group.getId());
+//        ctx.setTargetGroup(group.toMiniDTO());
+//
+//        this.currentChat = ctx;
+//
+//        chatPanel.loadGroup(group.getId());
+//        chatUtilPanel.showChat(ctx);
+//    }
+
 
     @Override
     public void onGroupCreated(Group group) {
@@ -64,4 +137,10 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
         }
     }
+
+    @Override
+    public void onFriendSelected(FriendCardDTO friend) {
+        openInbox(friend);
+    }
+
 }

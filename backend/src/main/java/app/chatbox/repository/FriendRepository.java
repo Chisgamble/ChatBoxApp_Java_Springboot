@@ -1,6 +1,7 @@
 package app.chatbox.repository;
 
 import app.chatbox.dto.FriendCardDTO;
+import app.chatbox.dto.response.StrangerCardResDTO;
 import app.chatbox.model.AppUser;
 import app.chatbox.model.Friend;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,5 +45,6 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
         ORDER BY f.updated_at DESC;
     """, nativeQuery = true)
     List<FriendCardDTO> getFriendCards(long currentUserId);
+
 
 }

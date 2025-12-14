@@ -25,7 +25,7 @@ public class Inbox {
     @JoinColumn(name = "userB", nullable = false)
     private AppUser userB;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(
         name = "userA_last_seen",
         nullable = false,
@@ -33,14 +33,20 @@ public class Inbox {
     )
     private InboxMsg userALastSeen;
 
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(
         name = "userB_last_seen",
         nullable = false,
         foreignKey = @ForeignKey(name = "fk_ib_b_seen")
     )
     private InboxMsg userBLastSeen;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+        name = "last_msg",
+        foreignKey = @ForeignKey(name = "fk_ib_last_msg")
+    )
+    private InboxMsg lastMsg;
 
     @Column(name = "created_at",updatable = false)
     private Instant createdAt = Instant.now();

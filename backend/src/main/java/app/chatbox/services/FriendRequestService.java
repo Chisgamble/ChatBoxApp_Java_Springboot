@@ -1,6 +1,8 @@
 package app.chatbox.services;
 
+import app.chatbox.dto.request.CreateFriendRequestReqDTO;
 import app.chatbox.dto.request.UpdateFriendRequestReqDTO;
+import app.chatbox.dto.response.CreateFriendRequestResDTO;
 import app.chatbox.dto.response.FriendRequestResDTO;
 import app.chatbox.dto.response.UpdateFriendRequestResDTO;
 import app.chatbox.model.AppUser;
@@ -22,6 +24,24 @@ public class FriendRequestService {
     private final FriendRequestRepository repo;
     private final FriendRepository friendRepo;
     private final UserRepository userRepo;
+
+    public CreateFriendRequestResDTO createFriendRequest(CreateFriendRequestReqDTO req){
+        AppUser sender = userRepo.findById(req.getSenderId())
+                .orElseThrow(() -> new RuntimeException("Sender not found"));
+
+        AppUser receiver = userRepo.findById(req.getReceiverId())
+                .orElseThrow(() -> new RuntimeException("Receiver not found"));
+
+        FriendRequest friendRequest = FriendRequest.builder()
+                .sender(sender)
+                .receiver(receiver)
+                .status("pending")
+                .build();
+
+        repo.save(friendRequest);
+
+        return new CreateFriendRequestResDTO(req.getSenderId(), req.getReceiverId(), "pending");
+    }
 
     public List<FriendRequestResDTO> getIncomingRequests(Long userId) {
         return repo.findFriendRequestCardByReceiver_Id(userId);
