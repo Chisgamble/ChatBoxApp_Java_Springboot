@@ -108,6 +108,39 @@ public class HttpClientUtil {
         }
     }
 
+    public static <T> T putJson(String url, Object body, Class<T> responseType) {
+        try {
+            String jsonBody = JsonUtil.toJson(body);
+            System.out.println("DEBUG PUT URL: " + url);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(url))
+                    .header("Content-Type", "application/json")
+                    .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            int status = response.statusCode();
+            System.out.println("DEBUG Response Code: " + status);
+
+            // Handle Errors (e.g. 400 Bad Request)
+            if (status < 200 || status >= 300) {
+                throw new RuntimeException("Request failed (HTTP " + status + "): " + response.body());
+            }
+
+            // Handle Void/Null response
+            if (responseType == Void.class || (response.body() == null || response.body().isEmpty())) {
+                return null;
+            }
+
+            return JsonUtil.fromJson(response.body(), responseType);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
 
 
     public static void resetCookieManager() {
@@ -128,6 +161,26 @@ public class HttpClientUtil {
             return JsonUtil.fromJsonList(response.body(), responseType);
         } catch (Exception e) {
             throw new RuntimeException("GET request failed", e);
+        }
+    }
+
+    public static void delete(String url) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(url))
+                    .DELETE()
+                    .build();
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            System.out.println("DEBUG DELETE Status: " + response.statusCode());
+
+            int status = response.statusCode();
+            if (status < 200 || status >= 300) {
+                throw new RuntimeException("DELETE failed (HTTP " + status + "): " + response.body());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 

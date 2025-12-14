@@ -95,14 +95,13 @@ public class FilterButton extends RoundedTextField {
         }
     }
 
-    public void addFilterAction(List<String> filterList, Runnable function1, Runnable function2) {
+    public void addFilterAction(List<String> filterList, Runnable function1) {
         addActionListener(e -> {
             String text = getText().trim();
 
             if (!text.isEmpty() && !filterList.contains(text)) {
                 filterList.add(text);
                 function1.run();
-                function2.run();
             }
         });
     }

@@ -4,11 +4,13 @@ import com.example.components.*;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
 import com.example.components.user.FriendCard;
 import com.example.dto.UserDTO;
+import com.example.dto.request.AdminCreateOrUpdateUserReqDTO;
 import com.example.model.User;
 import com.example.util.Utility;
 import com.example.services.admin.UserListService;
@@ -16,78 +18,50 @@ import com.example.services.admin.UserListService;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.Map;
 
 public class UserList extends MainPanel {
     private List<String> usernameFilter;
     private List<String> nameFilter;
-    private List<String> statusFilter;
+    private String status;
+    private String sort;
+    private String order;
     private UserListService userService;
+    private JPanel filterPanel;
+    List<UserDTO> users;
 
     public UserList() {
         userService = new UserListService();
-        List<UserDTO> users = userService.getAll();
+        sort = "username";
+        order = "asc";
+        status = "all";
+        usernameFilter = new ArrayList<>();
+        nameFilter = new ArrayList<>();
+
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(MyColor.WHITE_BG);
 
-        //=== Data ===
-        data = users.stream()
-                .map(u -> List.of(
-                        Utility.safeString(u.username()),
-                        Utility.safeString(u.name()),
-                        Utility.safeBool(u.is_active()),
-                        Utility.safeString(u.address()),
-                        Utility.safeString(u.dob()),
-                        Utility.safeString(u.gender()),
-                        Utility.safeString(u.email())
-                ))
-                .toList();
+        filterData(); // This populates 'this.data'
 
-        filtered = new ArrayList<>(data);
-        usernameFilter = new ArrayList<>();
-        nameFilter = new ArrayList<>();
-        statusFilter = new ArrayList<>();
-
-        refreshTable();
+        init();
     }
 
     protected void setUpTable() {
-        // 1. Bỏ header rỗng cuối cùng đi (chỉ còn 7 cột)
         String[] headers = {"Username", "Full name", "Status", "Address", "Date of birth", "Gender", "Email"};
 
-        table = new CustomTable(filtered, headers);
+        table = new CustomTable(data, headers) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false; // Disable editing for ALL cells (Action is via Right-Click)
+            }
+        };
+
+        addStatusDots();
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.setPreferredSize(new Dimension(1850, 600));
         add(scroll);
-
-        for (int i = 0; i < filtered.size(); i++) {
-            String status = filtered.get(i).get(2).toLowerCase();
-            Color statusColor = switch (status) {
-                case "true" -> Color.GREEN;
-                case "false" -> Color.RED;
-                case "offline" -> Color.GRAY;
-                default -> Color.BLACK;
-            };
-
-            JPanel circle = new JPanel() {
-                @Override
-                protected void paintComponent(Graphics g) {
-                    super.paintComponent(g);
-                    g.setColor(statusColor);
-                    g.fillOval(0, 0, getWidth(), getHeight());
-                }
-            };
-            circle.setPreferredSize(new Dimension(12, 12));
-            circle.setOpaque(false);
-
-            JPanel statusWrap = new JPanel(new GridBagLayout());
-            statusWrap.setBackground(Color.WHITE);
-            statusWrap.add(circle);
-            statusWrap.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
-
-            table.setCellComponent(i, 2, statusWrap);
-        }
 
 //      Chuot phai
         table.addMouseListener(new MouseAdapter() {
@@ -102,7 +76,6 @@ public class UserList extends MainPanel {
             }
 
             private void handleContextMenu(MouseEvent e) {
-                // Kiểm tra xem có phải là nút kích hoạt popup (thường là chuột phải)
                 if (e.isPopupTrigger()) {
                     // Lấy vị trí dòng dựa trên toạ độ chuột
                     int row = table.rowAtPoint(e.getPoint());
@@ -122,18 +95,34 @@ public class UserList extends MainPanel {
         add(Box.createVerticalGlue());
     }
 
-    // === Hàm tạo và hiển thị Menu (Tách ra cho gọn) ===
     private void showUserActionMenu(MouseEvent e, int index) {
         JPopupMenu popupMenu = new JPopupMenu();
         String[] options = {"Lock", "Login history", "Update", "Update password", "Refresh password", "Friend list", "Delete"};
 
-        String currentUsername = filtered.get(index).get(0);
+        String currentUsername = data.get(index).get(0);
+        String currentEmail = data.get(index).get(6); // Get Email from column 6
+
+        // 1. Find the UserDTO to get ID and is_locked status
+        UserDTO targetUser = users.stream()
+                .filter(u -> u.email().equals(currentEmail))
+                .findFirst()
+                .orElse(null);
+
+        if (targetUser == null) return; // Safety check
 
         for (String item : options) {
             String text = item;
 
-            if (currentUsername.contains("\uD83D\uDD12") && item.equals("Lock")) {
-                text = "Unlock";
+            // 2. Determine Text based on UserDTO status
+            if (item.equals("Lock")) {
+                if (targetUser.is_locked()) {
+                    text = "Unlock";
+                    // Optional: Change color for visibility
+                    // menuItem.setForeground(new Color(0, 150, 0));
+                } else {
+                    text = "Lock";
+                    // menuItem.setForeground(Color.RED);
+                }
             }
 
             JMenuItem menuItem = new JMenuItem(text);
@@ -142,12 +131,33 @@ public class UserList extends MainPanel {
             // --- Xử lý sự kiện cho từng menu item ---
             if (item.equals("Lock")) {
                 menuItem.addActionListener(evt -> {
-                    if (filtered.get(index).get(0).contains("\uD83D\uDD12")) {
-                        filtered.get(index).set(0, filtered.get(index).get(0).replace("\uD83D\uDD12", ""));
-                    } else {
-                        filtered.get(index).set(0, "\uD83D\uDD12" + filtered.get(index).get(0));
+                    try {
+                        if (targetUser.is_locked()) {
+                            // Logic: UNLOCK
+                            int confirm = JOptionPane.showConfirmDialog(null,
+                                    "Are you sure you want to UNLOCK this user?",
+                                    "Confirm Unlock", JOptionPane.YES_NO_OPTION);
+
+                            if (confirm == JOptionPane.YES_OPTION) {
+                                userService.unlockUser(targetUser.id());
+                                JOptionPane.showMessageDialog(null, "User unlocked successfully.");
+                                filterData(); // Refresh from Server
+                            }
+                        } else {
+                            // Logic: LOCK
+                            int confirm = JOptionPane.showConfirmDialog(null,
+                                    "Are you sure you want to LOCK this user?\nThey will not be able to log in.",
+                                    "Confirm Lock", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+                            if (confirm == JOptionPane.YES_OPTION) {
+                                userService.lockUser(targetUser.id());
+                                JOptionPane.showMessageDialog(null, "User locked successfully.");
+                                filterData(); // Refresh from Server
+                            }
+                        }
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
                     }
-                    refreshTable();
                 });
             }
             else if (item.equals("Friend list")) {
@@ -162,17 +172,93 @@ public class UserList extends MainPanel {
             else if (item.equals("Update password")) {
                 menuItem.addActionListener(evt -> updatePasswordPopup(currentUsername));
             }
+            else if (item.equals("Delete")) {
+                menuItem.setForeground(Color.RED); // Make "Delete" red to indicate danger
+
+                menuItem.addActionListener(evt -> {
+                    // 1. CONFIRMATION DIALOG
+                    int confirm = JOptionPane.showConfirmDialog(
+                            null, // Use 'this' (UserList panel) as parent, not null
+                            "Are you sure you want to PERMANENTLY delete this user?\n"
+                                    + "User: " + currentUsername + "\n"
+                                    + "This action cannot be undone.",
+                            "Confirm Delete",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.ERROR_MESSAGE // Red 'X' icon
+                    );
+
+                    // 2. CALL SERVICE & REFRESH
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        try {
+                            userService.deleteUser(targetUser.id());
+
+                            JOptionPane.showMessageDialog(this, "User deleted successfully.");
+
+                            // 3. REFRESH TABLE
+                            filterData();
+
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(this,
+                                    "Could not delete user. Error: " + ex.getMessage(),
+                                    "Delete Failed",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
+            }
             // Thêm các case khác (Refresh password, Delete) nếu cần
         }
 
         popupMenu.show(e.getComponent(), e.getX(), e.getY());
     }
 
-    protected void  buildFilterPanel() {
-        JPanel filterPanel = new JPanel();
-        filterPanel.setLayout(new FlowLayout(FlowLayout.LEADING, 10, 10));
-        filterPanel.setBackground(MyColor.WHITE_BG);
+    protected void filterData() {
+        users = userService.getAll(
+                this.usernameFilter,
+                this.nameFilter,
+                this.status,
+                this.sort,
+                this.order
+        );
 
+        // 2. Convert List<UserDTO> to the table data format (List<List<Object>>)
+        // This matches the exact logic from your constructor
+        if (users != null) {
+            this.data = users.stream()
+                    .filter(u -> u.username() != null && u.name() != null)
+                    .map(u -> List.of(
+                            Utility.safeString(u.is_locked() ? "🔒" +u.username()  : u.username()),
+                            Utility.safeString(u.name()),
+                            Utility.safeBool(u.is_active()),
+                            Utility.safeString(u.address()),
+                            Utility.safeString(u.dob()),
+                            Utility.safeString(u.gender()),
+                            Utility.safeString(u.email())
+                    ))
+                    .toList(); // or .collect(Collectors.toList()) if on older Java
+        } else {
+            this.data = new ArrayList<>();
+        }
+        buildFilterPanel();
+        refreshTable();
+    }
+
+    @Override
+    protected void buildFilterPanel() {
+        // 1. Create panel only once, otherwise just clear it
+        if (filterPanel == null) {
+            filterPanel = new JPanel();
+            filterPanel.setLayout(new FlowLayout(FlowLayout.LEADING, 10, 10));
+            filterPanel.setBackground(MyColor.WHITE_BG);
+            filterPanel.setPreferredSize(new Dimension(1920, 80)); // Adjusted height
+            filterPanel.setMaximumSize(new Dimension(1950, 120));
+            add(filterPanel, 0); // Add at index 0 (top)
+        }
+
+        // 2. Clear old components (buttons, dropdowns)
+        filterPanel.removeAll();
+
+        // === ADD BUTTON ===
         RoundedButton addButton = new RoundedButton(25);
         addButton.setText("+");
         addButton.setFont(new Font("Arial", Font.BOLD, 20));
@@ -180,166 +266,262 @@ public class UserList extends MainPanel {
         addButton.setBackground(new Color(0x0084FF));
         addButton.setFocusPainted(false);
         addButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
-        addButton.addActionListener(e -> {
-            addUserPopup();
-        });
+        addButton.addActionListener(e -> addUserPopup());
         filterPanel.add(addButton);
 
+        // === USERNAME FILTER ===
         FilterButton usernameFilterBtn = new FilterButton("Filter by username");
-        //Username filter event
-        usernameFilterBtn.addFilterAction(usernameFilter, this::setUpFiltered, this::refreshTable);
+        // Pass filterData (which now calls buildFilterPanel) to refresh UI
+        usernameFilterBtn.addFilterAction(usernameFilter, this::filterData);
         filterPanel.add(usernameFilterBtn);
 
+        // DYNAMIC TAGS (Username)
         for(String item : usernameFilter){
             RoundedButton b = new RoundedButton(10);
             b.setText(item);
             b.setFocusPainted(false);
-
-            setUpRemoveFilter(b, usernameFilter, item);
-
+            setUpRemoveFilter(b, usernameFilter, item); // Logic to remove
             filterPanel.add(b);
         }
-        // Name filter
+
+        // === NAME FILTER ===
         FilterButton nameFilterBtn = new FilterButton("Filter by name");
-        //name filter event
-        nameFilterBtn.addFilterAction(nameFilter, this::setUpFiltered, this::refreshTable);
+        nameFilterBtn.addFilterAction(nameFilter, this::filterData);
         filterPanel.add(nameFilterBtn);
 
-        // Name filter tags
+        // DYNAMIC TAGS (Name)
         for(String item : nameFilter){
             RoundedButton b = new RoundedButton(10);
             b.setText(item);
             b.setFocusPainted(false);
             setUpRemoveFilter(b, nameFilter, item);
-
             filterPanel.add(b);
         }
 
-        FilterButton statusFilterBtn = new FilterButton("Filter by status");
-        statusFilterBtn.addFilterAction(statusFilter, this::setUpFiltered, this::refreshTable);
-        filterPanel.add(statusFilterBtn);
-        // Status filter tags
-        for(String item : statusFilter){
-            RoundedButton b = new RoundedButton(10);
-            b.setText(item);
-            b.setFocusPainted(false);
-            setUpRemoveFilter(b, statusFilter, item);
+        // === STATUS DROPDOWN ===
+        JLabel statusFilter = Utility.makeText("Filter by status:", ROBOTO, 16f, Font.PLAIN, MyColor.DARK_GRAY, null);
+        filterPanel.add(statusFilter);
 
-            filterPanel.add(b);
+        String[] statusOptions = {"All", "Active", "Offline"};
+        RoundedComboBox<String> statusBox = new RoundedComboBox<>(statusOptions);
+        statusBox.setFont(ROBOTO.deriveFont(16f));
+
+        // MEMORY FIX: Set selected item based on current variable
+        if(this.status != null) {
+            String display = this.status.substring(0, 1).toUpperCase() + this.status.substring(1).toLowerCase();
+            statusBox.setSelectedItem(display);
         }
 
+        statusBox.addActionListener(e -> {
+            String selected = (String) statusBox.getSelectedItem();
+            if (selected != null) {
+                this.status = selected.toLowerCase();
+                filterData(); // Reloads data AND rebuilds panel
+            }
+        });
+        filterPanel.add(statusBox);
+
+        // === SORT DROPDOWN ===
         JLabel orderby = Utility.makeText("Order by:", ROBOTO, 16f, Font.PLAIN, MyColor.DARK_GRAY, null);
+        filterPanel.add(orderby);
 
         String[] options = {"Name", "Account Age"};
         RoundedComboBox<String> comboBox = new RoundedComboBox<>(options);
         comboBox.setFont(ROBOTO.deriveFont(16f));
 
+        // MEMORY FIX
+        if("username".equals(this.sort)) comboBox.setSelectedItem("Name");
+        else comboBox.setSelectedItem("Account Age");
+
+        comboBox.addActionListener(e -> {
+            String selected = (String) comboBox.getSelectedItem();
+            if (selected != null){
+                this.sort = selected.equals("Name") ? "username" : "age";
+                filterData();
+            }
+        });
+        filterPanel.add(comboBox);
+
+        // === ORDER DROPDOWN ===
         String[] sortOptions = {"Ascending", "Descending"};
         RoundedComboBox<String> asc_des = new RoundedComboBox<>(sortOptions);
         asc_des.setFont(ROBOTO.deriveFont(16f));
 
-        filterPanel.add(Box.createRigidArea(new Dimension(20, 0)));
-        filterPanel.add(orderby);
-        filterPanel.add(comboBox);
+        // MEMORY FIX
+        if("asc".equals(this.order)) asc_des.setSelectedItem("Ascending");
+        else asc_des.setSelectedItem("Descending");
+
+        asc_des.addActionListener(e -> {
+            String selected = (String) asc_des.getSelectedItem();
+            if (selected != null){
+                this.order = selected.equals("Ascending") ? "asc" : "desc";
+                filterData();
+            }
+        });
         filterPanel.add(asc_des);
 
-        filterPanel.revalidate(); // recompute layout
+        // Finalize Layout Update
+        filterPanel.revalidate();
         filterPanel.repaint();
-
-        filterPanel.setPreferredSize(new Dimension(1920, filterPanel.getPreferredSize().height));
-        filterPanel.setMaximumSize(new Dimension(1950, 120));
-
-        add(filterPanel);
-    }
-
-    private void setUpFiltered(){
-        filtered = new ArrayList<>();
-        boolean fit = false;
-        for (List<String> row : data) {
-            fit = false;
-            for (String filter : usernameFilter){
-                if (row.get(0).toLowerCase().contains(filter.toLowerCase())) {
-                    fit = true;
-                    break;
-                }
-            }
-            for(String filter : nameFilter){
-                if (row.get(1).toLowerCase().contains(filter.toLowerCase())) {
-                    fit = true;
-                    break;
-                }
-            }
-            for(String filter : statusFilter){
-                if (row.get(2).toLowerCase().contains(filter.toLowerCase())) {
-                    fit = true;
-                    break;
-                }
-            }
-            if(fit || (usernameFilter.isEmpty() && nameFilter.isEmpty() && statusFilter.isEmpty())){
-                filtered.add(row);
-            }
-        }
     }
 
     private void setUpRemoveFilter(RoundedButton b, List<String> list, String item){
         b.addActionListener(e -> {
             list.remove(item);
-            setUpFiltered();
+            filterData();
             refreshTable();
+            addStatusDots();
         });
+    }
+
+    private void addStatusDots() {
+        if (table == null) return;
+
+        // 1. Find the View Index of the "Status" column dynamically
+        int statusColumnIndex = -1;
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            // Check the header name
+            if ("Status".equalsIgnoreCase(table.getColumnName(i))) {
+                statusColumnIndex = i;
+                break;
+            }
+        }
+        if (statusColumnIndex == -1) return;
+
+        for (int i = 0; i < data.size(); i++) {
+            // Safety check for rows
+            if (i >= table.getRowCount()) break;
+
+            String status = data.get(i).get(2).toLowerCase();
+
+            Color statusColor = switch (status) {
+                case "true", "active" -> Color.GREEN;
+                case "false", "offline" -> Color.RED;
+                default -> Color.BLACK;
+            };
+
+            // Create the circle component
+            JPanel circle = new JPanel() {
+                @Override
+                protected void paintComponent(Graphics g) {
+                    super.paintComponent(g);
+                    Graphics2D g2 = (Graphics2D) g;
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setColor(statusColor);
+                    g2.fillOval(0, 0, getWidth(), getHeight());
+                }
+            };
+            circle.setPreferredSize(new Dimension(12, 12));
+            circle.setOpaque(false);
+
+            JPanel statusWrap = new JPanel(new GridBagLayout());
+            statusWrap.setBackground(Color.WHITE);
+            statusWrap.add(circle);
+            statusWrap.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY));
+
+            table.setCellComponent(i, statusColumnIndex, statusWrap);
+        }
+    }
+
+    @Override
+    protected void afterRefresh(){
+        addStatusDots();
     }
 
     private void addUserPopup() {
         RoundedPanel popup = new RoundedPanel(15);
         popup.setLayout(new BorderLayout());
-        popup.setBorder(new EmptyBorder(10,10,10,10));
-        popup.setBackground(Color.WHITE); // make sure visible
-        popup.setPreferredSize(new Dimension(500, 350));
+        popup.setBorder(new EmptyBorder(10, 10, 10, 10));
+        popup.setBackground(Color.WHITE);
+        popup.setPreferredSize(new Dimension(500, 500));
 
-        String[] options = {"Username", "Gender", "Address", "Email", "Date of birth", "Phone number"};
-        JPanel leftWrapper = new JPanel();
-        JPanel rightWrapper = new JPanel();
-        leftWrapper.setLayout(new BoxLayout(leftWrapper, BoxLayout.Y_AXIS));
-        rightWrapper.setLayout(new BoxLayout(rightWrapper, BoxLayout.Y_AXIS));
-        leftWrapper.setOpaque(false);
-        rightWrapper.setOpaque(false);
+        // Store all inputs as JComponent (works for both TextField and ComboBox)
+        Map<String, JComponent> inputs = new HashMap<>();
 
-        for (String item : options) {
-            JLabel text = new JLabel(item);
-            text.setFont(new Font("Roboto", Font.BOLD, 14));
-            JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 10));
-            wrapper.setPreferredSize(new Dimension(150, 30));
-            wrapper.setMaximumSize(new Dimension(175, 35));
-            wrapper.add(text);
-            wrapper.setBackground(Color.WHITE);
+        String[] keys = {"Username", "Name", "Gender", "Address", "Email", "Date of birth", "Role", "Password"};
 
-            RoundedTextField field = new RoundedTextField(15);
-            field.setPreferredSize(new Dimension(175, 30));
-            field.setMaximumSize(new Dimension(175, 35));
+        JPanel centerWrapper = new JPanel();
+        centerWrapper.setLayout(new BoxLayout(centerWrapper, BoxLayout.Y_AXIS));
+        centerWrapper.setOpaque(false);
 
-            leftWrapper.add(wrapper);
-            leftWrapper.add(Box.createVerticalStrut(10));
-            rightWrapper.add(field);
-            rightWrapper.add(Box.createVerticalStrut(10));
+        for (String key : keys) {
+            JPanel row = new JPanel(new BorderLayout(10, 0));
+            row.setOpaque(false);
+            row.setPreferredSize(new Dimension(480, 45));
+            row.setMaximumSize(new Dimension(480, 50));
+            row.setBorder(BorderFactory.createEmptyBorder(0,0,10,0));
+
+            JLabel label = new JLabel(key.replace(" (YYYY-MM-DD)", ""));
+            label.setFont(new Font("Roboto", Font.BOLD, 14));
+            label.setPreferredSize(new Dimension(150, 45));
+
+            JComponent inputField;
+
+            // 1. Create Dropdowns for Gender & Role
+            if (key.equals("Gender")) {
+                String[] options = {"Male", "Female", "Other"};
+                inputField = new RoundedComboBox<>(options);
+                inputField.setBackground(Color.WHITE);
+            }
+            else if (key.equals("Date of birth")){
+                RoundedTextField field = new RoundedTextField(15);
+                field.addFocusListener(new java.awt.event.FocusAdapter() {
+                    @Override
+                    public void focusGained(java.awt.event.FocusEvent e) {
+                        // User clicked: Clear placeholder
+                        if (field.getText().equals("YYYY-MM-DD")) {
+                            field.setText("");
+                            field.setForeground(Color.BLACK);
+                        }
+                    }
+
+                    @Override
+                    public void focusLost(java.awt.event.FocusEvent e) {
+                        // User left: If empty, put placeholder back
+                        if (field.getText().trim().isEmpty()) {
+                            field.setText("YYYY-MM-DD");
+                            field.setForeground(Color.GRAY);
+                        }
+                    }
+                });
+                inputField = field;
+            }
+            else if (key.equals("Role")) {
+                String[] options = {"User", "Admin"};
+                inputField = new RoundedComboBox<>(options);
+                inputField.setBackground(Color.WHITE);
+            }
+            // 2. Create TextFields for everything else
+            else {
+                RoundedTextField field = new RoundedTextField(15);
+                inputField = field;
+            }
+
+            inputField.setPreferredSize(new Dimension(150, 45));
+            inputField.setMaximumSize(new Dimension(175, 45));
+            inputs.put(key, inputField); // Save to map
+
+            row.add(label, BorderLayout.WEST);
+            row.add(inputField, BorderLayout.EAST);
+            centerWrapper.add(row);
         }
 
         RoundedButton save = new RoundedButton(25);
         save.setText("ADD");
-        save.setForeground(MyColor.WHITE_BG);
-        save.setBackground(MyColor.LIGHT_BLUE);
+        save.setForeground(Color.WHITE);
+        save.setBackground(new Color(0x0084FF));
+
         RoundedButton cancel = new RoundedButton(25);
         cancel.setText("CANCEL");
         cancel.setBackground(Color.WHITE);
 
-        JPanel bottomWrapper = new JPanel();
-        bottomWrapper.setLayout(new FlowLayout(FlowLayout.TRAILING, 20, 10));
+        JPanel bottomWrapper = new JPanel(new FlowLayout(FlowLayout.TRAILING, 20, 10));
+        bottomWrapper.setOpaque(false);
         bottomWrapper.add(save);
         bottomWrapper.add(cancel);
 
-        popup.add(leftWrapper, BorderLayout.WEST);
-        popup.add(rightWrapper, BorderLayout.EAST);
+        popup.add(centerWrapper, BorderLayout.CENTER);
         popup.add(bottomWrapper, BorderLayout.SOUTH);
-
 
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Add User", true);
         dialog.setContentPane(popup);
@@ -347,71 +529,214 @@ public class UserList extends MainPanel {
         dialog.setLocationRelativeTo(null);
 
         cancel.addActionListener(e -> dialog.dispose());
-        save.addActionListener(e -> dialog.dispose());
+
+        // --- SAVE LOGIC ---
+        save.addActionListener(e -> {
+            try {
+                // 1. Extract Values manually (Casting based on knowledge of the key)
+                String email = ((JTextField) inputs.get("Email")).getText().trim();
+                String dob = ((JTextField) inputs.get("Date of birth")).getText().trim();
+
+                // For ComboBox, we cast to JComboBox to get selected item
+                String gender = (String) ((JComboBox<?>) inputs.get("Gender")).getSelectedItem();
+                String role = (String) ((JComboBox<?>) inputs.get("Role")).getSelectedItem();
+
+                String username = ((JTextField) inputs.get("Username")).getText().trim();
+                String password = ((JTextField) inputs.get("Password")).getText().trim();
+                String name = ((JTextField) inputs.get("Name")).getText().trim();
+                String address = ((JTextField) inputs.get("Address")).getText().trim();
+
+                // 2. Validation
+                if (!email.contains("@")) {
+                    throw new Exception("Email must contain '@'");
+                }
+                if (!dob.matches("^\\d{4}-\\d{2}-\\d{2}$")) {
+                    throw new Exception("Invalid Date! Use YYYY-MM-DD (e.g., 2024-01-30)");
+                }
+
+                // 3. Create DTO & Call Service
+                // Note: role.toLowerCase() ensures "User" becomes "user" for backend
+                AdminCreateOrUpdateUserReqDTO req = new AdminCreateOrUpdateUserReqDTO(
+                        username, name, password, gender, address, email, dob, role.toLowerCase()
+                );
+
+                userService.createUser(req);
+
+                filterData();
+                dialog.dispose();
+                JOptionPane.showMessageDialog(null, "User created successfully!");
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Error: " + ex.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
         dialog.setVisible(true);
     }
 
     private void updateUserPopup() {
+        int rowIndex = table.getSelectedRow();
+        if (rowIndex == -1) return;
+
+        List<String> rowData = data.get(rowIndex);
+        System.out.print(rowData);
+
         RoundedPanel popup = new RoundedPanel(15);
         popup.setLayout(new BorderLayout());
-        popup.setBorder(new EmptyBorder(10,10,10,10));
-        popup.setBackground(Color.WHITE); // make sure visible
-        popup.setPreferredSize(new Dimension(500, 350));
+        popup.setBorder(new EmptyBorder(10, 10, 10, 10));
+        popup.setBackground(Color.WHITE);
+        popup.setPreferredSize(new Dimension(500, 500)); // Taller for Combos
 
-        String[] options = {"Username", "Gender", "Address", "Email", "Date of birth", "Phone number"};
-        JPanel leftWrapper = new JPanel();
-        JPanel rightWrapper = new JPanel();
-        leftWrapper.setLayout(new BoxLayout(leftWrapper, BoxLayout.Y_AXIS));
-        rightWrapper.setLayout(new BoxLayout(rightWrapper, BoxLayout.Y_AXIS));
-        leftWrapper.setOpaque(false);
-        rightWrapper.setOpaque(false);
+        Map<String, JComponent> inputs = new HashMap<>();
 
-        for (String item : options) {
-            JLabel text = new JLabel(item);
-            text.setFont(new Font("Roboto", Font.BOLD, 14));
-            JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 10));
-            wrapper.setPreferredSize(new Dimension(150, 30));
-            wrapper.setMaximumSize(new Dimension(175, 35));
-            wrapper.add(text);
-            wrapper.setBackground(Color.WHITE);
+        String[] keys = {"Username", "Name", "Gender", "Address", "Email", "Date of birth", "Role"};
 
-            RoundedTextField field = new RoundedTextField(15);
-            field.setPreferredSize(new Dimension(175, 30));
-            field.setMaximumSize(new Dimension(175, 35));
-            field.setText("abcabc");
+        JPanel centerWrapper = new JPanel();
+        centerWrapper.setLayout(new BoxLayout(centerWrapper, BoxLayout.Y_AXIS));
+        centerWrapper.setOpaque(false);
 
-            leftWrapper.add(wrapper);
-            leftWrapper.add(Box.createVerticalStrut(10));
-            rightWrapper.add(field);
-            rightWrapper.add(Box.createVerticalStrut(10));
+        for (String key : keys) {
+            JPanel row = new JPanel(new BorderLayout(10, 0));
+            row.setOpaque(false);
+            row.setPreferredSize(new Dimension(480, 40));
+            row.setMaximumSize(new Dimension(480, 50));
+            row.setBorder(BorderFactory.createEmptyBorder(0,0,10,0));
+
+            JLabel label = new JLabel(key);
+            label.setFont(new Font("Roboto", Font.BOLD, 14));
+            label.setPreferredSize(new Dimension(150, 40));
+
+            JComponent inputField;
+
+            // --- BUILD COMPONENT & PRE-FILL DATA ---
+            if (key.equals("Gender")) {
+                String[] options = {"Male", "Female", "Other"};
+                RoundedComboBox<String> box = new RoundedComboBox<>(options);
+                box.setSelectedItem(rowData.get(5));
+                inputField = box;
+            }
+            else if (key.equals("Role")) {
+                String[] options = {"User", "Admin"};
+                RoundedComboBox<String> box = new RoundedComboBox<>(options);
+                // NOTE: Role is not in your current table data.
+                // Defaulting to "User" or you need to fetch it separately.
+                box.setSelectedItem("User");
+                inputField = box;
+            }
+            else {
+                // Text Fields
+                RoundedTextField field = new RoundedTextField(15);
+
+                // Map keys to table indices manually to ensure correct data
+                String value = switch (key) {
+                    case "Username" -> rowData.get(0);
+                    case "Name"     -> rowData.get(1);
+                    case "Address"  -> rowData.get(3);
+                    case "Email"    -> rowData.get(6);
+                    case "Date of birth" -> rowData.get(4);
+                    default -> "";
+                };
+
+                field.setText(value);
+
+                // Optional: Make Username read-only
+//                if (key.equals("Username")) {
+//                    field.setEditable(false);
+//                    field.setBackground(new Color(245, 245, 245));
+//                }
+
+                inputField = field;
+            }
+
+            inputField.setPreferredSize(new Dimension(200, 40));
+            inputs.put(key, inputField); // Store for retrieval
+
+            row.add(label, BorderLayout.WEST);
+            row.add(inputField, BorderLayout.CENTER);
+            centerWrapper.add(row);
         }
 
-        RoundedButton save = new RoundedButton(25);
-        save.setText("UPDATE");
-        save.setForeground(MyColor.WHITE_BG);
-        save.setBackground(MyColor.LIGHT_BLUE);
+        RoundedButton updateBtn = new RoundedButton(25);
+        updateBtn.setText("UPDATE");
+        updateBtn.setForeground(Color.WHITE);
+        updateBtn.setBackground(new Color(0x0084FF));
+
         RoundedButton cancel = new RoundedButton(25);
         cancel.setText("CANCEL");
         cancel.setBackground(Color.WHITE);
 
-        JPanel bottomWrapper = new JPanel();
-        bottomWrapper.setLayout(new FlowLayout(FlowLayout.TRAILING, 20, 10));
-        bottomWrapper.add(save);
+        JPanel bottomWrapper = new JPanel(new FlowLayout(FlowLayout.TRAILING, 20, 10));
+        bottomWrapper.setOpaque(false);
+        bottomWrapper.add(updateBtn);
         bottomWrapper.add(cancel);
 
-        popup.add(leftWrapper, BorderLayout.WEST);
-        popup.add(rightWrapper, BorderLayout.EAST);
+        popup.add(centerWrapper, BorderLayout.CENTER);
         popup.add(bottomWrapper, BorderLayout.SOUTH);
 
-
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Update user", true);
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Update User", true);
         dialog.setContentPane(popup);
         dialog.pack();
         dialog.setLocationRelativeTo(null);
 
         cancel.addActionListener(e -> dialog.dispose());
-        save.addActionListener(e -> dialog.dispose());
+
+        // --- UPDATE ACTION ---
+        updateBtn.addActionListener(e -> {
+            int response = JOptionPane.showConfirmDialog(
+                    dialog,
+                    "Are you sure you want to update this user's information?",
+                    "Confirm Update",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.WARNING_MESSAGE
+            );
+
+            if (response == JOptionPane.YES_OPTION) {
+                try {
+                    // Extract Values
+                    String username = ((JTextField) inputs.get("Username")).getText();
+                    String name     = ((JTextField) inputs.get("Name")).getText();
+                    String address  = ((JTextField) inputs.get("Address")).getText();
+                    String email    = ((JTextField) inputs.get("Email")).getText();
+                    String dob      = ((JTextField) inputs.get("Date of birth")).getText();
+
+                    // Cast JComponent to JComboBox to get selection
+                    String gender   = (String) ((JComboBox<?>) inputs.get("Gender")).getSelectedItem();
+                    String role     = (String) ((JComboBox<?>) inputs.get("Role")).getSelectedItem();
+
+                    // Create DTO
+                    // Note: password is null because we are not updating it here
+                    // Note: role.toLowerCase() to match backend expectation ("User" -> "user")
+                    AdminCreateOrUpdateUserReqDTO req = new AdminCreateOrUpdateUserReqDTO(
+                            username,
+                            name,
+                            null, // password
+                            gender,
+                            address,
+                            email,
+                            dob,
+                            role != null ? role.toLowerCase() : "user"
+                    );
+
+
+                    Long userId = users.stream()
+                            .filter(u -> u.email().equals(rowData.get(6))) // Match email
+                            .findFirst()
+                            .map(UserDTO::id)                           // Extract ID
+                            .orElseThrow(() -> new Exception("Could not find user ID for email: " + rowData.get(6)));
+                    // ============================================================
+
+                    userService.updateUser(userId, req);
+
+                    filterData();
+                    dialog.dispose();
+                    JOptionPane.showMessageDialog(null, "User updated successfully!");
+
+                } catch (Exception ex) {
+                    ex.printStackTrace(); // Helpful for debugging
+                    JOptionPane.showMessageDialog(dialog, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
 
         dialog.setVisible(true);
     }
@@ -463,66 +788,127 @@ public class UserList extends MainPanel {
 
     }
 
-    private void updatePasswordPopup(String s) {
+    private void updatePasswordPopup(String currentUsername) {
         RoundedPanel popup = new RoundedPanel(15);
         popup.setLayout(new BorderLayout());
-        popup.setBorder(new EmptyBorder(10,10,10,10));
-        popup.setBackground(Color.WHITE); // make sure visible
-        popup.setPreferredSize(new Dimension(500, 200));
+        popup.setBorder(new EmptyBorder(10, 10, 10, 10));
+        popup.setBackground(Color.WHITE);
+        popup.setPreferredSize(new Dimension(500, 250)); // Slightly taller for checkbox
 
-        String[] options = {"Old password", "New password"};
-        JPanel leftWrapper = new JPanel();
-        JPanel rightWrapper = new JPanel();
-        leftWrapper.setLayout(new BoxLayout(leftWrapper, BoxLayout.Y_AXIS));
-        rightWrapper.setLayout(new BoxLayout(rightWrapper, BoxLayout.Y_AXIS));
-        leftWrapper.setOpaque(false);
-        rightWrapper.setOpaque(false);
+        // Store inputs to retrieve later
+        Map<String, JPasswordField> inputs = new HashMap<>();
+        String[] options = {"New password"}; // Only need new password for Admin override
+        // Note: Admin usually doesn't need "Old Password" to reset someone else's password.
+        // If you DO need old password validation, keep it in the array.
+
+        JPanel centerWrapper = new JPanel();
+        centerWrapper.setLayout(new BoxLayout(centerWrapper, BoxLayout.Y_AXIS));
+        centerWrapper.setOpaque(false);
 
         for (String item : options) {
-            JLabel text = new JLabel(item);
-            text.setFont(new Font("Roboto", Font.BOLD, 14));
-            JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.LEADING, 0, 10));
-            wrapper.setPreferredSize(new Dimension(150, 30));
-            wrapper.setMaximumSize(new Dimension(175, 35));
-            wrapper.add(text);
-            wrapper.setBackground(Color.WHITE);
+            JPanel row = new JPanel(new BorderLayout(10, 0));
+            row.setOpaque(false);
+            row.setMaximumSize(new Dimension(480, 50)); // Allow width stretch
+            row.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+
+            JLabel label = new JLabel(item);
+            label.setFont(new Font("Roboto", Font.BOLD, 14));
+            label.setPreferredSize(new Dimension(150, 40));
 
             RoundedPasswordField field = new RoundedPasswordField(15);
-            field.setPreferredSize(new Dimension(175, 30));
-            field.setMaximumSize(new Dimension(175, 35));
-            field.setText("abcabc");
+            field.setPreferredSize(new Dimension(200, 40));
 
-            leftWrapper.add(wrapper);
-            leftWrapper.add(Box.createVerticalStrut(10));
-            rightWrapper.add(field);
-            rightWrapper.add(Box.createVerticalStrut(10));
+            inputs.put(item, field);
+
+            row.add(label, BorderLayout.WEST);
+            row.add(field, BorderLayout.CENTER);
+            centerWrapper.add(row);
         }
 
-        RoundedButton update = new RoundedButton(25);
-        update.setText("UPDATE");
-        update.setForeground(MyColor.WHITE_BG);
-        update.setBackground(MyColor.LIGHT_BLUE);
+        // === SHOW PASSWORD CHECKBOX ===
+        JCheckBox showPassCheck = new JCheckBox("Show Password");
+        showPassCheck.setBackground(Color.WHITE);
+        showPassCheck.setFont(new Font("Roboto", Font.PLAIN, 12));
+        showPassCheck.setBorder(new EmptyBorder(0, 160, 0, 0)); // Indent to align with fields
+        // Toggle Logic
+        showPassCheck.addActionListener(e -> {
+            char echo = showPassCheck.isSelected() ? (char) 0 : '•'; // 0 = visible, '•' = masked
+            for (JPasswordField pf : inputs.values()) {
+                pf.setEchoChar(echo);
+            }
+        });
+
+        // Wrapper for checkbox to stop it stretching
+        JPanel checkWrapper = new JPanel(new FlowLayout(FlowLayout.LEADING));
+        checkWrapper.setOpaque(false);
+        checkWrapper.add(showPassCheck);
+        centerWrapper.add(checkWrapper);
+
+
+        // === BUTTONS ===
+        RoundedButton updateBtn = new RoundedButton(25);
+        updateBtn.setText("UPDATE");
+        updateBtn.setForeground(Color.WHITE);
+        updateBtn.setBackground(new Color(0x0084FF));
+
         RoundedButton cancel = new RoundedButton(25);
         cancel.setText("CANCEL");
         cancel.setBackground(Color.WHITE);
 
-        JPanel bottomWrapper = new JPanel();
-        bottomWrapper.setLayout(new FlowLayout(FlowLayout.TRAILING, 20, 10));
-        bottomWrapper.add(update);
+        JPanel bottomWrapper = new JPanel(new FlowLayout(FlowLayout.TRAILING, 20, 10));
+        bottomWrapper.setOpaque(false);
+        bottomWrapper.add(updateBtn);
         bottomWrapper.add(cancel);
 
-        popup.add(leftWrapper, BorderLayout.WEST);
-        popup.add(rightWrapper, BorderLayout.EAST);
+        popup.add(centerWrapper, BorderLayout.CENTER);
         popup.add(bottomWrapper, BorderLayout.SOUTH);
 
-
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Update password", true);
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Update Password", true);
         dialog.setContentPane(popup);
         dialog.pack();
         dialog.setLocationRelativeTo(null);
 
         cancel.addActionListener(e -> dialog.dispose());
-        update.addActionListener(e -> dialog.dispose());
+
+        // === UPDATE ACTION ===
+        updateBtn.addActionListener(e -> {
+            try {
+                String newPass = new String(inputs.get("New password").getPassword());
+
+                if (newPass.isEmpty()) {
+                    JOptionPane.showMessageDialog(dialog, "Password cannot be empty");
+                    return;
+                }
+
+                // 1. Find User ID based on username (passed into this method)
+                Long userId = users.stream()
+                        .filter(u -> u.username().equals(currentUsername))
+                        .findFirst()
+                        .map(UserDTO::id)
+                        .orElseThrow(() -> new Exception("User not found"));
+
+                // 2. Create DTO with ONLY password filled (others null)
+                AdminCreateOrUpdateUserReqDTO req = new AdminCreateOrUpdateUserReqDTO(
+                        null, // username
+                        null, // name
+                        newPass, // PASSWORD SET HERE
+                        null, // gender
+                        null, // address
+                        null, // email
+                        null, // dob
+                        null  // role
+                );
+
+                // 3. Call API
+                userService.updateUser(userId, req);
+
+                JOptionPane.showMessageDialog(this, "Password updated successfully!");
+                dialog.dispose();
+
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Error: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
 
         dialog.setVisible(true);
     }

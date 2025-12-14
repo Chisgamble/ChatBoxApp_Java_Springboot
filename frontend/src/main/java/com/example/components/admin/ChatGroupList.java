@@ -49,7 +49,7 @@ public class ChatGroupList extends MainPanel {
         // Name Filter
         FilterButton nameFilterBtn = new FilterButton("Filter by name");
         filterPanel.add(nameFilterBtn);
-        nameFilterBtn.addFilterAction(nameFilter, this::setUpFiltered, this::refreshTable);
+        nameFilterBtn.addFilterAction(nameFilter, this::setUpFiltered);
         // Name Filter Tags
         for(String item : nameFilter){
             RoundedButton b = new RoundedButton(10);

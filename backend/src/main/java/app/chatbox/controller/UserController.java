@@ -1,19 +1,15 @@
 package app.chatbox.controller;
 
 import app.chatbox.dto.FriendCardDTO;
-import app.chatbox.dto.UserDTO;
 import app.chatbox.dto.UserListDTO;
-import app.chatbox.dto.request.LoginReqDTO;
+import app.chatbox.dto.request.AdminCreateOrUpdateUserReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.FriendRequestResDTO;
-import app.chatbox.dto.response.LoginResDTO;
 import app.chatbox.dto.response.RegisterResDTO;
 import app.chatbox.dto.response.UserResDTO;
-import app.chatbox.model.AppUser;
 import app.chatbox.services.FriendRequestService;
 import app.chatbox.services.FriendService;
 import app.chatbox.services.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -46,9 +42,43 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/getall/data")
-    public UserListDTO getAllUsersAndData() {return userService.getAllUsersAndData();}
+    public ResponseEntity<UserListDTO> getAllUsersAndData(
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String order,
+            @RequestParam(required = false) List<String> username,
+            @RequestParam(required = false) List<String> name,
+            @RequestParam(required = false) String status
+    ) {
+
+        return ResponseEntity.ok(
+                userService.getAllUsersAndData(sort, order, username, name, status)
+        );
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<UserResDTO> createAdminUser(@RequestBody AdminCreateOrUpdateUserReqDTO req) {
+        return ResponseEntity.ok(userService.createUser(req));
+    }
+
+    @PutMapping("/update/{id}")
+    public ResponseEntity<UserResDTO> updateUser(
+            @PathVariable Long id,
+            @RequestBody AdminCreateOrUpdateUserReqDTO req
+    ) {
+        return ResponseEntity.ok(userService.updateUserInfo(id, req));
+    }
+
+    @PutMapping("/lock/{id}")
+    public ResponseEntity<Void> setLockStatus(
+            @PathVariable Long id,
+            @RequestParam boolean locked
+    ) {
+        userService.updateLockStatus(id, locked);
+        return ResponseEntity.ok().build();
+    }
+
 
     @GetMapping("/{id}")
     public UserResDTO getById(@PathVariable Long id) {

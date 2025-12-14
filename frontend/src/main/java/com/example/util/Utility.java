@@ -54,4 +54,5 @@ public class Utility {
     static public String safeDate(LocalDate d) {
         return d == null ? "" : d.toString();
     }
+
 }

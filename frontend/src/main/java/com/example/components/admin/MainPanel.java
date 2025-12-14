@@ -17,17 +17,24 @@ public abstract class MainPanel extends JPanel {
         this.filtered = data; // default
     }
 
+    protected void init() {
+        buildFilterPanel();
+        setUpTable();
+    }
+
     protected abstract void buildFilterPanel();
     protected abstract void setUpTable();
-
+    protected  void afterRefresh() {};
     protected void refreshTable() {
-        SwingUtilities.invokeLater(() -> {
-            removeAll();
-            revalidate();
-            repaint();
+        if (table != null) {
+            SwingUtilities.invokeLater(() -> {
+                table.updateData(data);
 
-            buildFilterPanel();
-            setUpTable();
-        });
+                afterRefresh();
+                // Repaint just the table to show changes
+                table.revalidate();
+                table.repaint();
+            });
+        }
     }
 }

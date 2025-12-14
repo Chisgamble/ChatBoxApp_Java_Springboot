@@ -32,7 +32,7 @@ public interface UserMapper {
                 user.getBirthday(),          // maps to dob
                 null,                        // is_banned — not in AppUser, can set null or false
                 user.getIsActive(),           // is_active
-                user.getIs_locked(),          // is_locked
+                user.getIsLocked(),          // is_locked
                 user.getRole()
         );
     }

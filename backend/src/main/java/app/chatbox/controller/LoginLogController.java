@@ -1,0 +1,29 @@
+package app.chatbox.controller;
+
+import app.chatbox.dto.LoginLogListDTO;
+import app.chatbox.service.LoginLogService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/login-log")
+@RequiredArgsConstructor
+public class LoginLogController {
+
+    private final LoginLogService loginLogService;
+
+    @GetMapping("/getall")
+    public ResponseEntity<LoginLogListDTO> getAll(
+            @RequestParam(required = false) List<String> email,
+            @RequestParam(required = false) List<String> username,
+            @RequestParam(defaultValue = "all") String status,
+            @RequestParam(defaultValue = "asc") String order
+    ) {
+        return ResponseEntity.ok(
+                loginLogService.getAllLogsAndData(email, username, status, order)
+        );
+    }
+}

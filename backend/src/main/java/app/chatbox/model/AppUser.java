@@ -54,7 +54,7 @@ public class AppUser {
     private String role;
 
     @Column(name="is_locked")
-    private Boolean is_locked = false;
+    private Boolean isLocked = false;
 
     @Column(name = "created_at",updatable = false)
     private Instant createdAt = Instant.now();
