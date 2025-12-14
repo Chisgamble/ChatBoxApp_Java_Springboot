@@ -10,6 +10,7 @@ import com.example.components.MyColor;
 import com.example.components.RoundedComboBox;
 import com.example.components.user.*;
 import com.example.dto.FriendCardDTO;
+import com.example.dto.GroupCardDTO;
 import com.example.dto.InboxDTO;
 import com.example.dto.UserMiniDTO;
 import com.example.dto.response.FriendRequestResDTO;
@@ -43,6 +44,7 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     List<InboxDTO> inboxes;
     List<FriendCardDTO> friends;
     List<FriendCardDTO> friendsMaster;
+    List<GroupCardDTO> groupsMaster;
     List<FriendRequestResDTO> requestsMaster;
     List<StrangerCardResDTO> usersMaster;
     List<Msg> msgMaster;
@@ -120,17 +122,6 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
 
     @Override
     public void onSearchChange(String text) {
-//        filteredUsers.clear();
-//        if (text.isEmpty() || text.equals("Search")) {
-//            filteredUsers.addAll(allUsers);  // Show all users if the search bar is empty
-//        } else {
-//            for (User user : allUsers) {
-//                if (user.getName().toLowerCase().contains(text.toLowerCase())) {
-//                    filteredUsers.add(user);
-//                }
-//            }
-//        }
-//        updateList(filteredUsers);  // Update the list with the filtered users
         System.out.println("change");
         this.searchText = text.toLowerCase();
         applyFilters();
@@ -148,15 +139,26 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
             }
-        }
+        }else if ("Profile".equals(option)) {
+            ProfilePopup popup = new ProfilePopup(mainFrame);
+            popup.setVisible(true);
+            return;
+        }else{
 
-        applyFilters();
+            applyFilters();
+        }
     }
 
     List<FriendCardDTO> filterFriends(List<FriendCardDTO> list) {
         return list.stream()
                 .filter(f -> f.getUsername().toLowerCase().contains(searchText))
                 .filter(f -> !filterOnlineOnly || f.getIsActive()) // online only
+                .toList();
+    }
+
+    List<GroupCardDTO> filterGroups(List<GroupCardDTO> list) {
+        return list.stream()
+                .filter(f -> f.getGroupname().toLowerCase().contains(searchText))
                 .toList();
     }
 
@@ -217,6 +219,18 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
                 });
 
                 renderList(friendList);
+                break;
+
+            case "Groups":
+                groupsMaster = userService.getAllGroups(user.getId());
+                data = filterGroups(groupsMaster);
+
+                GroupCardList groupList =
+                        new GroupCardList((List<GroupCardDTO>) data,
+                                getWidth() - 15,
+                                (card, group) -> mainFrame.openGroupChat(group));
+
+                renderList(groupList);
                 break;
 
             case "Friend request":

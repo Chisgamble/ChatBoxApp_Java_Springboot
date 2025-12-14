@@ -5,8 +5,10 @@ import java.awt.*;
 import java.util.List;
 
 import com.example.dto.FriendCardDTO;
+import com.example.dto.GroupCardDTO;
 import com.example.dto.InboxDTO;
 import com.example.dto.UserMiniDTO;
+import com.example.dto.response.GroupUserResDTO;
 import com.example.dto.response.InboxUserResDTO;
 import com.example.dto.response.LoginResDTO;
 import com.example.listener.CreateGroupListener;
@@ -18,6 +20,7 @@ import com.example.panels.ChatUtilPanel;
 import com.example.panels.UserUtilPanel;
 import com.example.services.AuthService;
 import com.example.services.FriendService;
+import com.example.services.GroupService;
 import com.example.services.InboxService;
 
 public class ChatScreen extends JFrame implements CreateGroupListener, LogoutListener, FriendCardListener {
@@ -25,8 +28,8 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
     List<InboxDTO> inboxes;
     List<FriendCardDTO> friends;
     FriendService friendService = new FriendService();
-
-    final InboxService inboxService = new InboxService();
+    InboxService inboxService = new InboxService();
+    GroupService groupService = new GroupService();
 
     ChatPanel chatPanel;
     ChatUtilPanel chatUtilPanel;
@@ -53,6 +56,7 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
 
             ChatContext ctx = new ChatContext();
             ctx.setGroup(false);
+            ctx.setAdmin(false);
             ctx.setInboxId(initialFriend.getInboxId());
             ctx.setTargetUser(initialInbox.getFriend());
 
@@ -60,7 +64,7 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
 
 
             chatPanel = new ChatPanel(width * 5, height);
-            chatUtilPanel = new ChatUtilPanel(this, width * 2, height, false, false, initialInbox.getFriend());
+            chatUtilPanel = new ChatUtilPanel(this, width * 2, height, initialInbox.getFriend());
             userUtilPanel = new UserUtilPanel(this,width * 2, height, user, friends);
             this.add(chatPanel, BorderLayout.CENTER);
             this.add(chatUtilPanel, BorderLayout.EAST);
@@ -101,18 +105,21 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
         }
     }
 
-//    public void openGroupChat(GroupDTO group) {
-//
-//        ChatContext ctx = new ChatContext();
-//        ctx.setGroup(true);
-//        ctx.setGroupId(group.getId());
-//        ctx.setTargetGroup(group.toMiniDTO());
-//
-//        this.currentChat = ctx;
-//
-//        chatPanel.loadGroup(group.getId());
-//        chatUtilPanel.showChat(ctx);
-//    }
+    public void openGroupChat(GroupCardDTO group) {
+
+        GroupUserResDTO res =
+                groupService.getInfoAndMsgs(group.getId());
+
+        ChatContext ctx = new ChatContext();
+        ctx.setGroup(true);
+        ctx.setGroupId(group.getId());
+//        ctx.setTargetGroup(res.getUserInGroup());
+
+        this.currentChat = ctx;
+
+        chatPanel.showGroupMessages(res, user.getId());
+        chatUtilPanel.showGroup(group, res.getUserInGroup());
+    }
 
 
     @Override

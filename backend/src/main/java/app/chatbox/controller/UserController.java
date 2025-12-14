@@ -1,6 +1,7 @@
 package app.chatbox.controller;
 
 import app.chatbox.dto.FriendCardDTO;
+import app.chatbox.dto.GroupCardDTO;
 import app.chatbox.dto.UserListDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.FriendRequestResDTO;
@@ -8,6 +9,7 @@ import app.chatbox.dto.response.RegisterResDTO;
 import app.chatbox.dto.response.StrangerCardResDTO;
 import app.chatbox.services.FriendRequestService;
 import app.chatbox.services.FriendService;
+import app.chatbox.services.GroupService;
 import app.chatbox.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
@@ -33,6 +35,7 @@ public class UserController {
     private final FriendService friendService;
     private final FriendRequestService friendRequestService;
     private final UserService userService;
+    private final GroupService groupService;
 
 //    @GetMapping("/")
 //    public List<StrangerCardResDTO> getAllUsers() {
@@ -72,6 +75,12 @@ public class UserController {
     @GetMapping("/{id}/friends")
     public ResponseEntity<List<FriendCardDTO>> getAllFriendCards(@PathVariable Long id) {
         return ResponseEntity.ok(friendService.getAllFriends(id));
+    }
+
+    @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")
+    @GetMapping("/{id}/groups")
+    public ResponseEntity<List<GroupCardDTO>> getAllGroupCards(@PathVariable Long id) {
+        return ResponseEntity.ok(groupService.getAllGroups(id));
     }
 
     @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")

@@ -7,9 +7,12 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.Border;
 
+import com.example.dto.GroupMsgDTO;
 import com.example.dto.InboxMsgDTO;
+import com.example.dto.response.GroupUserResDTO;
 import com.example.dto.response.InboxUserResDTO;
 import com.example.services.InboxService;
+import com.example.util.Utility;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.example.components.MyColor;
 import com.example.components.user.MsgBubble;
@@ -123,6 +126,20 @@ public class ChatPanel extends JPanel{
         for (InboxMsgDTO msg : inbox.getMsgs()) {
             boolean isMe = msg.getSenderId().equals(myId);
             addMessage(chatArea, msg.getContent(), isMe, getWidth(), inbox.getFriend().getInitials());
+        }
+
+        chatArea.revalidate();
+        scrollPane.setViewportView(chatArea);
+        scrollToBottom(scrollPane);
+        chatArea.repaint();
+    }
+
+    public void showGroupMessages(GroupUserResDTO group, Long myId) {
+        // clear UI
+        chatArea.removeAll();
+        for (GroupMsgDTO msg : group.getMsgs()) {
+            boolean isMe = msg.getSenderId().equals(myId);
+            addMessage(chatArea, msg.getContent(), isMe, getWidth(), Utility.getInitials(msg.getSenderUsername()));
         }
 
         chatArea.revalidate();

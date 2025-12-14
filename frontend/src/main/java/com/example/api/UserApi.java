@@ -1,6 +1,7 @@
 package com.example.api;
 
 import com.example.dto.FriendCardDTO;
+import com.example.dto.GroupCardDTO;
 import com.example.dto.response.FriendRequestResDTO;
 import com.example.dto.response.StrangerCardResDTO;
 import com.example.dto.response.UserCardResDTO;
@@ -18,6 +19,12 @@ public class UserApi {
         return response;
     }
 
+    public List<GroupCardDTO> getAllGroups(Long userId){
+        String url = BASE_URL + "/" + userId.toString() + "/groups";
+        List<GroupCardDTO> response = HttpClientUtil.get(url, new TypeReference<List<GroupCardDTO>>() {});
+        return response;
+    }
+
     public List<FriendRequestResDTO> getAllFriendRequests(Long userId){
         String url = BASE_URL + "/" + userId.toString() + "/friend-requests";
         List<FriendRequestResDTO> response = HttpClientUtil.get(url, new TypeReference<List<FriendRequestResDTO>>() {});
@@ -29,4 +36,6 @@ public class UserApi {
         List<StrangerCardResDTO> response = HttpClientUtil.get(url, new TypeReference<List<StrangerCardResDTO>>() {});
         return response;
     }
+
+
 }

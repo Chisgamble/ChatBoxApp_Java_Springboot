@@ -4,6 +4,8 @@ import com.example.components.Avatar;
 import com.example.components.ConfirmPopup;
 import com.example.components.user.*;
 import com.example.dto.FriendCardDTO;
+import com.example.dto.GroupCardDTO;
+import com.example.dto.GroupMemberDTO;
 import com.example.dto.UserMiniDTO;
 import com.example.listener.SearchBarListener;
 import com.example.model.Msg;
@@ -14,6 +16,7 @@ import java.awt.*;
 import javax.swing.*;
 
 import com.example.ui.ChatContext;
+import com.example.util.Utility;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.example.ui.ChatScreen;
 
@@ -55,7 +58,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     String[] groupOptions = {"Search In Chat", "Members", "Leave Group"};
     String[] groupAdminOptions = {"Search In Chat", "Members", "Add New Members", "Change Group Name", "Encrypt Group","Delete All Chat History", "Delete Group"};
 
-    public ChatUtilPanel(ChatScreen mainFrame, int width, int height, boolean isGroup, boolean isAdmin, UserMiniDTO friend) {
+    public ChatUtilPanel(ChatScreen mainFrame, int width, int height, UserMiniDTO friend) {
         this.mainFrame = mainFrame;
         if (friend == null){
             this.user = new UserMiniDTO();
@@ -69,8 +72,8 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 //            msgs.add(new Msg());
 //        }
         
-        this.isGroup = isGroup;
-        this.isAdmin = isAdmin;
+        this.isGroup = mainFrame.getContext().isGroup();
+        this.isAdmin = mainFrame.getContext().isAdmin();
 
         this.setLayout(new BorderLayout());
         this.setOpaque(false);
@@ -229,20 +232,18 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 
     public void showUser(UserMiniDTO user) {
         this.user = user;
+        this.isGroup = false;
         updatePanel();
     }
 
-    public void showChat(ChatContext ctx) {
-        this.isGroup = ctx.isGroup();
+    public void showGroup(GroupCardDTO group, GroupMemberDTO user) {
+        this.user.setUsername(group.getGroupname());
+        this.user.setInitials(Utility.getInitials(group.getGroupname()));
 
-        if (ctx.isGroup()) {
-//            showGroup(ctx.getTargetGroup());
-        } else {
-            showUser(ctx.getTargetUser());
-        }
+        this.isAdmin = user.getRole().equals("admin");
+        this.isGroup = true;
+        updatePanel();
     }
-
-
 
     private void onOptionButtonClick(String option) {
         // Update the current selected option

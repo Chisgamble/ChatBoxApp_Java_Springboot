@@ -25,7 +25,7 @@ public class AppUser {
     @Column(name="ID")
     private long id;
 
-    @Column(name="groupname", length = 50, nullable = false)
+    @Column(name="username", length = 50, nullable = false)
     private String username;
 
     @Column(name="name", length = 50)

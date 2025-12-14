@@ -5,7 +5,7 @@ import lombok.*;
 import java.time.Instant;
 
 @Entity
-@Table(name = "group")
+@Table(name = "chat_group")
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -17,7 +17,7 @@ public class Group {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(length = 100)
+    @Column(length = 100, name = "group_name")
     private String name;
 
     @Column(length = 20)

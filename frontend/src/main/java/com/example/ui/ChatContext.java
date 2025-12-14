@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 public class ChatContext {
     private boolean isGroup;
+    private boolean isAdmin;
     private Long inboxId;     // for 1-1
     private Long groupId;     // for group
     private UserMiniDTO targetUser;
