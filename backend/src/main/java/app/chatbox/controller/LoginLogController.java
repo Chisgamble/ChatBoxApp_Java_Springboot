@@ -1,5 +1,6 @@
 package app.chatbox.controller;
 
+import app.chatbox.dto.LoginLogDTO;
 import app.chatbox.dto.LoginLogListDTO;
 import app.chatbox.service.LoginLogService;
 import lombok.RequiredArgsConstructor;
@@ -25,5 +26,10 @@ public class LoginLogController {
         return ResponseEntity.ok(
                 loginLogService.getAllLogsAndData(email, username, status, order)
         );
+    }
+
+    @GetMapping("/find-by-email")
+    public ResponseEntity<LoginLogListDTO> getByEmail(@RequestParam String email) {
+        return ResponseEntity.ok((loginLogService.getLogsByEmail(email)));
     }
 }

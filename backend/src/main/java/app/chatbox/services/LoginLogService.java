@@ -51,4 +51,16 @@ public class LoginLogService {
 
         return new LoginLogListDTO(dtos);
     }
+
+    public LoginLogListDTO getLogsByEmail(String email) {
+        AppUser user = userRepo.findByEmail(email).orElse(null);
+
+        List<LoginLog> logs = loginLogRepo.findByEmail(email, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        List<LoginLogDTO> dtoList = logs.stream()
+                .map(log -> loginLogMapper.toDTO(log, user))
+                .toList();
+
+        return new LoginLogListDTO(dtoList);
+    }
 }

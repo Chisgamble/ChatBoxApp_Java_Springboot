@@ -35,7 +35,7 @@ public class LoginActivity extends MainPanel {
 
         // This panel IS the main page content
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBackground(MyColor.LIGHT_BLUE);
+        setBackground(MyColor.WHITE_BG);
 
         filterData(); // This populates 'this.data'
         init();
@@ -113,6 +113,7 @@ public class LoginActivity extends MainPanel {
         String[] sortOptions = {"Most recent", "Least recent"};
         RoundedComboBox<String> asc_des = new RoundedComboBox<>(sortOptions);
         asc_des.setFont(ROBOTO.deriveFont(16f));
+        asc_des.setBackground(MyColor.WHITE_BG);
 
         // MEMORY FIX
         if("asc".equals(this.order)) asc_des.setSelectedItem("Ascending");
@@ -146,7 +147,7 @@ public class LoginActivity extends MainPanel {
 
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder());
-        scroll.setPreferredSize(new Dimension(1850, 600));
+        scroll.setPreferredSize(new Dimension(1850, 625));
         add(scroll);
 
         add(Box.createVerticalGlue());

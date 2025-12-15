@@ -9,9 +9,11 @@ import java.util.List;
 import java.util.ArrayList;
 
 import com.example.components.user.FriendCard;
+import com.example.dto.LoginLogDTO;
 import com.example.dto.UserDTO;
 import com.example.dto.request.AdminCreateOrUpdateUserReqDTO;
 import com.example.model.User;
+import com.example.services.admin.LoginLogService;
 import com.example.util.Utility;
 import com.example.services.admin.UserListService;
 
@@ -27,11 +29,13 @@ public class UserList extends MainPanel {
     private String sort;
     private String order;
     private UserListService userService;
+    private LoginLogService loginLogService;
     private JPanel filterPanel;
     List<UserDTO> users;
 
     public UserList() {
         userService = new UserListService();
+        loginLogService = new LoginLogService();
         sort = "username";
         order = "asc";
         status = "all";
@@ -167,7 +171,7 @@ public class UserList extends MainPanel {
                 menuItem.addActionListener(evt -> updateUserPopup());
             }
             else if (item.equals("Login history")) {
-                menuItem.addActionListener(evt -> userLoginPopup(currentUsername));
+                menuItem.addActionListener(evt -> userLoginPopup(currentUsername, currentEmail));
             }
             else if (item.equals("Update password")) {
                 menuItem.addActionListener(evt -> updatePasswordPopup(currentUsername));
@@ -763,31 +767,77 @@ public class UserList extends MainPanel {
 
     }
 
-    private void userLoginPopup(String username) {
-        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Login log", true);
+    private void userLoginPopup(String username, String email) {
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Login History: " + username, true);
+
+        List<LoginLogDTO> logs = loginLogService.getByEmail(email);
 
         JPanel wrapper = new JPanel();
         wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.Y_AXIS));
-        for(int i = 0; i < 10; i++){
-            JPanel a = new JPanel();
-            a.setLayout(new BorderLayout());
-            a.add(new JLabel(username), BorderLayout.WEST);
-            a.add(new JLabel("12/12/2025"), BorderLayout.EAST);
-            wrapper.add(a);
-            wrapper.setBorder(new EmptyBorder(5, 15, 5, 15));
-            wrapper.add(Box.createVerticalStrut(20));
+        wrapper.setBackground(Color.WHITE);
+        // Apply border to the wrapper once, not inside the loop
+        wrapper.setBorder(new EmptyBorder(10, 15, 10, 15));
+
+        if (logs == null || logs.isEmpty()) {
+            JLabel noLogs = new JLabel("No login history found.");
+            noLogs.setAlignmentX(Component.CENTER_ALIGNMENT);
+            wrapper.add(noLogs);
+        } else {
+            for (LoginLogDTO log : logs) {
+                JPanel row = new JPanel(new BorderLayout());
+                row.setMaximumSize(new Dimension(550, 30));
+                row.setBackground(Color.WHITE);
+                // Add a subtle separator line
+                row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(240, 240, 240)));
+
+                // --- Left: Username + Status Color ---
+                JLabel leftLabel = new JLabel(username);
+                leftLabel.setFont(new Font("Roboto", Font.BOLD, 14));
+
+                // Visual indicator: Green for Success, Red for Fail
+                if (log.isSuccess()) {
+                    leftLabel.setForeground(new Color(34, 139, 34)); // Green
+                    leftLabel.setText("✔ " + username);
+                } else {
+                    leftLabel.setForeground(Color.RED);
+                    leftLabel.setText("✘ " + username);
+                }
+
+                // --- Right: Time ---
+                // Backend sends ISO string (e.g. 2025-12-12T10:15:30)
+                // Replace 'T' with space for readability
+                String timeStr = log.createdAt() != null
+                        ? log.createdAt().replace("T", " ")
+                        : "Unknown";
+
+                // Optional: trim milliseconds if present
+                if (timeStr.contains(".")) {
+                    timeStr = timeStr.substring(0, timeStr.indexOf("."));
+                }
+
+                JLabel rightLabel = new JLabel(timeStr);
+                rightLabel.setFont(new Font("Roboto", Font.PLAIN, 13));
+                rightLabel.setForeground(Color.GRAY);
+
+                row.add(leftLabel, BorderLayout.WEST);
+                row.add(rightLabel, BorderLayout.EAST);
+
+                wrapper.add(row);
+                // Space between rows
+                wrapper.add(Box.createVerticalStrut(10));
+            }
         }
+
         JScrollPane scroll = new JScrollPane(wrapper);
         scroll.setPreferredSize(new Dimension(600, 500));
-        scroll.getVerticalScrollBar().setUnitIncrement(20);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        scroll.setBorder(null);
 
         dialog.add(scroll);
         dialog.pack();
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
-
     }
-
     private void updatePasswordPopup(String currentUsername) {
         RoundedPanel popup = new RoundedPanel(15);
         popup.setLayout(new BorderLayout());

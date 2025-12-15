@@ -1,5 +1,6 @@
 package com.example.api.admin;
 
+import com.example.dto.LoginLogDTO;
 import com.example.dto.LoginLogListDTO;
 import com.example.util.HttpClientUtil;
 
@@ -33,5 +34,11 @@ public class LoginLogApi {
 
         // 4. Send Request (Expect LoginLogListDTO response)
         return HttpClientUtil.get(url.toString(), LoginLogListDTO.class);
+    }
+
+    public LoginLogListDTO getLogsByEmail(String email) {
+        String url = BASE_URL + "/find-by-email?email=" + email;
+        // Use .get(), not .getList()
+        return HttpClientUtil.get(url, LoginLogListDTO.class);
     }
 }

@@ -18,4 +18,18 @@ public class LoginLogService {
         }
         return Collections.emptyList();
     }
+
+    public List<LoginLogDTO> getByEmail(String email) {
+        if (email == null || email.isEmpty()) return Collections.emptyList();
+
+        // 1. Get the Wrapper DTO
+        LoginLogListDTO response = api.getLogsByEmail(email);
+
+        // 2. Unwrap and return the list (safe check for null)
+        if (response != null && response.logs() != null) {
+            return response.logs();
+        }
+
+        return Collections.emptyList();
+    }
 }

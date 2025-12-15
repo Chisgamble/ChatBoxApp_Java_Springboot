@@ -48,8 +48,7 @@ public class RoundedComboBox<E> extends JComboBox<E> {
                             scroller.getViewport().setOpaque(false);
                         }
 
-                        // 2. MAKE THE LIST TRANSPARENT (Crucial Fix)
-                        // This removes the "boxy" white background behind the text items
+                        // 2. Make list transparent
                         list.setOpaque(false);
                         list.setBackground(new Color(0, 0, 0, 0)); // Fully transparent
                         list.setSelectionBackground(new Color(0x0084FF)); // Highlight color
@@ -92,7 +91,7 @@ public class RoundedComboBox<E> extends JComboBox<E> {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g2.setColor(getBackground());
-        g2.fillRoundRect(0, 0, getWidth(), getHeight(), radius, radius);
+        g2.fillRoundRect(1, 1, getWidth(), getHeight(), radius, radius);
 
         super.paintComponent(g2);
         g2.dispose();
