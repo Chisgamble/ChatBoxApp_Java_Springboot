@@ -3,6 +3,7 @@ package com.example.services;
 import com.example.api.UserApi;
 import com.example.dto.FriendCardDTO;
 import com.example.dto.GroupCardDTO;
+import com.example.dto.MsgDTO;
 import com.example.dto.response.FriendRequestResDTO;
 import com.example.dto.response.StrangerCardResDTO;
 import com.example.dto.response.UserCardResDTO;
@@ -25,4 +26,10 @@ public class UserService {
     public List<StrangerCardResDTO> getAllStrangerCards(long userId){
         return api.getAllStrangerCards(userId);
     }
+
+    public String blockUser (Long targetUserId) {return api.blockUser(targetUserId).message();}
+
+    public String reportSpam (Long targetUserId) {return api.reportSpam(targetUserId).message();}
+
+    public List<MsgDTO> getAllRelatedMessages() { return api.getAllRelatedMessages();}
 }

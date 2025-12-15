@@ -9,17 +9,12 @@ import javax.swing.*;
 import com.example.components.MyColor;
 import com.example.components.RoundedComboBox;
 import com.example.components.user.*;
-import com.example.dto.FriendCardDTO;
-import com.example.dto.GroupCardDTO;
-import com.example.dto.InboxDTO;
-import com.example.dto.UserMiniDTO;
+import com.example.dto.*;
 import com.example.dto.response.FriendRequestResDTO;
 import com.example.dto.response.StrangerCardResDTO;
 import com.example.listener.FriendRequestListener;
 import com.example.listener.SearchBarListener;
 import com.example.listener.UserMenuListener;
-import com.example.model.Msg;
-import com.example.model.User;
 import com.example.services.AuthService;
 import com.example.services.FriendRequestService;
 import com.example.services.FriendService;
@@ -42,29 +37,17 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
 
     UserMiniDTO user;
     List<InboxDTO> inboxes;
-    List<FriendCardDTO> friends;
     List<FriendCardDTO> friendsMaster;
     List<GroupCardDTO> groupsMaster;
     List<FriendRequestResDTO> requestsMaster;
     List<StrangerCardResDTO> usersMaster;
-    List<Msg> msgMaster;
+    List<MsgDTO> msgMaster;
 
     List<?> filteredList;
 
     String searchText = "";
     boolean filterOnlineOnly = false; // comboBox
 
-    List<User> filteredUsers = new ArrayList<>();
-    List<Msg> all_msgs = new ArrayList<>(List.of(
-            new Msg("Sammael"),
-            new Msg("Chris"),
-            new Msg("Doc"),
-            new Msg("Fridge"),
-            new Msg("Dante"),
-            new Msg("Faust"),
-            new Msg("Heathcliff"),
-            new Msg("Ishmael"))
-    );
     String cur_option;
 
     public  UserUtilPanel(ChatScreen mainFrame, int width, int height, UserMiniDTO user, List<FriendCardDTO> friends) {
@@ -72,7 +55,7 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
         this.mainFrame = mainFrame;
         this.inboxes = null;
         this.user = user;
-        this.friends = friends;
+        this.friendsMaster = friends;
 
         this.setPreferredSize(new Dimension(width, height));
         this.setLayout(new BorderLayout());
@@ -107,7 +90,22 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
         centerContainer.setPreferredSize(new Dimension(width - 10, height - 60));
         centerContainer.setOpaque(false);
 
-        list = new FriendCardList(friends, width - 10, mainFrame);
+        FriendCardList friendList = new FriendCardList(friends, width - 10, mainFrame);
+        friendList.getList().addListSelectionListener(e -> {
+            System.out.println("Event  ------------------------------");
+            if (!e.getValueIsAdjusting()) {
+                System.out.println(friendList.getList().getSelectedValue());
+                FriendCardDTO selected =
+                        friendList.getList().getSelectedValue();
+
+                if (selected != null) {
+                    System.out.println(selected.getFriendId());
+                    mainFrame.openInbox(selected);
+                    System.out.println(selected.getFriendId());
+                }
+            }
+        });
+        list = friendList;
 
         JScrollPane scrollPane = new JScrollPane(list);
         scrollPane.setBorder(null);
@@ -139,14 +137,21 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
             }
+            return;
         }else if ("Profile".equals(option)) {
             ProfilePopup popup = new ProfilePopup(mainFrame);
             popup.setVisible(true);
             return;
-        }else{
-
-            applyFilters();
+        }else if("SearchMsg".equals(option)) {
+            try {
+                if (msgMaster == null)
+                    msgMaster = userService.getAllRelatedMessages();
+            } catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Failed to load messages: " + e.getMessage());
+                msgMaster = List.of();
+            }
         }
+        applyFilters();
     }
 
     List<FriendCardDTO> filterFriends(List<FriendCardDTO> list) {
@@ -174,14 +179,18 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
                 .toList();
     }
 
-    List<Msg> filterMsgs(List<Msg> list) {
+    List<MsgDTO> filterMsgs(List<MsgDTO> list) {
         return list.stream()
-                .filter(m -> m.getSenderName().contains(searchText))
-                .toList();
+            .filter(m ->
+                m.getContent() != null &&
+                m.getContent().toLowerCase().contains(searchText)
+            )
+            .toList();
     }
 
     void renderList(Component comp) {
         centerContainer.removeAll();
+        this.list = comp;
 
         JScrollPane scrollPane = new JScrollPane(comp);
         scrollPane.setBorder(null);
@@ -207,12 +216,15 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
                         new FriendCardList((List<FriendCardDTO>) data, getWidth() - 15, mainFrame);
 
                 friendList.getList().addListSelectionListener(e -> {
+                    System.out.println("Event  ------------------------------");
                     if (!e.getValueIsAdjusting()) {
                         System.out.println(friendList.getList().getSelectedValue());
                         FriendCardDTO selected =
                                 friendList.getList().getSelectedValue();
 
                         if (selected != null) {
+                            mainFrame.getContext().setTargetUser(selected);
+                            mainFrame.getContext().setGroup(false);
                             mainFrame.openInbox(selected);
                         }
                     }
@@ -228,7 +240,11 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
                 GroupCardList groupList =
                         new GroupCardList((List<GroupCardDTO>) data,
                                 getWidth() - 15,
-                                (card, group) -> mainFrame.openGroupChat(group));
+                                (card, group) ->{
+                                    mainFrame.getContext().setTargetGroup(group); // ⭐
+                                    mainFrame.getContext().setGroup(true);        // ⭐
+                                    mainFrame.openGroupChat(group);
+                                });
 
                 renderList(groupList);
                 break;
@@ -240,15 +256,25 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
                 break;
 
             case "Find User":
-                usersMaster = userService.getAllStrangerCards(user.getId());
-                data = filterUsers(usersMaster);
-                renderList(new StrangerCardList((List<StrangerCardResDTO>) data, getWidth() - 15, this));
-                break;
+                try {
+                    usersMaster = userService.getAllStrangerCards(user.getId());
+                    data = filterUsers(usersMaster);
+                    renderList(new StrangerCardList((List<StrangerCardResDTO>) data, getWidth() - 15, this));
+                    break;
+                } catch(Exception ex){
+                    JOptionPane.showMessageDialog(this, "Failed to load all users");
+                }
 
             case "SearchMsg":
-                msgMaster = all_msgs;
+                if (msgMaster == null) {
+                    msgMaster = List.of();
+                }
+
                 data = filterMsgs(msgMaster);
-                renderList(new MsgCardList((List<Msg>) data, getWidth() - 15));
+                renderList(new GlobalMsgCardList(
+                        (List<MsgDTO>) data,
+                        getWidth() - 15
+                ));
                 break;
 
             default:
@@ -269,18 +295,18 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
 //    void updateList(List<User> users){
 //        boolean showOnline = false;
 //        if (cur_option.equals("Friend request") ){
-//            List<FriendRequestResDTO> friend_requests = userService.getAllFriendRequests(user.getId());
+//            List<FriendRequestResDTO> friend_requests = userService.getAllFriendRequests(friend.getId());
 //            list = new FriendRequestList(friend_requests, getWidth() - 15, this);
 //        }else if(cur_option.equals("Friends")){
 //            loadFriends();
 //            list = new FriendCardList(friends, getWidth() - 15, mainFrame);
 //            showOnline = true;
 //        }else if (cur_option.equals("SearchMsg")){
-//            list = new MsgCardList(all_msgs, getWidth() - 15);
+//            list = new GlobalMsgCardList(all_msgs, getWidth() - 15);
 //        }else if (cur_option.equals("Groups")){
 //            //Group card is a msg card but groups will be passed instead of msg
 //            //since the card only display name and last msg
-//            list = new MsgCardList(all_msgs, getWidth() - 15);
+//            list = new GlobalMsgCardList(all_msgs, getWidth() - 15);
 //        }else if (cur_option.equals("Find User")){
 ////            list = new StrangerCardList(, getWidth() - 15);
 //        }else if (cur_option.equals("Logout")) {
@@ -314,17 +340,17 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     }
 
 //    @Override
-//    public void onPromote(User user) {
-//        api.promoteMember(user.getId(),
-//                () -> JOptionPane.showMessageDialog(this, "Promoted " + user.getName()),
+//    public void onPromote(User friend) {
+//        api.promoteMember(friend.getId(),
+//                () -> JOptionPane.showMessageDialog(this, "Promoted " + friend.getName()),
 //                () -> JOptionPane.showMessageDialog(this, "Failed to promote")
 //        );
 //    }
 //
 //    @Override
-//    public void onRemove(User user) {
-//        api.removeMember(user.getId(),
-//                () -> JOptionPane.showMessageDialog(this, "Removed " + user.getName()),
+//    public void onRemove(User friend) {
+//        api.removeMember(friend.getId(),
+//                () -> JOptionPane.showMessageDialog(this, "Removed " + friend.getName()),
 //                () -> JOptionPane.showMessageDialog(this, "Failed to remove")
 //        );
 //    }
@@ -360,7 +386,7 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     }
 
     private void loadFriends() {
-        friends = userService.getAllFriends(user.getId());
+        friendsMaster = userService.getAllFriends(user.getId());
     }
 
     private void loadFriendRequests() {
@@ -396,5 +422,32 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
         }
     }
 
+    public void removeFriend(Long userId) {
+        if (friendsMaster == null) return;
+
+        System.out.println(userId + " - ");
+        for (FriendCardDTO fr : friendsMaster){
+            System.out.print(fr.getFriendId() + " - ");
+        }
+        System.out.println("Before remove: " + friendsMaster.size());
+        friendsMaster.removeIf(f ->  f.getFriendId().equals(userId));
+        System.out.println("After remove: " + friendsMaster.size());
+
+        // nếu đang ở tab Friends → render lại
+        if ("Friends".equals(cur_option)) {
+            applyFilters();
+        }
+        System.out.println(friendsMaster.size());
+    }
+
+    public void removeGroup(Long groupId) {
+        if (groupsMaster == null) return;
+
+        groupsMaster.removeIf(g -> g.getId().equals(groupId));
+
+        if ("Groups".equals(cur_option)) {
+            applyFilters();
+        }
+    }
 
 }

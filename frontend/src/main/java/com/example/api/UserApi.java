@@ -2,7 +2,9 @@ package com.example.api;
 
 import com.example.dto.FriendCardDTO;
 import com.example.dto.GroupCardDTO;
+import com.example.dto.MsgDTO;
 import com.example.dto.response.FriendRequestResDTO;
+import com.example.dto.response.GeneralResDTO;
 import com.example.dto.response.StrangerCardResDTO;
 import com.example.dto.response.UserCardResDTO;
 import com.example.util.HttpClientUtil;
@@ -37,5 +39,21 @@ public class UserApi {
         return response;
     }
 
+    public GeneralResDTO blockUser(Long targetUserId) {
+        String url = BASE_URL + "/" + targetUserId.toString() + "/block";
+        GeneralResDTO res = HttpClientUtil.postJson(url, null, GeneralResDTO.class);
+        return res;
+    }
 
+    public GeneralResDTO reportSpam(Long targetUserId) {
+        String url = BASE_URL + "/" + targetUserId.toString() + "/report-spam";
+        GeneralResDTO res = HttpClientUtil.postJson(url, null, GeneralResDTO.class);
+        return res;
+    }
+
+    public List<MsgDTO> getAllRelatedMessages(){
+        String url = BASE_URL + "/messages/me";
+        List<MsgDTO> res = HttpClientUtil.get(url, new TypeReference<List<MsgDTO>>() {});
+        return res;
+    }
 }

@@ -1,11 +1,13 @@
 package com.example.dto;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Setter
 @Getter
-public class GroupMsgDTO{
+@NoArgsConstructor
+public class GroupMsgDTO implements BaseMsgDTO{
     private Long id;
     private Long senderId;
     private String senderUsername;
@@ -17,4 +19,20 @@ public class GroupMsgDTO{
         this.senderUsername = senderUsername;
         this.content = content;
     }
+
+    @Override
+    public Long getId() { return id; }
+
+    @Override
+    public Long getSenderId() {
+        return senderId;
+    }
+
+    @Override
+    public String getSenderName() {
+        return senderUsername;
+    }
+
+    @Override
+    public String getContent() { return content; }
 }

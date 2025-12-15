@@ -1,6 +1,7 @@
 package com.example.api;
 
 import com.example.dto.FriendCardDTO;
+import com.example.dto.response.GeneralResDTO;
 import com.example.util.HttpClientUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 
@@ -14,5 +15,11 @@ public class FriendApi {
         List<FriendCardDTO> response = HttpClientUtil.get(url, new TypeReference<List<FriendCardDTO>>() {});
         return response;
     }
+
+    public GeneralResDTO deleteFriend(Long friendId) {
+        String url = BASE_URL + "/" + friendId;
+        return HttpClientUtil.deleteJson(url, null, GeneralResDTO.class);
+    }
+
 
 }

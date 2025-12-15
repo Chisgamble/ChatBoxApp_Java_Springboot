@@ -3,8 +3,8 @@ package com.example.components.user;
 import com.example.components.MyColor;
 import com.example.components.RoundedButton;
 import com.example.components.RoundedDialog;
+import com.example.dto.response.StrangerCardResDTO;
 import com.example.listener.CreateGroupListener;
-import com.example.model.User;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AddMemberPopup {
-    static List<User> selectedUsers = new ArrayList<>();
+    static List<StrangerCardResDTO> selectedUsers = new ArrayList<>();
     public static void show(JFrame parent,
-                            List<User> allUsers,
+                            List<StrangerCardResDTO> allUsersDTOs,
                             CreateGroupListener callback) {
 
         RoundedDialog dialog = new RoundedDialog(parent, "Create Group", 400, 500);
@@ -34,14 +34,14 @@ public class AddMemberPopup {
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         scrollPane.setViewportView(listPanel);
 
-        refreshMemberList(listPanel, allUsers, selectedUsers, "");
+        refreshMemberList(listPanel, allUsersDTOs, selectedUsers, "");
 
         // Search bar
         JPanel searchPanel = new JPanel(new BorderLayout());
         searchPanel.setOpaque(false);
         searchPanel.setMaximumSize(new Dimension( 300, 40));
         SearchBar searchBar = new SearchBar(20, 10, 300, 35, phrase -> {
-            refreshMemberList(listPanel, allUsers, selectedUsers, phrase);
+            refreshMemberList(listPanel, allUsersDTOs, selectedUsers, phrase);
         });
         searchPanel.add(searchBar);
 
@@ -95,19 +95,19 @@ public class AddMemberPopup {
 
     private static void refreshMemberList(
             JPanel listPanel,
-            List<User> allUsers,
-            List<User> selectedUsers,
+            List<StrangerCardResDTO> allUsers,
+            List<StrangerCardResDTO> selectedUsers,
             String phrase
     ) {
         listPanel.removeAll();
 
-        for (User u : allUsers) {
+        for (StrangerCardResDTO u : allUsers) {
             if (!selectedUsers.contains(u) &&
                     !phrase.isEmpty() && !phrase.equals("Search")
-                    && !u.getName().toLowerCase().contains(phrase.toLowerCase()))
+                    && !u.getUsername().toLowerCase().contains(phrase.toLowerCase()))
                 continue;
 
-            AddMemberCard card = new AddMemberCard(u, 300);
+            AddMemberCard card = new AddMemberCard(u.getUsername(), 300);
 
             if (selectedUsers.contains(u)) {
                 card.setBackground(MyColor.LIGHT_PURPLE.darker());

@@ -3,19 +3,16 @@ package com.example.panels;
 import com.example.components.Avatar;
 import com.example.components.ConfirmPopup;
 import com.example.components.user.*;
-import com.example.dto.FriendCardDTO;
-import com.example.dto.GroupCardDTO;
-import com.example.dto.GroupMemberDTO;
-import com.example.dto.UserMiniDTO;
+import com.example.dto.*;
+import com.example.dto.response.StrangerCardResDTO;
 import com.example.listener.SearchBarListener;
-import com.example.model.Msg;
-import com.example.model.User;
 
 import java.awt.*;
 
 import javax.swing.*;
 
-import com.example.ui.ChatContext;
+import com.example.services.InboxService;
+import com.example.services.UserService;
 import com.example.util.Utility;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.example.ui.ChatScreen;
@@ -33,22 +30,19 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     JPanel topContainer = new JPanel();
     JPanel centerContainer = new JPanel();
     Component listContainer = null;
-    
-    UserMiniDTO user;
-    List<Msg> msgs = new ArrayList<>();
-    List<Msg> filteredMsgs = new ArrayList<>();
-    List<User> allMembers = new ArrayList<>( List.of(
-            new User("Sammael"),
-            new User("Chris"),
-            new User("Doc"),
-            new User("Fridge"),
-            new User("Dante"),
-            new User("Faust"),
-            new User("Heathcliff"),
-            new User("Ishmael"))
-    );
-    List<User> filteredMembers = new ArrayList<>();
+
+    InboxService inboxService = new InboxService();
+
+    UserMiniDTO friend;
+    List<InboxMsgDTO> inboxMsgs = new ArrayList<>();
+    List<GroupMsgDTO> groupMsgs = new ArrayList<>();
+    List<BaseMsgDTO> filteredMsgs = new ArrayList<>();
+
+    List<GroupMemberDTO> allMembers = new ArrayList<>();
+    List<GroupMemberDTO> filteredMembers = new ArrayList<>();
     MsgCardList msgList;
+
+    UserService userService = new UserService();
     
     boolean isGroup;
     boolean isAdmin;
@@ -61,16 +55,12 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     public ChatUtilPanel(ChatScreen mainFrame, int width, int height, UserMiniDTO friend) {
         this.mainFrame = mainFrame;
         if (friend == null){
-            this.user = new UserMiniDTO();
-            this.user.setUsername("");
-            this.user.setInitials("");
+            this.friend = new UserMiniDTO();
+            this.friend.setUsername("");
+            this.friend.setInitials("");
         }else {
-            this.user = friend;
+            this.friend = friend;
         }
-//        this.msgs = new ArrayList<>();
-//        for (int i = 0; i < 15; i++) {
-//            msgs.add(new Msg());
-//        }
         
         this.isGroup = mainFrame.getContext().isGroup();
         this.isAdmin = mainFrame.getContext().isAdmin();
@@ -86,13 +76,8 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         centerContainer.setPreferredSize(new Dimension(width - 25, height - 60));
         centerContainer.setOpaque(false);
 
-//        if (cur_option.equals("Selection")) {
-            listContainer = setupOption();
-            centerContainer.add(listContainer, BorderLayout.CENTER);
-//        } else if (cur_option.equals("Search In Chat")) {
-//            listContainer = new MsgCardList(msgs, width - 25);
-//            centerContainer.add(listContainer, BorderLayout.CENTER);
-//        }
+        listContainer = setupOption();
+        centerContainer.add(listContainer, BorderLayout.CENTER);
 
         this.add(topContainer, BorderLayout.NORTH);
         this.add(centerContainer, BorderLayout.CENTER);
@@ -104,14 +89,8 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         centerContainer.removeAll();
         topContainer.removeAll();
 
-        if (cur_option.equals("Selection")){
-            topContainer = setupAvatarWrapper();
-            centerContainer.add(setupOption(), BorderLayout.CENTER);
-        }else if (cur_option.equals("Members")){
-            itemSelected = false;
-            centerContainer.add(new MemberCardList(allMembers, getWidth() - 25, isAdmin));
-            setupSearchArea(itemSelected);
-        }
+        topContainer = setupAvatarWrapper();
+        centerContainer.add(setupOption(), BorderLayout.CENTER);
 
         this.add(topContainer, BorderLayout.NORTH);
         this.add(centerContainer, BorderLayout.CENTER);
@@ -139,7 +118,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (ConfirmPopup.show(mainFrame, "deleting the message(s)")) {
-                    System.out.println("Delete user");
+                    System.out.println("Delete friend");
                     updatePanel();
                 }
             }
@@ -161,8 +140,8 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         avatarWrapper.setOpaque(false);
         avatarWrapper.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
 
-        Avatar avatar = new Avatar(user.getInitials(), 100);
-        JLabel name = new JLabel(user.getUsername());
+        Avatar avatar = new Avatar(friend.getInitials(), 100);
+        JLabel name = new JLabel(friend.getUsername());
         name.setOpaque(false);
         name.setAlignmentX(Component.CENTER_ALIGNMENT);
         name.setFont(name.getFont().deriveFont(24f));
@@ -231,16 +210,16 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     }
 
     public void showUser(UserMiniDTO user) {
-        this.user = user;
+        this.friend = user;
         this.isGroup = false;
         updatePanel();
     }
 
-    public void showGroup(GroupCardDTO group, GroupMemberDTO user) {
-        this.user.setUsername(group.getGroupname());
-        this.user.setInitials(Utility.getInitials(group.getGroupname()));
+    public void showGroup(GroupCardDTO group, String currentUserRole) {
+        this.friend.setUsername(group.getGroupname());
+        this.friend.setInitials(Utility.getInitials(group.getGroupname()));
 
-        this.isAdmin = user.getRole().equals("admin");
+        this.isAdmin = currentUserRole.equals("admin");
         this.isGroup = true;
         updatePanel();
     }
@@ -251,13 +230,21 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 
         String[] needConfirm = {"Delete All Chat History", "Unfriend", "Report Spam", "Block",
                                 "Leave Group", "Delete All Chat History", "Delete Group"};
-        String[] notification = {"delete all chat history", "unfriend this user", "report this user for spamming", "block this user",
+        String[] notification = {"delete all chat history", "unfriend this friend", "report this friend for spamming", "block this friend",
                                  "leave this group", "delete all chat history", "delete this group"};
         if (Arrays.asList(needConfirm).contains(option)){
-            if (ConfirmPopup.show(mainFrame, notification[Arrays.asList(needConfirm).indexOf(option)])) {
-                System.out.println("Perform action");
+            boolean confirmed = ConfirmPopup.show(
+                    mainFrame,
+                    notification[Arrays.asList(needConfirm).indexOf(option)]
+            );
+
+            if (confirmed) {
+                mainFrame.handleConfirmedOption(option);
             }
+
             cur_option = "Selection";
+            updatePanel();
+            return;
         }else if (option.equals("Search In Chat")){
             enterSearchMode();
             return;
@@ -267,40 +254,98 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             }
             cur_option = "Selection";
         }else if (option.equals("Create Group With")){
-            List<User> allFriends = allMembers;
 
             CreateGroupPopup.show(
                     mainFrame,
-                    allFriends,
+                    mainFrame.getFriends(),
                     mainFrame   // callback
             );
             cur_option = "Selection";
         }else if (option.equals("Add New Members")){
-            List<User> allFriends = allMembers;
-            //TODO: remove already existed members from allFriends here
-            AddMemberPopup.show(
-                    mainFrame,
-                    allFriends,
-                    mainFrame   // callback
-            );
+            try {
+                List<StrangerCardResDTO> users = userService.getAllStrangerCards(mainFrame.getContext().getTargetUser().getId());
+
+                AddMemberPopup.show(
+                        mainFrame,
+                        users,
+                        mainFrame   // callback
+                );
+            } catch(Exception ex){
+                JOptionPane.showMessageDialog(this, "Failed to load all users");
+            }
+
             cur_option = "Selection";
+        }else if (option.equals("Members")){
+            System.out.println("test members");
+            for (GroupMemberDTO m : allMembers){
+                System.out.println(m.getUsername());
+            }
+            enterMembersMode();
+            return;
         }
 
         updatePanel();
     }
 
-    void updateMsgList(List<Msg> msgs){
-        listContainer = new MsgCardList(msgs, getWidth()-25);
-        listContainer.revalidate();
-        listContainer.repaint();
+    public void setInboxMessages(List<InboxMsgDTO> messages) {
+        this.inboxMsgs = messages;
+        this.isGroup = false;
+        this.filteredMsgs.clear();
+        this.filteredMsgs.addAll(messages);
     }
 
-    void updateMemberList(List<FriendCardDTO> members){
-        this.remove(listContainer);
-        listContainer = new FriendCardList(members, getWidth()-15, mainFrame);
-        // Revalidate and repaint the list
-        listContainer.revalidate();
-        listContainer.repaint();
+    public void setGroupMessages(List<GroupMsgDTO> messages) {
+        this.groupMsgs = messages;
+        this.isGroup = true;
+        this.filteredMsgs.clear();
+        this.filteredMsgs.addAll(messages);
+    }
+
+    void updateMsgList(List<? extends BaseMsgDTO> msgs){
+        centerContainer.removeAll();
+
+        listContainer = new MsgCardList(msgs, getWidth() - 25);
+        centerContainer.add(listContainer, BorderLayout.CENTER);
+
+        centerContainer.revalidate();
+        centerContainer.repaint();
+    }
+
+    void updateMemberList(List<GroupMemberDTO> members){
+        centerContainer.removeAll();
+
+        listContainer = new MemberCardList(
+                members,
+                getWidth() - 15,
+                mainFrame.getContext().isAdmin()
+        );
+
+        centerContainer.add(listContainer, BorderLayout.CENTER);
+
+        centerContainer.revalidate();
+        centerContainer.repaint();
+    }
+
+    void enterMembersMode(){
+        cur_option = "Members";
+
+        centerContainer.removeAll();
+
+        filteredMembers.clear();
+        filteredMembers.addAll(allMembers);
+
+        listContainer = new MemberCardList(
+                filteredMembers,
+                getWidth() - 15,
+                mainFrame.getContext().isAdmin()
+        );
+
+        updateSearchHeader();
+
+        centerContainer.add(listContainer, BorderLayout.CENTER);
+
+        centerContainer.revalidate();
+        centerContainer.repaint();
     }
 
     void enterSearchMode() {
@@ -308,8 +353,8 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 
         centerContainer.removeAll();
 
-        msgList = new MsgCardList(msgs, getWidth() - 25);
-        JList<Msg> list = msgList.getList();
+        msgList = new MsgCardList(filteredMsgs, getWidth() - 25);
+        JList<?> list = msgList.getList();
 
         list.addListSelectionListener(e -> {
             itemSelected = list.getSelectedIndices().length > 0;
@@ -364,27 +409,76 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     }
 
     void deleteSelectedMessages() {
-        JList<Msg> list = msgList.getList();
-        List<Msg> toRemove = list.getSelectedValuesList();
+        try{
+            JList<BaseMsgDTO> list = msgList.getList();
+            List<BaseMsgDTO> toRemove = list.getSelectedValuesList();
 
-        msgs.removeAll(toRemove);
-        msgList.updateList(msgs);
+            filteredMsgs.removeIf(toRemove::contains);
+            msgList.updateList(filteredMsgs);
 
-        itemSelected = false;
-        updateSearchHeader();
+            List<Long> ids = toRemove.stream()
+                    .map(BaseMsgDTO::getId)
+                    .toList();
+
+            if (isGroup) {
+//                inboxService.deleteGroupMessages(ids);
+            } else {
+                inboxService.deleteMessagesBySender(mainFrame.getCurrentChat().getInboxId(), ids);
+            }
+
+            itemSelected = false;
+            updateSearchHeader();
+            updateMsgList(filteredMsgs);
+
+            mainFrame.reloadCurrentInbox();
+        }catch (Exception ex){
+            JOptionPane.showMessageDialog(this, "Failed to delete messages\n" + ex.getMessage());
+        }
+
     }
 
+
+    public List<?> searchMessages(String keyword) {
+        if (isGroup && groupMsgs != null) {
+            return groupMsgs.stream()
+                    .filter(m -> m.getContent().toLowerCase().contains(keyword.toLowerCase()))
+                    .toList();
+        } else if (!isGroup && inboxMsgs != null) {
+            return inboxMsgs.stream()
+                    .filter(m -> m.getContent().toLowerCase().contains(keyword.toLowerCase()))
+                    .toList();
+        }
+        return List.of();
+    }
 
     @Override
     public void onSearchChange(String text) {
         if (cur_option.equals("Search In Chat")) {
             filteredMsgs.clear();
+
+            System.out.println("Searching for: '" + text + "'");
+
             if (text.isEmpty() || text.equals("Search")) {
-                filteredMsgs.addAll(msgs);  // Show all users if the search bar is empty
+                if (isGroup) {
+                    filteredMsgs.addAll(groupMsgs);
+                    System.out.println(filteredMsgs);
+                } else {
+                    filteredMsgs.addAll(inboxMsgs);
+                }
             } else {
-                for (Msg msg : msgs) {
-                    if (msg.getContent().toLowerCase().contains(text.toLowerCase())) {
-                        filteredMsgs.add(msg);
+                if (isGroup) {
+                    for (GroupMsgDTO msg : groupMsgs) {
+                        System.out.println("Checking group message: " + msg.getContent());
+                        if (msg.getContent().toLowerCase().contains(text.toLowerCase())) {
+                            filteredMsgs.add(msg);
+                        }
+                    }
+                } else {
+                    for (InboxMsgDTO msg : inboxMsgs) {
+                        System.out.println("Checking inbox message: " + msg.getContent());
+                        if (msg.getContent().toLowerCase().contains(text.toLowerCase())) {
+                            filteredMsgs.add(msg);
+                        }
                     }
                 }
             }
@@ -394,16 +488,37 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             if (text.isEmpty() || text.equals("Search")) {
                 filteredMembers.addAll(allMembers);  // Show all users if the search bar is empty
             } else {
-                for (User mem: allMembers) {
-                    if (mem.getName().toLowerCase().contains(text.toLowerCase())) {
+                for (GroupMemberDTO mem: allMembers) {
+                    if (mem.getUsername().toLowerCase().contains(text.toLowerCase())) {
                         filteredMembers.add(mem);
                     }
                 }
             }
 
-            //TODO: uncomment and replace with real member dto
-//            updateMemberList(filteredMembers);  // Update the list with the filtered users
+            updateMemberList(filteredMembers);
         }
+    }
+
+    public void setAllMembers(List<GroupMemberDTO> allMembers) {
+        this.allMembers = allMembers;
+    }
+
+    public void clear() {
+        this.friend = new UserMiniDTO(); // empty friend
+        this.friend.setUsername("");
+        this.friend.setInitials("");
+
+        this.inboxMsgs.clear();
+        this.groupMsgs.clear();
+        this.filteredMsgs.clear();
+
+        this.cur_option = "Selection";
+
+        centerContainer.removeAll();
+        topContainer.removeAll();
+
+        revalidate();
+        repaint();
     }
 
 }

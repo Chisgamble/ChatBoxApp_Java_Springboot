@@ -33,4 +33,8 @@ public class GroupMemberService {
     public List<Long> getGroupMemberIds(Long groupId){
         return repo.findAllMemberIds(groupId);
     }
+
+    public List<GroupMemberDTO> getAllMembersDTO(Long groupId) {
+        return repo.findAllMembersByGroupId(groupId);
+    }
 }

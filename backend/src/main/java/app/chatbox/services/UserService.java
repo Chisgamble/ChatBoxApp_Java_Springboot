@@ -1,5 +1,6 @@
 package app.chatbox.services;
 
+import app.chatbox.dto.MsgDTO;
 import app.chatbox.dto.UserMiniDTO;
 import app.chatbox.dto.UserListDTO;
 import app.chatbox.dto.request.LoginReqDTO;
@@ -8,20 +9,28 @@ import app.chatbox.dto.response.RegisterResDTO;
 import app.chatbox.dto.response.StrangerCardResDTO;
 import app.chatbox.mapper.UserMapper;
 import app.chatbox.model.AppUser;
-import app.chatbox.repository.UserRepository;
+import app.chatbox.model.SpamReport;
+import app.chatbox.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepo;
+    private final SpamReportRepository spamRepo;
+    private final InboxMsgRepository inboxMsgRepo;
+    private final GroupMsgRepository groupMsgRepo;
+
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final EmailService emailService;
+
 
     public boolean exist(String email){
         return userRepo.existsByEmail(email);
@@ -47,6 +56,34 @@ public class UserService {
         AppUser user = userRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return userMapper.toUserResDTO(user);
+    }
+
+    public void reportSpam(Long targetUserId, Long reporterId) {
+        AppUser reported = userRepo.findById(targetUserId)
+                .orElseThrow(() -> new RuntimeException("Reported user not found"));
+
+        AppUser reporter = userRepo.findById(reporterId)
+                .orElseThrow(() -> new RuntimeException("Reporter not found"));
+
+        SpamReport report = new SpamReport();
+        report.setReported(reported);
+        report.setReporter(reporter);
+
+        spamRepo.save(report);
+    }
+
+    public List<MsgDTO> findAllMsgsByUser(Long userId) {
+
+        List<MsgDTO> result = new ArrayList<>();
+
+        result.addAll(inboxMsgRepo.findInboxMsgsByUser(userId));
+        result.addAll(groupMsgRepo.findGroupMsgsByUser(userId));
+
+        result.sort(
+                Comparator.comparing(MsgDTO::getCreatedAt)
+        );
+
+        return result;
     }
 
     public void delete(Long id) {

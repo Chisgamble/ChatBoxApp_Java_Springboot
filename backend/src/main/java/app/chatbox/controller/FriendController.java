@@ -3,15 +3,14 @@ package app.chatbox.controller;
 import app.chatbox.config.CustomUserDetails;
 import app.chatbox.dto.FriendCardDTO;
 import app.chatbox.dto.FriendCardListDTO;
+import app.chatbox.dto.response.GeneralResDTO;
 import app.chatbox.services.FriendService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -25,4 +24,18 @@ public class FriendController {
     public List<FriendCardDTO> getAllFriendCards(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user){
         return friendService.getAllFriends(user.getId());
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteFriend(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        friendService.deleteFriend(id, user.getId());
+        return ResponseEntity.ok(
+                new GeneralResDTO("Friend removed successfully")
+        );
+    }
+
+
 }

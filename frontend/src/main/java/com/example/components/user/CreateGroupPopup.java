@@ -3,9 +3,13 @@ package com.example.components.user;
 import com.example.components.MyColor;
 import com.example.components.RoundedButton;
 import com.example.components.RoundedDialog;
+import com.example.dto.FriendCardDTO;
+import com.example.dto.GroupMemberDTO;
+import com.example.dto.request.CreateGroupReqDTO;
 import com.example.listener.CreateGroupListener;
 import com.example.model.User;
 import com.example.model.Group;
+import com.example.services.GroupService;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -16,7 +20,7 @@ import java.util.List;
 public class CreateGroupPopup {
 
     public static void show(JFrame parent,
-                            List<User> allUsers,
+                            List<FriendCardDTO> allUsers,
                             CreateGroupListener callback) {
 
         RoundedDialog dialog = new RoundedDialog(parent, "Create Group", 400, 500);
@@ -49,15 +53,15 @@ public class CreateGroupPopup {
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         scrollPane.setViewportView(listPanel);
 
-        List<User> selectedUsers = new ArrayList<>();
-        refreshMemberList(listPanel, allUsers, selectedUsers, "");
+        List<FriendCardDTO> selected = new ArrayList<>();
+        refreshMemberList(listPanel, allUsers, selected, "");
 
         // Search bar
         JPanel searchPanel = new JPanel(new BorderLayout());
         searchPanel.setOpaque(false);
         searchPanel.setMaximumSize(new Dimension( 300, 40));
         SearchBar searchBar = new SearchBar(20, 10, 300, 35, phrase -> {
-            refreshMemberList(listPanel, allUsers, selectedUsers, phrase);
+            refreshMemberList(listPanel, allUsers, selected, phrase);
         });
         searchPanel.add(searchBar);
 
@@ -87,11 +91,13 @@ public class CreateGroupPopup {
                 return;
             }
 
-//            TODO: Call backend to create group
-            Group group = new Group(groupName, selectedUsers);
+            List<Long> memberIds = selected
+                    .stream()
+                    .map(FriendCardDTO::getFriendId)
+                    .toList();
 
             if (callback != null)
-                callback.onGroupCreated(group);
+                callback.onGroupCreated(groupName, memberIds);
 
             dialog.dispose();
         });
@@ -120,21 +126,21 @@ public class CreateGroupPopup {
 
     private static void refreshMemberList(
             JPanel listPanel,
-            List<User> allUsers,
-            List<User> selectedUsers,
+            List<FriendCardDTO> allUsers,
+            List<FriendCardDTO> selected,
             String phrase
     ) {
         listPanel.removeAll();
-        //TODO: auto select current user that create group with
-        for (User u : allUsers) {
-            if (!selectedUsers.contains(u) &&
+
+        for (FriendCardDTO u : allUsers) {
+            if (!selected.contains(u) &&
                     !phrase.isEmpty() && !phrase.equals("Search")
-                    && !u.getName().toLowerCase().contains(phrase.toLowerCase()))
+                    && !u.getUsername().toLowerCase().contains(phrase.toLowerCase()))
                 continue;
 
-            AddMemberCard card = new AddMemberCard(u, 300);
+            AddMemberCard card = new AddMemberCard(u.getUsername(), 300);
 
-            if (selectedUsers.contains(u)) {
+            if (selected.contains(u)) {
                 card.setBackground(MyColor.LIGHT_PURPLE.darker());
                 card.setSelected(true);
             }
@@ -142,10 +148,10 @@ public class CreateGroupPopup {
             card.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
                 public void mouseClicked(java.awt.event.MouseEvent e) {
-                    if (selectedUsers.contains(u))
-                        selectedUsers.remove(u);
+                    if (selected.contains(u))
+                        selected.remove(u);
                     else
-                        selectedUsers.add(u);
+                        selected.add(u);
                 }
             });
 

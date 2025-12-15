@@ -113,6 +113,107 @@ public class HttpClientUtil {
         }
     }
 
+//    public static <T> T delete(String url, Class<T> responseType) {
+//        try {
+//            HttpRequest request = HttpRequest.newBuilder()
+//                    .uri(new URI(url))
+//                    .DELETE()
+//                    .build();
+//
+//            System.out.println("DEBUG DELETE URL: " + url);
+//
+//            HttpResponse<String> response =
+//                    client.send(request, HttpResponse.BodyHandlers.ofString());
+//
+//            System.out.println("DEBUG Response Code: " + response.statusCode());
+//            System.out.println("DEBUG Response Body: " + response.body());
+//
+//            int status = response.statusCode();
+//            if (status < 200 || status >= 300) {
+//                throw new RuntimeException("HTTP " + status + ": " + response.body());
+//            }
+//
+//            return JsonUtil.fromJson(response.body(), responseType);
+//
+//        } catch (Exception e) {
+//            throw new RuntimeException("DELETE request failed: " + e.getMessage());
+//        }
+//    }
+
+    public static <T> T deleteJson(
+            String url,
+            Object body,              // có thể null
+            Class<T> responseType
+    ) {
+        try {
+            HttpRequest.Builder builder = HttpRequest.newBuilder()
+                    .uri(new URI(url))
+                    .header("Content-Type", "application/json");
+
+            if (body == null) {
+                // DELETE không body
+                builder.method("DELETE", HttpRequest.BodyPublishers.noBody());
+            } else {
+                String jsonBody = JsonUtil.toJson(body);
+                System.out.println("DEBUG DELETE BODY: " + jsonBody);
+
+                builder.method(
+                        "DELETE",
+                        HttpRequest.BodyPublishers.ofString(jsonBody)
+                );
+            }
+
+            System.out.println("DEBUG DELETE URL: " + url);
+
+            HttpResponse<String> response =
+                    client.send(builder.build(), HttpResponse.BodyHandlers.ofString());
+
+            System.out.println("DEBUG Response Code: " + response.statusCode());
+            System.out.println("DEBUG Response Body: " + response.body());
+
+            int status = response.statusCode();
+            if (status < 200 || status >= 300) {
+                throw new RuntimeException("HTTP " + status + ": " + response.body());
+            }
+
+            return JsonUtil.fromJson(response.body(), responseType);
+
+        } catch (Exception e) {
+            throw new RuntimeException("DELETE request failed: " + e.getMessage(), e);
+        }
+    }
+
+    public static <T> T putJson(String url, Object body, Class<T> responseType) {
+        try {
+            String jsonBody = JsonUtil.toJson(body);
+
+            System.out.println("DEBUG PUT URL: " + url);
+            System.out.println("DEBUG Request Body: " + jsonBody);
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(url))
+                    .header("Content-Type", "application/json")
+                    .PUT(HttpRequest.BodyPublishers.ofString(jsonBody))
+                    .build();
+
+            HttpResponse<String> response =
+                    client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            System.out.println("DEBUG Response Code: " + response.statusCode());
+            System.out.println("DEBUG Response Body: " + response.body());
+
+            int status = response.statusCode();
+            if (status < 200 || status >= 300) {
+                throw new RuntimeException("HTTP " + status + ": " + response.body());
+            }
+
+            return JsonUtil.fromJson(response.body(), responseType);
+
+        } catch (Exception e) {
+            throw new RuntimeException("PUT request failed: " + e.getMessage(), e);
+        }
+    }
+
 
 
     public static void resetCookieManager() {

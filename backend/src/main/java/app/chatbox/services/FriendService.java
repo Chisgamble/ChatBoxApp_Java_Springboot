@@ -16,6 +16,18 @@ public class FriendService {
     private final FriendRepository friendRepository;
 //    private final FriendMapper friendMapper;
 
+    public void deleteFriend(Long friendId, Long userId) {
+        Long a = Math.min(friendId, userId);
+        Long b = Math.max(friendId, userId);
+
+        Friend friend = friendRepository
+                .findByUserA_IdAndUserB_Id(a, b)
+                .orElseThrow(() ->
+                        new RuntimeException("Friend not found"));
+
+        friendRepository.delete(friend);
+    }
+
     public List<FriendCardDTO> getAllFriends(Long id){
         List<Friend> friends = friendRepository.findByUserA_IdOrUserB_Id(id, id);
         //TODO: add find inbox message between current user and friends then add to FriendCardDTO
