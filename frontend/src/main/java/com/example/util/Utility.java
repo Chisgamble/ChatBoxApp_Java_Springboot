@@ -60,4 +60,13 @@ public class Utility {
         return d == null ? "" : d.toString();
     }
 
+    public static String getInitials(String name){
+        String[] words = name.split("\\s+");
+        if (words.length > 1){
+            return words[0].substring(0,1).toUpperCase() + words[1].substring(0,1).toUpperCase();
+        }else{
+            return words[0].substring(0,1).toUpperCase();
+        }
+    }
+
 }

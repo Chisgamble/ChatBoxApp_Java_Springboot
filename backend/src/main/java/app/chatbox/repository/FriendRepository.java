@@ -12,16 +12,20 @@ import java.util.Optional;
 
 public interface FriendRepository extends JpaRepository<Friend, Long> {
     List<Friend> findByUserA_IdOrUserB_Id(Long userAId, Long userBId);
-    Friend findByUserA_IdAndUserB_Id(Long userAId, Long userBId);
+    Optional<Friend> findByUserA_IdAndUserB_Id(Long userAId, Long userBId);
     Optional<Friend> findByUserAAndUserB(AppUser userA, AppUser userB);
+
+    void deleteById(Long id);
+    void deleteByUserA_IdAndUserB_Id(Long userAId, Long userBId);
 
     @Query(value = """
         SELECT 
             f.id AS id,
-            COALESCE(m.sender_id, 0) AS senderId,
+            u.id AS friendId,
             COALESCE(i.id, 0) AS inboxId,
             u.username AS username,
             u.is_active AS isActive,
+            COALESCE(m.sender_id, 0) AS senderId,
             m.content AS content
         FROM friend f
         JOIN app_user u 
@@ -45,6 +49,5 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
         ORDER BY f.updated_at DESC;
     """, nativeQuery = true)
     List<FriendCardDTO> getFriendCards(long currentUserId);
-
 
 }

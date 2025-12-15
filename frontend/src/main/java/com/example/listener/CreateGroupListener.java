@@ -1,7 +1,7 @@
 package com.example.listener;
 
-import com.example.model.Group;
+import java.util.List;
 
 public interface CreateGroupListener {
-    void onGroupCreated(Group group);
+    void onGroupCreated(String groupName, List<Long> memberIds);
 }

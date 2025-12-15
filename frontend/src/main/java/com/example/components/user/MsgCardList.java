@@ -1,5 +1,6 @@
 package com.example.components.user;
 
+import com.example.dto.BaseMsgDTO;
 import com.example.model.Msg;
 
 import javax.swing.*;
@@ -9,10 +10,10 @@ import java.util.List;
 import com.example.renderer.MsgCardRenderer;
 
 public class MsgCardList extends JScrollPane {
-    private final JList<Msg> list;
+    private final JList<BaseMsgDTO> list;
 
-    public MsgCardList(List<Msg> msgs, int width) {
-        DefaultListModel<Msg> model = new DefaultListModel<>();
+    public MsgCardList(List<? extends BaseMsgDTO> msgs, int width) {
+        DefaultListModel<BaseMsgDTO> model = new DefaultListModel<>();
         msgs.forEach(model::addElement);
 
         list = new JList<>(model);
@@ -26,12 +27,12 @@ public class MsgCardList extends JScrollPane {
         getViewport().setOpaque(false);
     }
 
-    public JList<Msg> getList() {
+    public JList<BaseMsgDTO> getList() {
         return list;
     }
 
-    public void updateList(List<Msg> newMsgs) {
-        DefaultListModel<Msg> model = (DefaultListModel<Msg>) list.getModel();
+    public void updateList(List<? extends BaseMsgDTO> newMsgs) {
+        DefaultListModel<BaseMsgDTO> model = (DefaultListModel<BaseMsgDTO>) list.getModel();
         model.clear();
         newMsgs.forEach(model::addElement);
     }

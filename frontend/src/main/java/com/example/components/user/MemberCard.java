@@ -13,7 +13,7 @@ import java.awt.event.MouseEvent;
 
 public class MemberCard extends JPanel {
 
-    public MemberCard(User user, int width, boolean isAdmin) {
+    public MemberCard(String initials, String name, int width, boolean isAdmin) {
         this.setLayout(new BorderLayout(10, 0));
         this.setOpaque(false);
         this.setPreferredSize(new Dimension(width, 60));
@@ -24,30 +24,30 @@ public class MemberCard extends JPanel {
                 new EmptyBorder(5,5,5,5)  // EmptyBorder for padding (10px on all sides)
         ));
 
-        Avatar avatar = new Avatar(user.getInitials());
+        Avatar avatar = new Avatar(initials);
 
         JPanel westWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
         westWrapper.setOpaque(false); // optional, to be transparent
         westWrapper.add(avatar);
 
-        JLabel nameLabel = new JLabel(user.getName());
+        JLabel nameLabel = new JLabel(name);
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD,16f));
 
-        FlatSVGIcon icon = null;
-        if (user.isActive())
-            icon = new FlatSVGIcon("assets/online-icon.svg", 10, 10);
-        else
-            icon = new FlatSVGIcon("assets/offline-icon.svg", 10, 10);
-
-        // Set icon on JLabel
-        nameLabel.setIcon(icon);
+//        FlatSVGIcon icon = null;
+//        if (isActive)
+//            icon = new FlatSVGIcon("assets/online-icon.svg", 10, 10);
+//        else
+//            icon = new FlatSVGIcon("assets/offline-icon.svg", 10, 10);
+//
+//        // Set icon on JLabel
+//        nameLabel.setIcon(icon);
 
         // Position the icon relative to text
         nameLabel.setHorizontalTextPosition(SwingConstants.LEFT); // text on the left, icon on the right
         nameLabel.setVerticalTextPosition(SwingConstants.CENTER); // vertically centered
         nameLabel.setIconTextGap(5); // gap between text and icon
 
-        JLabel msgLabel = new JLabel(user.isAdmin() ? "Admin" : "Member");
+        JLabel msgLabel = new JLabel(isAdmin ? "Admin" : "Member");
         msgLabel.setForeground(Color.GRAY);
         msgLabel.setOpaque(false);
         msgLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));

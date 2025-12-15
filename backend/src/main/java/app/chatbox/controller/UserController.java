@@ -1,7 +1,10 @@
 package app.chatbox.controller;
 
+import app.chatbox.config.CustomUserDetails;
 import app.chatbox.dto.FriendCardDTO;
 import app.chatbox.dto.NewUserListDTO;
+import app.chatbox.dto.GroupCardDTO;
+import app.chatbox.dto.MsgDTO;
 import app.chatbox.dto.UserListDTO;
 import app.chatbox.dto.YearlyGraphDTO;
 import app.chatbox.dto.request.AdminCreateOrUpdateUserReqDTO;
@@ -10,13 +13,15 @@ import app.chatbox.dto.response.FriendRequestResDTO;
 import app.chatbox.dto.response.GeneralResDTO;
 import app.chatbox.dto.response.RegisterResDTO;
 import app.chatbox.dto.response.StrangerCardResDTO;
-import app.chatbox.service.FriendRequestService;
-import app.chatbox.service.FriendService;
-import app.chatbox.service.UserService;
+import app.chatbox.services.*;
+import app.chatbox.services.FriendRequestService;
+import app.chatbox.services.FriendService;
+import app.chatbox.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +43,8 @@ public class UserController {
     private final FriendService friendService;
     private final FriendRequestService friendRequestService;
     private final UserService userService;
+    private final GroupService groupService;
+    private final UserBlockService userBlockService;
 
 //    @GetMapping("/")
 //    public List<StrangerCardResDTO> getAllUsers() {
@@ -49,7 +56,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllStrangerCards(id));
     }
 
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/getall/data")
     public ResponseEntity<UserListDTO> getAllUsersAndData(
             @RequestParam(required = false) String sort,
@@ -114,9 +121,48 @@ public class UserController {
     }
 
     @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")
+    @GetMapping("/{id}/groups")
+    public ResponseEntity<List<GroupCardDTO>> getAllGroupCards(@PathVariable Long id) {
+        return ResponseEntity.ok(groupService.getAllGroups(id));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/messages/me")
+    public ResponseEntity<List<MsgDTO>> getMyMessages(
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        return ResponseEntity.ok(
+                userService.findAllMsgsByUser(user.getId())
+        );
+    }
+
+
+    @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")
     @GetMapping("/{id}/friend-requests")
     public ResponseEntity<List<FriendRequestResDTO>> getIncomingRequests(@PathVariable Long id) {
         return ResponseEntity.ok(friendRequestService.getIncomingRequests(id));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{id}/block")
+    public ResponseEntity<GeneralResDTO> blockUser(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        userBlockService.blockUser(user.getId(), id);
+        return ResponseEntity.ok(
+                new GeneralResDTO("User blocked successfully")
+        );
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{id}/report-spam")
+    public ResponseEntity<GeneralResDTO> reportSpam(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        userService.reportSpam(id, user.getId());
+        return ResponseEntity.ok(new GeneralResDTO("Reported successfully"));
     }
 
     @GetMapping("/hello")

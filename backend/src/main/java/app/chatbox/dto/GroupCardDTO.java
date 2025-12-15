@@ -11,7 +11,7 @@ public class GroupCardDTO {
     private String groupname;
     private String last_msg;
 
-    public GroupCardDTO(long id, long senderId, String groupname, String last_msg){
+    public GroupCardDTO(Long id, Long senderId, String groupname, String last_msg){
         this.id = id;
         this.senderId = senderId;
         this.groupname = groupname;

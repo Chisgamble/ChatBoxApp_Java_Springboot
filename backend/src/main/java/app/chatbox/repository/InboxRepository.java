@@ -11,6 +11,7 @@ import java.util.Optional;
 @Repository
 public interface InboxRepository extends JpaRepository<Inbox, Long> {
     List<Inbox> findByUserA_IdOrUserB_Id(Long userAId, Long userBId);
+    Optional<Inbox> findByUserA_idAndUserB_Id(Long userAId, Long userBId);
 
     @Query(value = """
     INSERT INTO inbox (userA, userB)

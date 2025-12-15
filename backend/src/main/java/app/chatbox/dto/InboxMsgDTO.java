@@ -8,12 +8,14 @@ import lombok.Setter;
 public class InboxMsgDTO{
     private Long id;
     private Long senderId;
+    private String senderName;
     private String status;
     private String content;
 
-    public InboxMsgDTO(Long id, Long senderId, String status, String content){
+    public InboxMsgDTO(Long id, Long senderId, String senderName, String status, String content){
         this.id = id;
         this.senderId = senderId;
+        this.senderName = senderName;
         this.status = status;
         this.content = content;
     }

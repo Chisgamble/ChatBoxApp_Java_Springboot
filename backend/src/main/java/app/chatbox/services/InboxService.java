@@ -1,4 +1,4 @@
-package app.chatbox.service;
+package app.chatbox.services;
 
 import app.chatbox.dto.InboxDTO;
 import app.chatbox.dto.InboxMsgDTO;
@@ -12,6 +12,7 @@ import app.chatbox.repository.InboxRepository;
 import app.chatbox.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -62,4 +63,10 @@ public class InboxService {
             );
         }).toList();
     }
+
+    @Transactional
+    public void deleteAllMessages(Long inboxId) {
+        inboxMsgRepo.deleteAllByInbox_Id(inboxId);
+    }
+
 }

@@ -1,4 +1,4 @@
-package app.chatbox.service;
+package app.chatbox.services;
 
 import app.chatbox.dto.request.CreateFriendRequestReqDTO;
 import app.chatbox.dto.request.UpdateFriendRequestReqDTO;
@@ -8,14 +8,17 @@ import app.chatbox.dto.response.UpdateFriendRequestResDTO;
 import app.chatbox.model.AppUser;
 import app.chatbox.model.Friend;
 import app.chatbox.model.FriendRequest;
+import app.chatbox.model.Inbox;
 import app.chatbox.repository.FriendRepository;
 import app.chatbox.repository.FriendRequestRepository;
+import app.chatbox.repository.InboxRepository;
 import app.chatbox.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +26,7 @@ public class FriendRequestService {
     private final FriendRequestRepository repo;
     private final FriendRepository friendRepo;
     private final UserRepository userRepo;
+    private final InboxRepository inboxRepo;
 
     public CreateFriendRequestResDTO createFriendRequest(CreateFriendRequestReqDTO req){
         AppUser sender = userRepo.findById(req.getSenderId())
@@ -50,7 +54,6 @@ public class FriendRequestService {
          FriendRequest friendRequest = repo.findById(requestId)
                  .orElseThrow(() -> new RuntimeException("FriendRequest not found"));
 
-        // 2. Validate status
         if (!req.getStatus().equals("accepted") && !req.getStatus().equals("rejected")) {
             throw new RuntimeException("Invalid status");
         }
@@ -73,13 +76,13 @@ public class FriendRequestService {
             AppUser userA = user.getId() < sender.getId() ? user : sender;
             AppUser userB = user.getId() < sender.getId() ? sender : user;
 
-            // 5. Check if friend already exists (safety)
+            //Check if friend already exists (safety)
             friendRepo.findByUserAAndUserB(userA, userB)
                 .ifPresent(f -> {
                     throw new RuntimeException("Friend record already exists");
                 });
 
-            // 6. Create new Friend
+            // Create new Friend
             Friend friend = Friend.builder()
                 .userA(userA)
                 .userB(userB)
@@ -89,6 +92,20 @@ public class FriendRequestService {
                 .build();
 
             friendRepo.save(friend);
+
+            //Check if inbox already exists (safety)
+            Optional<Inbox> existingInbox = inboxRepo.findByUserA_idAndUserB_Id(userA.getId(), userB.getId());
+
+            Inbox inbox;
+            if (existingInbox.isEmpty()) {
+                inbox = Inbox.builder()
+                    .userA(userA)
+                    .userB(userB)
+                    .createdAt(Instant.now())
+                    .updatedAt(Instant.now())
+                    .build();
+                inboxRepo.save(inbox);
+            }
 
             res = new UpdateFriendRequestResDTO(friendRequest.getId(), sender.getId(), sender.getUsername(), sender.getIsActive());
         }else{

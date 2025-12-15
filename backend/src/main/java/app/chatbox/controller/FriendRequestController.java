@@ -4,7 +4,7 @@ import app.chatbox.dto.request.CreateFriendRequestReqDTO;
 import app.chatbox.dto.request.UpdateFriendRequestReqDTO;
 import app.chatbox.dto.response.CreateFriendRequestResDTO;
 import app.chatbox.dto.response.UpdateFriendRequestResDTO;
-import app.chatbox.service.FriendRequestService;
+import app.chatbox.services.FriendRequestService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;

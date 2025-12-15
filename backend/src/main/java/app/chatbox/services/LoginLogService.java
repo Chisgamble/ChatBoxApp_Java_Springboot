@@ -1,4 +1,4 @@
-package app.chatbox.service;
+package app.chatbox.services;
 
 import app.chatbox.dto.LoginLogDTO;
 import app.chatbox.dto.LoginLogListDTO;

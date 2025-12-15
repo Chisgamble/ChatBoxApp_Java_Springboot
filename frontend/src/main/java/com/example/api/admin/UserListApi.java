@@ -62,7 +62,7 @@ public class UserListApi {
 
     public void deleteUser(Long id) {
         String url = BASE_URL + "/" + id;
-        HttpClientUtil.delete(url);
+        HttpClientUtil.deleteJson(url, null, String.class);
     }
 
     public NewUserListDTO getNewUserList(String username, String email, LocalDate start, LocalDate end, String order) {

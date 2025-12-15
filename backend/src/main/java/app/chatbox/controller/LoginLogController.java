@@ -1,9 +1,8 @@
 package app.chatbox.controller;
 
-import app.chatbox.dto.LoginLogDTO;
 import app.chatbox.dto.LoginLogListDTO;
 import app.chatbox.dto.YearlyGraphDTO;
-import app.chatbox.service.LoginLogService;
+import app.chatbox.services.LoginLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

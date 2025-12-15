@@ -1,4 +1,4 @@
-package app.chatbox.service;
+package app.chatbox.services;
 
 import app.chatbox.config.CustomUserDetails;
 import app.chatbox.model.AppUser;

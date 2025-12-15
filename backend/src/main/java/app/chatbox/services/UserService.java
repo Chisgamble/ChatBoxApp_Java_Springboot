@@ -1,4 +1,4 @@
-package app.chatbox.service;
+package app.chatbox.services;
 
 import app.chatbox.dto.*;
 import app.chatbox.dto.request.AdminCreateOrUpdateUserReqDTO;
@@ -8,6 +8,10 @@ import app.chatbox.dto.response.RegisterResDTO;
 import app.chatbox.dto.response.StrangerCardResDTO;
 import app.chatbox.mapper.UserMapper;
 import app.chatbox.model.AppUser;
+import app.chatbox.model.SpamReport;
+import app.chatbox.repository.GroupMsgRepository;
+import app.chatbox.repository.InboxMsgRepository;
+import app.chatbox.repository.SpamReportRepository;
 import app.chatbox.repository.UserRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +21,8 @@ import org.springframework.data.domain.Sort;
 import app.chatbox.util.Util;
 
 import java.time.*;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -26,6 +32,9 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final EmailService emailService;
+    private final SpamReportRepository spamRepo;
+    private final InboxMsgRepository inboxMsgRepo;
+    private final GroupMsgRepository groupMsgRepo;
 
     public boolean exist(String email){
         return userRepo.existsByEmail(email);
@@ -100,6 +109,34 @@ public class UserService {
         AppUser user = userRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return userMapper.toStrangerCardResDTO(user);
+    }
+
+    public void reportSpam(Long targetUserId, Long reporterId) {
+        AppUser reported = userRepo.findById(targetUserId)
+                .orElseThrow(() -> new RuntimeException("Reported user not found"));
+
+        AppUser reporter = userRepo.findById(reporterId)
+                .orElseThrow(() -> new RuntimeException("Reporter not found"));
+
+        SpamReport report = new SpamReport();
+        report.setReported(reported);
+        report.setReporter(reporter);
+
+        spamRepo.save(report);
+    }
+
+    public List<MsgDTO> findAllMsgsByUser(Long userId) {
+
+        List<MsgDTO> result = new ArrayList<>();
+
+        result.addAll(inboxMsgRepo.findInboxMsgsByUser(userId));
+        result.addAll(groupMsgRepo.findGroupMsgsByUser(userId));
+
+        result.sort(
+                Comparator.comparing(MsgDTO::getCreatedAt)
+        );
+
+        return result;
     }
 
     public UserDTO getUserDataById(Long id) {

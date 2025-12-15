@@ -13,21 +13,22 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class FriendCardDTO {
-    private long id;
-    private long senderId;
+    private Long id;
+    private Long friendId;
     private Long inboxId;
     private String username;
     private Boolean isActive;
-    private String content;
+    private Long senderId;
+    private String last_msg;
 
-    // Constructor
-    public FriendCardDTO(long id, long senderId, Long inboxId, String username, Boolean isActive, String content) {
+    public FriendCardDTO(Long id, Long friendId, Long inboxId, String username, Boolean isActive, Long senderId, String last_msg){
         this.id = id;
+        this.friendId = friendId;
         this.senderId = senderId;
         this.inboxId = inboxId;
         this.username = username;
         this.isActive = isActive;
-        this.content = content;
+        this.last_msg = last_msg;
     }
 
     public String getInitials(){

@@ -1,4 +1,4 @@
-package app.chatbox.service;
+package app.chatbox.services;
 
 import app.chatbox.dto.request.SendGroupMsgReqDTO;
 import app.chatbox.dto.request.SendInboxMsgReqDTO;

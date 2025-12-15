@@ -13,7 +13,7 @@ import app.chatbox.dto.response.RegisterResDTO;
 import app.chatbox.mapper.UserMapper;
 
 
-import app.chatbox.service.UserService;
+import app.chatbox.services.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

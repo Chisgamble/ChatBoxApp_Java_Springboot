@@ -7,9 +7,12 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.Border;
 
+import com.example.dto.GroupMsgDTO;
 import com.example.dto.InboxMsgDTO;
+import com.example.dto.response.GroupUserResDTO;
 import com.example.dto.response.InboxUserResDTO;
 import com.example.services.InboxService;
+import com.example.util.Utility;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.example.components.MyColor;
 import com.example.components.user.MsgBubble;
@@ -102,9 +105,6 @@ public class ChatPanel extends JPanel{
         messageWrapper.setMaximumSize(new Dimension(chatWidth, messageWrapper.getPreferredSize().height));
 
         chatPanel.add(messageWrapper);
-//        chatPanel.revalidate();
-//        scrollToBottom(this.scrollPane);
-//        chatPanel.repaint();
     }
 
     private void scrollToBottom(JScrollPane scrollPane) {
@@ -117,12 +117,12 @@ public class ChatPanel extends JPanel{
         });
     }
 
-    public void showMessages(InboxUserResDTO inbox, Long myId) {
+    public void showMessages(List<InboxMsgDTO> msgs, Long myId) {
         // clear UI
         chatArea.removeAll();
-        for (InboxMsgDTO msg : inbox.getMsgs()) {
+        for (InboxMsgDTO msg : msgs) {
             boolean isMe = msg.getSenderId().equals(myId);
-            addMessage(chatArea, msg.getContent(), isMe, getWidth(), inbox.getFriend().getInitials());
+            addMessage(chatArea, msg.getContent(), isMe, getWidth(), Utility.getInitials(msg.getSenderName()));
         }
 
         chatArea.revalidate();
@@ -130,6 +130,28 @@ public class ChatPanel extends JPanel{
         scrollToBottom(scrollPane);
         chatArea.repaint();
     }
+
+    public void showGroupMessages(GroupUserResDTO group, Long myId) {
+        // clear UI
+        chatArea.removeAll();
+        for (GroupMsgDTO msg : group.getMsgs()) {
+            boolean isMe = msg.getSenderId().equals(myId);
+            addMessage(chatArea, msg.getContent(), isMe, getWidth(), Utility.getInitials(msg.getSenderUsername()));
+        }
+
+        chatArea.revalidate();
+        scrollPane.setViewportView(chatArea);
+        scrollToBottom(scrollPane);
+        chatArea.repaint();
+    }
+
+    public void clearChat() {
+        // clear UI
+        chatArea.removeAll();
+        chatArea.revalidate();
+        chatArea.repaint();
+    }
+
 
     public void loadInbox(Long inboxId, Long currentUserId) {
         try{
@@ -142,20 +164,7 @@ public class ChatPanel extends JPanel{
 
             InboxUserResDTO res = inboxService.getInboxWithMessages(inboxId);
 
-//            for (InboxMsgDTO msg : res.getMsgs()) {
-//
-//                boolean isUser = msg.getSenderId().equals(currentUserId);
-//
-//                addMessage(
-//                        chatArea,
-//                        msg.getContent(),
-//                        isUser,
-//                        getWidth(),
-//                        res.getFriend().getInitials()
-//                );
-//            }
-
-            showMessages(res, currentUserId);
+            showMessages(res.getMsgs(), currentUserId);
         }catch (Exception ex){
             JOptionPane.showMessageDialog(this, "Unable to load inbox: " + ex.getMessage());
             System.out.println("[ERROR]  " + ex.getMessage());

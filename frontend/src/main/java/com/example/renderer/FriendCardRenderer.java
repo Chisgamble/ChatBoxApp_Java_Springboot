@@ -81,8 +81,8 @@ public class FriendCardRenderer extends JPanel implements ListCellRenderer<Frien
             icon = new FlatSVGIcon("assets/offline-icon.svg", 10, 10);
         nameLabel.setIcon(icon);
 
-        if (user.getContent() != null && !user.getContent().isBlank()) {
-            userLabel.setText(user.getContent());
+        if (user.getLast_msg() != null && !user.getLast_msg().isBlank()) {
+            userLabel.setText(user.getLast_msg());
             userLabel.setVisible(true);
         } else {
             userLabel.setText("");          // reset

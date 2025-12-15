@@ -2,7 +2,9 @@ package com.example.components.user;
 
 import com.example.components.Avatar;
 import com.example.components.MyColor;
+import com.example.dto.GroupMemberDTO;
 import com.example.model.User;
+import com.example.util.Utility;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -14,10 +16,8 @@ import java.awt.event.MouseEvent;
 public class AddMemberCard extends JPanel {
 
     private boolean selected = false;
-    private User user;
 
-    public AddMemberCard(User user, int width) {
-        this.user = user;
+    public AddMemberCard(String name , int width) {
 
         this.setLayout(new BorderLayout(10, 0));
         this.setOpaque(true);
@@ -29,13 +29,13 @@ public class AddMemberCard extends JPanel {
                 new EmptyBorder(5,5,5,5)
         ));
 
-        Avatar avatar = new Avatar(user.getInitials());
+        Avatar avatar = new Avatar(Utility.getInitials(name));
 
         JPanel west = new JPanel(new FlowLayout(FlowLayout.CENTER));
         west.setOpaque(false);
         west.add(avatar);
 
-        JLabel nameLabel = new JLabel(user.getName());
+        JLabel nameLabel = new JLabel(name);
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD, 16f));
 
         JPanel center = new JPanel(new BorderLayout());
@@ -68,7 +68,7 @@ public class AddMemberCard extends JPanel {
         this.selected = selected;
     }
 
-    public User getUser() {
-        return user;
-    }
+//    public GroupMemberDTO getUser() {
+//        return user;
+//    }
 }
