@@ -1,4 +1,4 @@
-package app.chatbox.services;
+package app.chatbox.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;

@@ -13,7 +13,7 @@ import app.chatbox.dto.response.RegisterResDTO;
 import app.chatbox.mapper.UserMapper;
 
 
-import app.chatbox.services.UserService;
+import app.chatbox.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +28,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")

@@ -8,6 +8,6 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface InboxMsgMapper {
     @Mapping(target = "senderId", source = "sender.id")
-    @Mapping(target = "inboxId", source = "inbox.id")
+    @Mapping(target = "id", source = "inbox.id")
     InboxMsgDTO toDTO(InboxMsg entity);
 }

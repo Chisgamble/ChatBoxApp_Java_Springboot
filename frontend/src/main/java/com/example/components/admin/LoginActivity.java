@@ -147,7 +147,7 @@ public class LoginActivity extends MainPanel {
 
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder());
-        scroll.setPreferredSize(new Dimension(1850, 625));
+        scroll.setPreferredSize(new Dimension(1850, 640));
         add(scroll);
 
         add(Box.createVerticalGlue());

@@ -7,6 +7,7 @@ import com.example.dto.request.RegisterReqDTO;
 import com.example.dto.response.GeneralResDTO;
 import com.example.dto.response.LoginResDTO;
 import com.example.dto.response.RegisterResDTO;
+import com.example.dto.response.ResetPasswordReqDTO;
 
 public class AuthService {
 
@@ -29,5 +30,10 @@ public class AuthService {
     public GeneralResDTO changePassword(String oldPass, String newPass){
         ChangePasswordReqDTO dto = new ChangePasswordReqDTO(oldPass, newPass);
         return api.changePassword(dto);
+    }
+
+    public GeneralResDTO resetPassword(String email){
+        ResetPasswordReqDTO dto = new ResetPasswordReqDTO(email);
+        return api.resetPassword(dto);
     }
 }

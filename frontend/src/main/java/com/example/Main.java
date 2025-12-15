@@ -10,9 +10,10 @@ public class Main {
     public static void main(String[] args){
         SwingUtilities.invokeLater(() ->{
             try {
-                UserMiniDTO user = new UserMiniDTO(12, "giao@gmail.com", "userme", "admin");
+                UserMiniDTO user = new UserMiniDTO(100, "", "", "Admin");
                 AdminDashboard cs = new AdminDashboard(user);
-//                new Signup();
+//                new Login();
+                // UserMiniDTO user = new UserMiniDTO(3, "ryoshu@gmail.com", "Ryoshu", "user", "R");
 //                AuthService authService = new AuthService();
 //                LoginResDTO user = authService.login("ryoshu@gmail.com", "OLPASMTHNWTRTBTLIU");
 //                new ChatScreen(user);

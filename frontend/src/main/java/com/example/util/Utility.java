@@ -31,16 +31,21 @@ public class Utility {
         return res;
     }
 
-    public static String[][] convertToString(List<List<String>> list) {
-        int row = list.size();
-        int col = list.get(0).size();
-        String[][] result = new String[row][col];
-        for(int i = 0; i < row; i++){
-            for(int j = 0; j < col; j++){
-                result[i][j] = list.get(i).get(j);
+    public static String[][] convertToString(List<List<String>> data) {
+        if (data == null || data.isEmpty()) {
+            return new String[0][0];
+        }
+
+        int rows = data.size();
+        int cols = data.get(0).size();
+
+        String[][] array = new String[rows][cols];
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                array[i][j] = data.get(i).get(j);
             }
         }
-        return result;
+        return array;
     }
 
     static public String safeString(String s) {

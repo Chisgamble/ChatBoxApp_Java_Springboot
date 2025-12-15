@@ -1,19 +1,20 @@
 package com.example.components.user;
 
-import com.example.model.User;
+import com.example.dto.response.StrangerCardResDTO;
+import com.example.listener.FriendRequestListener;
 
 import javax.swing.*;
 
 import java.util.List;
 
 public class StrangerCardList extends JScrollPane {
-    public StrangerCardList(List<User> users, int width) {
+    public StrangerCardList(List<StrangerCardResDTO> users, int width, FriendRequestListener listener) {
         JPanel list = new JPanel();
         list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
         list.setOpaque(false);
 
-        for (User u : users){
-            list.add(new StrangerCard(u, width));
+        for (StrangerCardResDTO u : users){
+            list.add(new StrangerCard(u, width, listener));
         }
 
         this.setOpaque(false);

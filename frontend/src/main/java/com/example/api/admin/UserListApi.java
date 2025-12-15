@@ -1,9 +1,12 @@
 package com.example.api.admin;
 
+import com.example.dto.NewUserListDTO;
 import com.example.dto.UserListDTO;
+import com.example.dto.YearlyGraphDTO;
 import com.example.dto.request.AdminCreateOrUpdateUserReqDTO;
 import com.example.util.HttpClientUtil;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public class UserListApi {
@@ -60,5 +63,37 @@ public class UserListApi {
     public void deleteUser(Long id) {
         String url = BASE_URL + "/" + id;
         HttpClientUtil.delete(url);
+    }
+
+    public NewUserListDTO getNewUserList(String username, String email, LocalDate start, LocalDate end, String order) {
+        StringBuilder url = new StringBuilder(BASE_URL + "/new-list?");
+
+        // Append filters if they exist
+        if (username != null && !username.isEmpty()) {
+            url.append("username=").append(username).append("&");
+        }
+        if (email != null && !email.isEmpty()) {
+            url.append("email=").append(email).append("&");
+        }
+        if (start != null) {
+            url.append("startDate=").append(start.toString()).append("&");
+        }
+        if (end != null) {
+            url.append("endDate=").append(end.toString()).append("&");
+        }
+
+        // Sorting (Default to 'desc' if logic fails, though service handles this)
+        url.append("order=").append((order != null) ? order : "desc");
+
+        // Execute GET request expecting the Wrapper DTO
+        return HttpClientUtil.get(url.toString(), NewUserListDTO.class);
+    }
+
+    public YearlyGraphDTO getNewUserGraph(Integer year) {
+        String url = BASE_URL + "/new-graph";
+        if (year != null) {
+            url += "?year=" + year;
+        }
+        return HttpClientUtil.get(url, YearlyGraphDTO.class);
     }
 }

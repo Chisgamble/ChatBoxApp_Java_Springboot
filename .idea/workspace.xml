@@ -5,16 +5,114 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8d5e9cc1-3ce8-4911-9469-68c6b89fc6eb" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/config/WebSocketConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/ChatController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/InboxController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/GroupCardDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/NewUserDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/NewUserListDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/YearlyGraphDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/request/CreateFriendRequestReqDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/request/InboxUserReqDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/request/SendGroupMsgReqDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/request/SendInboxMsgReqDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/response/CreateFriendRequestResDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/response/InboxUserResDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/response/SendGroupMsgResDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/response/SendInboxMsgResDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/response/StrangerCardResDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/model/Group.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/model/GroupMember.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/model/GroupMsg.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/model/SpamReport.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/model/UserBlock.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/GroupMemberRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/GroupMsgRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/GroupRepository.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/service/ChatService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/service/GroupMemberService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/InboxApi.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/ModernLineChart.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/GroupCard.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/GroupCardList.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/NewUserDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/NewUserListDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/YearlyGraphDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/request/CreateFriendRequestReqDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/response/CreateFriendRequestResDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/response/InboxUserResDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/response/StrangerCardResDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/response/UserCardResDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/listener/FriendCardListener.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/InboxService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/ChatContext.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/resources/assets/solar--eye-bold.svg" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/resources/assets/solar--eye-closed-broken.svg" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/AuthController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/FriendController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/FriendController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/FriendRequestController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/FriendRequestController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/LoginLogController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/LoginLogController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/FriendCardDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/FriendCardDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/InboxMsgDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/InboxMsgDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/response/UserResDTO.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/mapper/FriendMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/mapper/FriendMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/mapper/InboxMsgMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/mapper/InboxMsgMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/mapper/UserMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/mapper/UserMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/model/Inbox.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/model/Inbox.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/FriendRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/FriendRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/InboxMsgRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/InboxMsgRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/InboxRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/InboxRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/LoginLogRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/LoginLogRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/LoginLogService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/LoginLogService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/UserRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/AppUserDetailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/service/AppUserDetailService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/EmailService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/service/EmailService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/FriendRequestService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/service/FriendRequestService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/FriendService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/service/FriendService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/InboxMsgService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/service/InboxMsgService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/InboxService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/service/InboxService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/LoginLogService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/service/LoginLogService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/service/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/util/Util.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/util/Util.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/FriendApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/FriendApi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/FriendRequestApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/FriendRequestApi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/UserApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/UserApi.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/admin/LoginLogApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/admin/LoginLogApi.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/RoundedComboBox.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/RoundedComboBox.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/admin/UserListApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/admin/UserListApi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/RoundedButton.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/RoundedButton.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/RoundedPasswordField.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/RoundedPasswordField.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/FilterButton.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/FilterButton.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/GraphPage.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/GraphPage.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/LoginActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/LoginActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/NewUser.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/NewUser.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/UserList.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/UserList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/FriendCardList.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/FriendCardList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/FriendRequestCard.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/FriendRequestCard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/StrangerCard.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/StrangerCard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/StrangerCardList.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/StrangerCardList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/FriendCardDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/FriendCardDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/InboxMsgDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/InboxMsgDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/UserMiniDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/UserMiniDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/listener/FriendRequestListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/listener/FriendRequestListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/ChatPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/ChatPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/ChatUtilPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/ChatUtilPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/UserUtilPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/UserUtilPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/renderer/FriendCardRenderer.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/renderer/FriendCardRenderer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/AuthService.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/AuthService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/FriendRequestService.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/FriendRequestService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/FriendService.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/FriendService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/UserService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/admin/LoginLogService.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/admin/LoginLogService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/admin/UserListService.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/admin/UserListService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/AdminDashboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/AdminDashboard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/ChatScreen.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/ChatScreen.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/util/HttpClientUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/util/HttpClientUtil.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/util/Utility.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/util/Utility.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/application.properties" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,21 +150,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.ChatboxApplication.executor&quot;: &quot;Run&quot;,
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;Bao&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/school/Nam3 HK1/Jav/ChatBoxApp_Java_Springboot/frontend/src/main/java/com/example/dto&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ChatboxApplication.executor": "Run",
+    "Application.Main.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "Merging Bao",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/school/Nam3 HK1/Jav/ChatBoxApp_Java_Springboot/frontend/src/main/resources/assets"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\school\Nam3 HK1\Jav\ChatBoxApp_Java_Springboot\frontend\src\main\resources\assets" />
       <recent name="D:\school\Nam3 HK1\Jav\ChatBoxApp_Java_Springboot\frontend\src\main\java\com\example\dto" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
@@ -82,5 +181,16 @@
       <updated>1765597481212</updated>
     </task>
     <servers />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/UserList.java</url>
+          <line>107</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

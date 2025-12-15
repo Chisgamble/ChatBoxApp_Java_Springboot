@@ -1,7 +1,6 @@
-package app.chatbox.services;
+package app.chatbox.service;
 
 import app.chatbox.dto.FriendCardDTO;
-import app.chatbox.dto.FriendCardListDTO;
 //import app.chatbox.mapper.FriendMapper;
 import app.chatbox.model.Friend;
 import app.chatbox.repository.FriendRepository;

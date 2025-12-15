@@ -11,6 +11,7 @@ import java.util.List;
 
 @Repository
 public interface LoginLogRepository extends JpaRepository<LoginLog, Long> {
+    List<LoginLog> findByEmail(String email, Sort sort);
 
     @Query(value = """
         SELECT l.*
@@ -34,4 +35,15 @@ public interface LoginLogRepository extends JpaRepository<LoginLog, Long> {
             @Param("status") String status,
             Sort sort
     );
+
+    @Query(value = """
+        SELECT 
+            CAST(EXTRACT(MONTH FROM created_at) AS INTEGER) as month, 
+            COUNT(DISTINCT email) as count 
+        FROM login_log 
+        WHERE EXTRACT(YEAR FROM created_at) = :year 
+          AND isSuccess = true
+        GROUP BY month
+        """, nativeQuery = true)
+    List<Object[]> countActiveUsersByMonth(@Param("year") int year);
 }

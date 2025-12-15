@@ -13,9 +13,11 @@ import com.example.dto.LoginLogDTO;
 import com.example.dto.UserDTO;
 import com.example.dto.request.AdminCreateOrUpdateUserReqDTO;
 import com.example.model.User;
+import com.example.services.AuthService;
 import com.example.services.admin.LoginLogService;
 import com.example.util.Utility;
 import com.example.services.admin.UserListService;
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -30,12 +32,14 @@ public class UserList extends MainPanel {
     private String order;
     private UserListService userService;
     private LoginLogService loginLogService;
+    private AuthService authService;
     private JPanel filterPanel;
     List<UserDTO> users;
 
     public UserList() {
         userService = new UserListService();
         loginLogService = new LoginLogService();
+        authService = new AuthService();
         sort = "username";
         order = "asc";
         status = "all";
@@ -52,6 +56,7 @@ public class UserList extends MainPanel {
     }
 
     protected void setUpTable() {
+        // 1. Bỏ header rỗng cuối cùng đi (chỉ còn 7 cột)
         String[] headers = {"Username", "Full name", "Status", "Address", "Date of birth", "Gender", "Email"};
 
         table = new CustomTable(data, headers) {
@@ -64,7 +69,7 @@ public class UserList extends MainPanel {
         addStatusDots();
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder());
-        scroll.setPreferredSize(new Dimension(1850, 600));
+        scroll.setPreferredSize(new Dimension(1850, 640));
         add(scroll);
 
 //      Chuot phai
@@ -196,15 +201,46 @@ public class UserList extends MainPanel {
                         try {
                             userService.deleteUser(targetUser.id());
 
-                            JOptionPane.showMessageDialog(this, "User deleted successfully.");
+                            JOptionPane.showMessageDialog(null, "User deleted successfully.");
 
                             // 3. REFRESH TABLE
                             filterData();
 
                         } catch (Exception ex) {
-                            JOptionPane.showMessageDialog(this,
+                            JOptionPane.showMessageDialog(null,
                                     "Could not delete user. Error: " + ex.getMessage(),
                                     "Delete Failed",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
+            }
+
+            else if (item.equals("Refresh password")) {
+                menuItem.addActionListener(evt -> {
+                    // 1. CONFIRMATION DIALOG
+                    int confirm = JOptionPane.showConfirmDialog(
+                            null, // Parent component
+                            "Are you sure you want to reset the password for user: " + currentUsername + "?\n"
+                                    + "A randomly generated password will be sent to " + currentEmail + ".",
+                            "Confirm Password Reset",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE
+                    );
+
+                    // 2. CALL SERVICE
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        try {
+                            // Assuming userService has the resetPassword method you defined earlier
+                            authService.resetPassword(currentEmail);
+
+                            JOptionPane.showMessageDialog(null,
+                                    "Password reset successfully.\nThe new password has been emailed to the user.");
+
+                        } catch (Exception ex) {
+                            JOptionPane.showMessageDialog(null,
+                                    "Failed to reset password. Error: " + ex.getMessage(),
+                                    "Error",
                                     JOptionPane.ERROR_MESSAGE);
                         }
                     }
@@ -841,71 +877,87 @@ public class UserList extends MainPanel {
     private void updatePasswordPopup(String currentUsername) {
         RoundedPanel popup = new RoundedPanel(15);
         popup.setLayout(new BorderLayout());
-        popup.setBorder(new EmptyBorder(10, 10, 10, 10));
+        popup.setBorder(new EmptyBorder(20, 20, 20, 20));
         popup.setBackground(Color.WHITE);
-        popup.setPreferredSize(new Dimension(500, 250)); // Slightly taller for checkbox
+        popup.setPreferredSize(new Dimension(500, 280));
 
         // Store inputs to retrieve later
         Map<String, JPasswordField> inputs = new HashMap<>();
-        String[] options = {"New password"}; // Only need new password for Admin override
-        // Note: Admin usually doesn't need "Old Password" to reset someone else's password.
-        // If you DO need old password validation, keep it in the array.
+        String[] options = {"Old password", "New password"};
 
         JPanel centerWrapper = new JPanel();
         centerWrapper.setLayout(new BoxLayout(centerWrapper, BoxLayout.Y_AXIS));
         centerWrapper.setOpaque(false);
 
+        // Font for the "Eye" icon (using Unicode or plain text)
+        Font iconFont = new Font("SansSerif", Font.BOLD, 16);
+
+        FlatSVGIcon eyeOpenIcon = new FlatSVGIcon("assets/solar--eye-bold.svg", 20, 20);
+        FlatSVGIcon eyeCrossedIcon = new FlatSVGIcon("assets/solar--eye-closed-broken.svg", 20, 20);
         for (String item : options) {
             JPanel row = new JPanel(new BorderLayout(10, 0));
             row.setOpaque(false);
-            row.setMaximumSize(new Dimension(480, 50)); // Allow width stretch
-            row.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+            row.setMaximumSize(new Dimension(480, 50));
+            row.setBorder(BorderFactory.createEmptyBorder(0, 0, 15, 0));
 
+            // 1. Label
             JLabel label = new JLabel(item);
             label.setFont(new Font("Roboto", Font.BOLD, 14));
-            label.setPreferredSize(new Dimension(150, 40));
+            label.setPreferredSize(new Dimension(130, 40));
 
+            // 2. Field
             RoundedPasswordField field = new RoundedPasswordField(15);
             field.setPreferredSize(new Dimension(200, 40));
-
+            field.setEchoChar('•');
             inputs.put(item, field);
 
+            // 3. Eye Button (Toggle Visibility)
+            JButton eyeBtn = new JButton();
+            eyeBtn.setIcon(eyeCrossedIcon);
+
+            eyeBtn.setPreferredSize(new Dimension(40, 40));
+            eyeBtn.setFocusPainted(false);
+            eyeBtn.setBorderPainted(false);
+            eyeBtn.setContentAreaFilled(false);
+            eyeBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+            // Eye Button Logic
+            eyeBtn.addActionListener(e -> {
+                if (field.getEchoChar() != (char) 0) {
+                    // SHOW PASSWORD
+                    field.setEchoChar((char) 0);
+                    eyeBtn.setIcon(eyeOpenIcon); // Show "crossed out" eye
+                } else {
+                    // HIDE PASSWORD
+                    field.setEchoChar('•');
+                    eyeBtn.setIcon(eyeCrossedIcon); // Show normal eye
+                }
+            });
+
+            // 4. Wrapper to hold Field + Eye Button
+            JPanel fieldWrapper = new JPanel(new BorderLayout(5, 0));
+            fieldWrapper.setOpaque(false);
+            fieldWrapper.add(field, BorderLayout.CENTER);
+            fieldWrapper.add(eyeBtn, BorderLayout.EAST);
+
             row.add(label, BorderLayout.WEST);
-            row.add(field, BorderLayout.CENTER);
+            row.add(fieldWrapper, BorderLayout.CENTER);
             centerWrapper.add(row);
         }
-
-        // === SHOW PASSWORD CHECKBOX ===
-        JCheckBox showPassCheck = new JCheckBox("Show Password");
-        showPassCheck.setBackground(Color.WHITE);
-        showPassCheck.setFont(new Font("Roboto", Font.PLAIN, 12));
-        showPassCheck.setBorder(new EmptyBorder(0, 160, 0, 0)); // Indent to align with fields
-        // Toggle Logic
-        showPassCheck.addActionListener(e -> {
-            char echo = showPassCheck.isSelected() ? (char) 0 : '•'; // 0 = visible, '•' = masked
-            for (JPasswordField pf : inputs.values()) {
-                pf.setEchoChar(echo);
-            }
-        });
-
-        // Wrapper for checkbox to stop it stretching
-        JPanel checkWrapper = new JPanel(new FlowLayout(FlowLayout.LEADING));
-        checkWrapper.setOpaque(false);
-        checkWrapper.add(showPassCheck);
-        centerWrapper.add(checkWrapper);
-
 
         // === BUTTONS ===
         RoundedButton updateBtn = new RoundedButton(25);
         updateBtn.setText("UPDATE");
         updateBtn.setForeground(Color.WHITE);
         updateBtn.setBackground(new Color(0x0084FF));
+        updateBtn.setPreferredSize(new Dimension(100, 35));
 
         RoundedButton cancel = new RoundedButton(25);
         cancel.setText("CANCEL");
         cancel.setBackground(Color.WHITE);
+        cancel.setPreferredSize(new Dimension(100, 35));
 
-        JPanel bottomWrapper = new JPanel(new FlowLayout(FlowLayout.TRAILING, 20, 10));
+        JPanel bottomWrapper = new JPanel(new FlowLayout(FlowLayout.TRAILING, 10, 0));
         bottomWrapper.setOpaque(false);
         bottomWrapper.add(updateBtn);
         bottomWrapper.add(cancel);
@@ -923,36 +975,19 @@ public class UserList extends MainPanel {
         // === UPDATE ACTION ===
         updateBtn.addActionListener(e -> {
             try {
+                String oldPass = new String(inputs.get("Old password").getPassword());
                 String newPass = new String(inputs.get("New password").getPassword());
 
-                if (newPass.isEmpty()) {
-                    JOptionPane.showMessageDialog(dialog, "Password cannot be empty");
+                // 1. Validation
+                if (oldPass.isEmpty() || newPass.isEmpty()) {
+                    JOptionPane.showMessageDialog(dialog, "Both fields are required.");
                     return;
                 }
 
-                // 1. Find User ID based on username (passed into this method)
-                Long userId = users.stream()
-                        .filter(u -> u.username().equals(currentUsername))
-                        .findFirst()
-                        .map(UserDTO::id)
-                        .orElseThrow(() -> new Exception("User not found"));
+                // 2. Call Service (using the new ChangePassword flow)
+                authService.changePassword(oldPass, newPass);
 
-                // 2. Create DTO with ONLY password filled (others null)
-                AdminCreateOrUpdateUserReqDTO req = new AdminCreateOrUpdateUserReqDTO(
-                        null, // username
-                        null, // name
-                        newPass, // PASSWORD SET HERE
-                        null, // gender
-                        null, // address
-                        null, // email
-                        null, // dob
-                        null  // role
-                );
-
-                // 3. Call API
-                userService.updateUser(userId, req);
-
-                JOptionPane.showMessageDialog(this, "Password updated successfully!");
+                JOptionPane.showMessageDialog(dialog, "Password updated successfully!");
                 dialog.dispose();
 
             } catch (Exception ex) {

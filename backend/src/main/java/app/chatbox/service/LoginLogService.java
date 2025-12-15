@@ -2,6 +2,7 @@ package app.chatbox.service;
 
 import app.chatbox.dto.LoginLogDTO;
 import app.chatbox.dto.LoginLogListDTO;
+import app.chatbox.dto.YearlyGraphDTO;
 import app.chatbox.mapper.LoginLogMapper;
 import app.chatbox.model.AppUser;
 import app.chatbox.model.LoginLog;
@@ -12,6 +13,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.Year;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,8 +40,8 @@ public class LoginLogService {
         String statusInput = (status == null || status.isEmpty()) ? "all" : status.toLowerCase();
 
         Sort.Direction direction = (order != null && order.equalsIgnoreCase("desc"))
-                ? Sort.Direction.DESC
-                : Sort.Direction.ASC;
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
 
         Sort sortObj = Sort.by(direction, "created_at");
 
@@ -62,5 +66,28 @@ public class LoginLogService {
                 .toList();
 
         return new LoginLogListDTO(dtoList);
+    }
+
+    public YearlyGraphDTO getActiveUserGraph(Integer year) {
+        // 1. Default to current year if null
+        int targetYear = (year != null) ? year : Year.now().getValue();
+
+        // 2. Fetch raw data: [Month, Count]
+        List<Object[]> rawData = loginLogRepo.countActiveUsersByMonth(targetYear);
+
+        // 3. Initialize list of 12 zeros
+        List<Long> monthlyData = new ArrayList<>(Collections.nCopies(12, 0L));
+
+        // 4. Fill in the data
+        for (Object[] row : rawData) {
+            int month = ((Number) row[0]).intValue();
+            long count = ((Number) row[1]).longValue();
+
+            if (month >= 1 && month <= 12) {
+                monthlyData.set(month - 1, count);
+            }
+        }
+
+        return new YearlyGraphDTO(targetYear, monthlyData, "Active Users");
     }
 }

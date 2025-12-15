@@ -1,11 +1,8 @@
-package app.chatbox.services;
+package app.chatbox.service;
 
 import app.chatbox.dto.InboxMsgDTO;
 import app.chatbox.mapper.InboxMsgMapper;
-import app.chatbox.model.AppUser;
-import app.chatbox.model.Inbox;
 import app.chatbox.repository.InboxMsgRepository;
-import app.chatbox.repository.InboxRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

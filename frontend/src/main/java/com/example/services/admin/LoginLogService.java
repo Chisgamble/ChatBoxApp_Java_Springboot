@@ -3,6 +3,7 @@ package com.example.services.admin;
 import com.example.api.admin.LoginLogApi;
 import com.example.dto.LoginLogDTO;
 import com.example.dto.LoginLogListDTO;
+import com.example.dto.YearlyGraphDTO;
 
 import java.util.Collections;
 import java.util.List;
@@ -31,5 +32,9 @@ public class LoginLogService {
         }
 
         return Collections.emptyList();
+    }
+
+    public YearlyGraphDTO getActiveUserGraph(Integer year) {
+        return api.getActiveUserGraph(year);
     }
 }

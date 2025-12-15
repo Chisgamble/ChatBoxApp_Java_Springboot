@@ -20,7 +20,6 @@ public class AdminDashboard extends JFrame {
         TopBar topbar = new TopBar();
 
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setExtendedState(MAXIMIZED_BOTH);
         setLayout(new BorderLayout());
 
         // === CardLayout container ===
@@ -60,6 +59,7 @@ public class AdminDashboard extends JFrame {
             cardPanel.repaint();
         });
         pack();
+        setExtendedState(MAXIMIZED_BOTH);
         setVisible(true);
     }
 }

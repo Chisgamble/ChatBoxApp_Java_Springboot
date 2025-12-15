@@ -6,4 +6,5 @@ import com.example.dto.response.FriendRequestResDTO;
 public interface FriendRequestListener {
     void onAccept(FriendRequestResDTO request);
     void onReject(FriendRequestResDTO request);
+    void onSent(Long receiverId);
 }

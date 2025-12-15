@@ -14,7 +14,7 @@ public class RoundedButton extends JButton {
 //        setOpaque(true);
 //        setContentAreaFilled(true);
 //        setBorderPainted(false);
-//        setFocusPainted(false);
+        setFocusPainted(false);
     }
     public RoundedButton(int radius, Color border) {
         this.radius = radius;

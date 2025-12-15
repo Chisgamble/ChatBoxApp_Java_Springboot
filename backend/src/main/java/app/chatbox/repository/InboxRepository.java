@@ -6,10 +6,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface InboxRepository extends JpaRepository<Inbox, Long> {
     List<Inbox> findByUserA_IdOrUserB_Id(Long userAId, Long userBId);
+
+    @Query(value = """
+    INSERT INTO inbox (userA, userB)
+    VALUES (LEAST(:user1, :user2), GREATEST(:user1, :user2))
+    ON CONFLICT (userA, userB) DO NOTHING
+    """, nativeQuery = true)
+    Inbox create(Long user1, Long user2);
 
     @Query(value = """
     select
@@ -37,5 +45,14 @@ public interface InboxRepository extends JpaRepository<Inbox, Long> {
     where i.userA = :userId or i.userB = :userId
     """, nativeQuery = true)
     List<Object[]> findFriendsWithLastMsg(Long userId);
+
+    @Query(value = """
+        SELECT *
+        FROM inbox
+        WHERE userA = LEAST(:user1, :user2)
+          AND userB = GREATEST(:user1, :user2)
+    """, nativeQuery = true)
+    Optional<Inbox> findByUsers(Long user1, Long user2);
+
 
 }

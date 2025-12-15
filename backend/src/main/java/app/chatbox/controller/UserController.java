@@ -1,15 +1,18 @@
 package app.chatbox.controller;
 
 import app.chatbox.dto.FriendCardDTO;
+import app.chatbox.dto.NewUserListDTO;
 import app.chatbox.dto.UserListDTO;
+import app.chatbox.dto.YearlyGraphDTO;
 import app.chatbox.dto.request.AdminCreateOrUpdateUserReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.FriendRequestResDTO;
+import app.chatbox.dto.response.GeneralResDTO;
 import app.chatbox.dto.response.RegisterResDTO;
-import app.chatbox.dto.response.UserResDTO;
-import app.chatbox.services.FriendRequestService;
-import app.chatbox.services.FriendService;
-import app.chatbox.services.UserService;
+import app.chatbox.dto.response.StrangerCardResDTO;
+import app.chatbox.service.FriendRequestService;
+import app.chatbox.service.FriendService;
+import app.chatbox.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
@@ -22,9 +25,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
-import app.chatbox.repository.UserRepository;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -32,14 +35,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserRepository repo;
     private final FriendService friendService;
     private final FriendRequestService friendRequestService;
     private final UserService userService;
 
-    @GetMapping("/getall")
-    public List<UserResDTO> getAllUsers() {
-        return userService.getAllUsers();
+//    @GetMapping("/")
+//    public List<StrangerCardResDTO> getAllUsers() {
+//        return userService.getAllStrangerCards();
+//    }
+    @PreAuthorize("@authz.isCurrentUser(#id)")
+    @GetMapping("/{id}/strangers")
+    public ResponseEntity<List<StrangerCardResDTO>> getAllStrangers(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getAllStrangerCards(id));
     }
 
 //    @PreAuthorize("hasRole('ADMIN')")
@@ -58,12 +65,12 @@ public class UserController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<UserResDTO> createAdminUser(@RequestBody AdminCreateOrUpdateUserReqDTO req) {
+    public ResponseEntity<StrangerCardResDTO> createAdminUser(@RequestBody AdminCreateOrUpdateUserReqDTO req) {
         return ResponseEntity.ok(userService.createUser(req));
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<UserResDTO> updateUser(
+    public ResponseEntity<StrangerCardResDTO> updateUser(
             @PathVariable Long id,
             @RequestBody AdminCreateOrUpdateUserReqDTO req
     ) {
@@ -81,7 +88,7 @@ public class UserController {
 
 
     @GetMapping("/{id}")
-    public UserResDTO getById(@PathVariable Long id) {
+    public StrangerCardResDTO getById(@PathVariable Long id) {
         return userService.getById(id);
     }
 
@@ -91,7 +98,7 @@ public class UserController {
     }
 
 //    @PostMapping
-//    public UserResDTO addUser(@RequestBody @Valid UserRequest request) {
+//    public StrangerCardResDTO addUser(@RequestBody @Valid UserRequest request) {
 //        return UserService.addUser(request);
 //    }
 
@@ -117,4 +124,25 @@ public class UserController {
         return ResponseEntity.status(HttpStatusCode.valueOf(201)).body("Hello");
     }
 
+    @GetMapping("/new-list")
+    public ResponseEntity<?> getNewUserList(
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) LocalDate startDate,
+            @RequestParam(required = false) LocalDate endDate,
+            @RequestParam(required = false) String order
+    ) {
+        try {
+            NewUserListDTO result = userService.getNewUsers(username, email, startDate, endDate, order);
+            return ResponseEntity.ok(result);
+        } catch (IllegalArgumentException e) {
+            // Returns 400 Bad Request if dates are invalid
+            return ResponseEntity.badRequest().body(new GeneralResDTO(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/new-graph")
+    public ResponseEntity<YearlyGraphDTO> getNewUsersGraph(@RequestParam(required = false) Integer year) {
+        return ResponseEntity.ok(userService.getNewUserGraph(year));
+    }
 }

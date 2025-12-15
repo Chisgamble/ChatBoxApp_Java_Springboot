@@ -4,6 +4,7 @@ import com.example.components.Avatar;
 import com.example.components.ConfirmPopup;
 import com.example.components.user.*;
 import com.example.dto.FriendCardDTO;
+import com.example.dto.UserMiniDTO;
 import com.example.listener.SearchBarListener;
 import com.example.model.Msg;
 import com.example.model.User;
@@ -12,6 +13,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import com.example.ui.ChatContext;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.example.ui.ChatScreen;
 
@@ -25,12 +27,11 @@ import java.util.List;
 public class ChatUtilPanel extends JPanel implements SearchBarListener {
     ChatScreen mainFrame;
 
-
     JPanel topContainer = new JPanel();
     JPanel centerContainer = new JPanel();
     Component listContainer = null;
     
-    User user;
+    UserMiniDTO user;
     List<Msg> msgs = new ArrayList<>();
     List<Msg> filteredMsgs = new ArrayList<>();
     List<User> allMembers = new ArrayList<>( List.of(
@@ -54,15 +55,19 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     String[] groupOptions = {"Search In Chat", "Members", "Leave Group"};
     String[] groupAdminOptions = {"Search In Chat", "Members", "Add New Members", "Change Group Name", "Encrypt Group","Delete All Chat History", "Delete Group"};
 
-    public ChatUtilPanel(ChatScreen mainFrame, int width, int height, boolean isGroup, boolean isAdmin) {
+    public ChatUtilPanel(ChatScreen mainFrame, int width, int height, boolean isGroup, boolean isAdmin, UserMiniDTO friend) {
         this.mainFrame = mainFrame;
-
-        this.user = new User("Alice");
-
-        this.msgs = new ArrayList<>();
-        for (int i = 0; i < 15; i++) {
-            msgs.add(new Msg());
+        if (friend == null){
+            this.user = new UserMiniDTO();
+            this.user.setUsername("");
+            this.user.setInitials("");
+        }else {
+            this.user = friend;
         }
+//        this.msgs = new ArrayList<>();
+//        for (int i = 0; i < 15; i++) {
+//            msgs.add(new Msg());
+//        }
         
         this.isGroup = isGroup;
         this.isAdmin = isAdmin;
@@ -78,13 +83,13 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         centerContainer.setPreferredSize(new Dimension(width - 25, height - 60));
         centerContainer.setOpaque(false);
 
-        if (cur_option.equals("Selection")) {
+//        if (cur_option.equals("Selection")) {
             listContainer = setupOption();
             centerContainer.add(listContainer, BorderLayout.CENTER);
-        } else if (cur_option.equals("Search In Chat")) {
-            listContainer = new MsgCardList(msgs, width - 25);
-            centerContainer.add(listContainer, BorderLayout.CENTER);
-        }
+//        } else if (cur_option.equals("Search In Chat")) {
+//            listContainer = new MsgCardList(msgs, width - 25);
+//            centerContainer.add(listContainer, BorderLayout.CENTER);
+//        }
 
         this.add(topContainer, BorderLayout.NORTH);
         this.add(centerContainer, BorderLayout.CENTER);
@@ -154,7 +159,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         avatarWrapper.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
 
         Avatar avatar = new Avatar(user.getInitials(), 100);
-        JLabel name = new JLabel(user.getName());
+        JLabel name = new JLabel(user.getUsername());
         name.setOpaque(false);
         name.setAlignmentX(Component.CENTER_ALIGNMENT);
         name.setFont(name.getFont().deriveFont(24f));
@@ -194,6 +199,22 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             button.setFont(button.getFont().deriveFont(14f));
             button.validate();
 
+            button.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+
+            button.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    button.setOpaque(true);
+                    button.setBackground(new Color(230,230,230));
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    button.setOpaque(false);
+                    button.setBackground(null);
+                }
+            });
+
             button.setAlignmentX(Component.CENTER_ALIGNMENT);
             button.addActionListener(e -> onOptionButtonClick(option));
 
@@ -205,6 +226,23 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         optionWrapper.setMaximumSize(new Dimension(Short.MAX_VALUE, optionWrapper.getPreferredSize().height));
         return optionWrapper;
     }
+
+    public void showUser(UserMiniDTO user) {
+        this.user = user;
+        updatePanel();
+    }
+
+    public void showChat(ChatContext ctx) {
+        this.isGroup = ctx.isGroup();
+
+        if (ctx.isGroup()) {
+//            showGroup(ctx.getTargetGroup());
+        } else {
+            showUser(ctx.getTargetUser());
+        }
+    }
+
+
 
     private void onOptionButtonClick(String option) {
         // Update the current selected option
@@ -258,7 +296,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 
     void updateMemberList(List<FriendCardDTO> members){
         this.remove(listContainer);
-        listContainer = new FriendCardList(members, getWidth()-15);
+        listContainer = new FriendCardList(members, getWidth()-15, mainFrame);
         // Revalidate and repaint the list
         listContainer.revalidate();
         listContainer.repaint();

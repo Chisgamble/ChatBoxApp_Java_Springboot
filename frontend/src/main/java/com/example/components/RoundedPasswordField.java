@@ -35,7 +35,7 @@ public class RoundedPasswordField extends JPasswordField {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         g2.setColor(getForeground()); // border color
-        g2.drawRoundRect(0, 1, getWidth()-1, getHeight()-2, radius, radius);
+        g2.drawRoundRect(1, 1, getWidth()-2, getHeight()-2, radius, radius);
 
         g2.dispose();
     }

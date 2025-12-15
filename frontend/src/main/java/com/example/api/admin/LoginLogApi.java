@@ -2,6 +2,7 @@ package com.example.api.admin;
 
 import com.example.dto.LoginLogDTO;
 import com.example.dto.LoginLogListDTO;
+import com.example.dto.YearlyGraphDTO;
 import com.example.util.HttpClientUtil;
 
 import java.util.List;
@@ -41,4 +42,12 @@ public class LoginLogApi {
         // Use .get(), not .getList()
         return HttpClientUtil.get(url, LoginLogListDTO.class);
     }
+    public YearlyGraphDTO getActiveUserGraph(Integer year) {
+        String url = BASE_URL + "/graph";
+        if (year != null) {
+            url += "?year=" + year;
+        }
+        return HttpClientUtil.get(url, YearlyGraphDTO.class);
+    }
+
 }

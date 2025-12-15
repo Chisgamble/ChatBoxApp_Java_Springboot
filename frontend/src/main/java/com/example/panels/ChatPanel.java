@@ -7,15 +7,25 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.Border;
 
+import com.example.dto.InboxMsgDTO;
+import com.example.dto.response.InboxUserResDTO;
+import com.example.services.InboxService;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.example.components.MyColor;
 import com.example.components.user.MsgBubble;
 import com.example.components.RoundedButton;
 import com.example.components.RoundedTextArea;
 
+import java.util.List;
+import java.util.Objects;
+
 public class ChatPanel extends JPanel{
     Border border = BorderFactory.createLineBorder(Color.black);
     JScrollPane scrollPane;
+    JPanel chatArea;
+    InboxService inboxService = new InboxService();
+
+    private Long currentInboxId;
 
     public ChatPanel(int width, int height){
         this.setPreferredSize(new Dimension(width, height));
@@ -23,7 +33,7 @@ public class ChatPanel extends JPanel{
         this.setBorder(border);
         this.setOpaque(false);
 
-        JPanel chatArea = new JPanel();
+        chatArea = new JPanel();
         chatArea.setOpaque(false);
         chatArea.setLayout(new BoxLayout(chatArea, BoxLayout.Y_AXIS));
         chatArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -34,15 +44,6 @@ public class ChatPanel extends JPanel{
         this.scrollPane.getViewport().setOpaque(false);
         this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
-        addMessage(chatArea, "Hello! How are you?", false, width, "A");
-        addMessage(chatArea, "I'm doing great, thanks for asking!", true, width, "A");
-        addMessage(chatArea, "That's wonderful to hear. What are you working on today? Besides, I'm building a chatbox interface with bubble messages in Java Swing! It's really hard and takes lots of time. I've only making the UI and already wanna quit halfway. Wish there was another easier way to do this without grinding all the components tutorials.", false, width, "A");
-        addMessage(chatArea, "I'm building a chatbox interface with bubble messages in Java Swing! It's really hard and takes lots of time. I've only making the UI and already wanna quit halfway. Wish there was another easier way to do this without grinding all the components tutorials.", true, width, "A");
-
-        for (int i = 0; i < 15; i++){
-            addMessage(chatArea, "Hello! How are you?", i%2 == 0, width, "A");
-        }
 
         JPanel inputArea = new JPanel(new FlowLayout( FlowLayout.LEFT, 10,5));
         inputArea.setOpaque(false);
@@ -66,8 +67,11 @@ public class ChatPanel extends JPanel{
             public void actionPerformed(ActionEvent e) {
                 String message = inputField.getText().trim();
                 if (!message.isEmpty()) {
-                    addMessage(chatArea, message, true, width, "A");  // Add the message to the chat
+                    addMessage(chatArea, message, true, width, "");  // Add the message to the chat
                     inputField.setText("");  // Clear the input field
+                    chatArea.revalidate();
+                    scrollToBottom(scrollPane);
+                    chatArea.repaint();
                 }
             }
         });
@@ -98,9 +102,9 @@ public class ChatPanel extends JPanel{
         messageWrapper.setMaximumSize(new Dimension(chatWidth, messageWrapper.getPreferredSize().height));
 
         chatPanel.add(messageWrapper);
-        chatPanel.revalidate();
-        scrollToBottom(this.scrollPane);
-        chatPanel.repaint();
+//        chatPanel.revalidate();
+//        scrollToBottom(this.scrollPane);
+//        chatPanel.repaint();
     }
 
     private void scrollToBottom(JScrollPane scrollPane) {
@@ -112,5 +116,52 @@ public class ChatPanel extends JPanel{
             verticalScrollBar.setValue(verticalScrollBar.getMaximum());
         });
     }
+
+    public void showMessages(InboxUserResDTO inbox, Long myId) {
+        // clear UI
+        chatArea.removeAll();
+        for (InboxMsgDTO msg : inbox.getMsgs()) {
+            boolean isMe = msg.getSenderId().equals(myId);
+            addMessage(chatArea, msg.getContent(), isMe, getWidth(), inbox.getFriend().getInitials());
+        }
+
+        chatArea.revalidate();
+        scrollPane.setViewportView(chatArea);
+        scrollToBottom(scrollPane);
+        chatArea.repaint();
+    }
+
+    public void loadInbox(Long inboxId, Long currentUserId) {
+        try{
+            if (inboxId == null)
+                return;
+            // prevent reload same inbox
+            if (Objects.equals(currentInboxId, inboxId))
+                return;
+            currentInboxId = inboxId;
+
+            InboxUserResDTO res = inboxService.getInboxWithMessages(inboxId);
+
+//            for (InboxMsgDTO msg : res.getMsgs()) {
+//
+//                boolean isUser = msg.getSenderId().equals(currentUserId);
+//
+//                addMessage(
+//                        chatArea,
+//                        msg.getContent(),
+//                        isUser,
+//                        getWidth(),
+//                        res.getFriend().getInitials()
+//                );
+//            }
+
+            showMessages(res, currentUserId);
+        }catch (Exception ex){
+            JOptionPane.showMessageDialog(this, "Unable to load inbox: " + ex.getMessage());
+            System.out.println("[ERROR]  " + ex.getMessage());
+        }
+        
+    }
+
 
 }

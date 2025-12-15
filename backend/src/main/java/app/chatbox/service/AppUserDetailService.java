@@ -1,10 +1,9 @@
-package app.chatbox.services;
+package app.chatbox.service;
 
 import app.chatbox.config.CustomUserDetails;
 import app.chatbox.model.AppUser;
 import app.chatbox.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

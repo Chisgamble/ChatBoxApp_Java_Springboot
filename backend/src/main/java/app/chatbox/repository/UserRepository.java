@@ -1,6 +1,7 @@
 package app.chatbox.repository;
 
 import app.chatbox.dto.UserMiniDTO;
+import app.chatbox.dto.response.StrangerCardResDTO;
 import app.chatbox.model.AppUser;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -76,4 +77,62 @@ public interface UserRepository extends JpaRepository<AppUser, Long>, JpaSpecifi
             @Param("status") String status,
             Sort sort
     );
+
+    @Query(value = """
+            SELECT u.id, u.username,
+            EXISTS (
+                    SELECT 1
+                    FROM friend_request fr
+                    WHERE fr.sender_id = :userId
+                      AND fr.receiver_id = u.id
+                        ) AS requestSent
+                FROM app_user u
+                WHERE u.id != :userId
+                  AND u.id NOT IN (
+                        SELECT CASE
+                                WHEN f.userA = :userId THEN f.userB
+                                ELSE f.userA
+                               END
+                        FROM friend f
+                        WHERE (f.userA = :userId OR f.userB = :userId)
+                    )
+                  AND u.id NOT IN (
+                        SELECT b.blocker_id
+                        FROM user_block b
+                        WHERE b.blocked_id = :userId
+                    );
+    """, nativeQuery = true)
+    List<StrangerCardResDTO> findAllStrangerCards (long userId);
+
+    @Query(value = """
+        SELECT * FROM app_user u
+        WHERE
+          (:username IS NULL OR u.username ~* :username)
+        AND
+          (:email IS NULL OR u.email ~* :email)
+        AND
+          (CAST(:startDate AS timestamp) IS NULL OR u.created_at >= :startDate)
+        AND
+          (CAST(:endDate AS timestamp) IS NULL OR u.created_at <= :endDate)
+        """, nativeQuery = true)
+        // ^ IMPORTANT: Removed "ORDER BY u.created_at DESC" from string
+    List<AppUser> findNewUsers(
+            @Param("username") String username,
+            @Param("email") String email,
+            @Param("startDate") java.time.Instant startDate,
+            @Param("endDate") java.time.Instant endDate,
+            Sort sort // <--- Add this parameter
+    );
+
+    // 1. FOR NEW USERS
+    @Query(value = """
+        SELECT 
+            CAST(EXTRACT(MONTH FROM created_at) AS INTEGER) as month, 
+            COUNT(*) as count 
+        FROM app_user 
+        WHERE EXTRACT(YEAR FROM created_at) = :year 
+        GROUP BY month
+        """, nativeQuery = true)
+    List<Object[]> findNewUserCounts(@Param("year") int year);
+
 }

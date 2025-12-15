@@ -45,6 +45,7 @@ public class FriendRequestCard extends JPanel {
         accept.setOpaque(false);
         accept.setContentAreaFilled(false);
         accept.setFocusPainted(false);
+        accept.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         JButton reject = new JButton("Reject");
         reject.setFont(accept.getFont().deriveFont(16f));
@@ -53,6 +54,7 @@ public class FriendRequestCard extends JPanel {
         reject.setOpaque(false);
         reject.setContentAreaFilled(false);
         reject.setFocusPainted(false);
+        reject.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         // EVENTS
         accept.addActionListener(e -> {

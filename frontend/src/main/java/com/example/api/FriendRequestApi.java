@@ -1,6 +1,8 @@
 package com.example.api;
 
+import com.example.dto.request.CreateFriendRequestReqDTO;
 import com.example.dto.request.UpdateFriendRequestReqDTO;
+import com.example.dto.response.CreateFriendRequestResDTO;
 import com.example.dto.response.FriendRequestResDTO;
 import com.example.dto.response.UpdateFriendRequestResDTO;
 import com.example.util.HttpClientUtil;
@@ -10,6 +12,13 @@ import java.util.List;
 
 public class FriendRequestApi {
     private static final String BASE_URL = "http://localhost:8080/api/friend-requests";
+
+
+    public CreateFriendRequestResDTO createFriendRequest(CreateFriendRequestReqDTO req){
+        String url = BASE_URL;
+        CreateFriendRequestResDTO response = HttpClientUtil.postJson(url, req, CreateFriendRequestResDTO.class);
+        return response;
+    }
 
     public List<FriendRequestResDTO> getAllFriendRequests(Long userId){
         String url = BASE_URL + "/" + userId.toString();

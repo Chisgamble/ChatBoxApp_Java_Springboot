@@ -2,6 +2,7 @@ package app.chatbox.controller;
 
 import app.chatbox.dto.LoginLogDTO;
 import app.chatbox.dto.LoginLogListDTO;
+import app.chatbox.dto.YearlyGraphDTO;
 import app.chatbox.service.LoginLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,5 +32,12 @@ public class LoginLogController {
     @GetMapping("/find-by-email")
     public ResponseEntity<LoginLogListDTO> getByEmail(@RequestParam String email) {
         return ResponseEntity.ok((loginLogService.getLogsByEmail(email)));
+    }
+
+    @GetMapping("/graph")
+    public ResponseEntity<YearlyGraphDTO> getActiveUserGraph(
+            @RequestParam(required = false) Integer year
+    ) {
+        return ResponseEntity.ok(loginLogService.getActiveUserGraph(year));
     }
 }

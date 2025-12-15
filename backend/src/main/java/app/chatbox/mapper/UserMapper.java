@@ -1,21 +1,23 @@
 package app.chatbox.mapper;
 
-import app.chatbox.dto.FriendCardDTO;
+import app.chatbox.dto.NewUserDTO;
+import app.chatbox.dto.NewUserListDTO;
 import app.chatbox.dto.UserDTO;
 import app.chatbox.dto.response.LoginResDTO;
 import app.chatbox.dto.response.RegisterResDTO;
-import app.chatbox.dto.response.UserResDTO;
+import app.chatbox.dto.response.StrangerCardResDTO;
 import app.chatbox.model.AppUser;
-import app.chatbox.model.Friend;
 import org.mapstruct.Mapper;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
     UserDTO toDTO(AppUser entity);
     AppUser toEntity(UserDTO dto);
-    UserResDTO toUserResDTO(AppUser entity);
+    StrangerCardResDTO toStrangerCardResDTO(AppUser entity);
     RegisterResDTO toRegisterResDTO(AppUser entity);
     LoginResDTO toLoginResDTO(AppUser entity);
 
@@ -46,4 +48,32 @@ public interface UserMapper {
                 .toList();
     }
 
+    default NewUserDTO toNewUserDTO(AppUser user) {
+        if (user == null) return null;
+
+        // Convert Instant (UTC) to LocalDateTime (System Default)
+        LocalDateTime createdLocal = null;
+        if (user.getCreatedAt() != null) {
+            createdLocal = LocalDateTime.ofInstant(
+                    user.getCreatedAt(),
+                    ZoneId.systemDefault()
+            );
+        }
+
+        return new NewUserDTO(
+                user.getUsername(),
+                user.getEmail(),
+                createdLocal
+        );
+    }
+
+    default NewUserListDTO toNewUserListDTO(List<AppUser> users) {
+        if (users == null) return null;
+
+        List<NewUserDTO> dtos = users.stream()
+                .map(this::toNewUserDTO)
+                .toList();
+
+        return new NewUserListDTO(dtos);
+    }
 }

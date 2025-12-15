@@ -1,13 +1,11 @@
-package app.chatbox.services;
+package app.chatbox.service;
 
-import app.chatbox.dto.UserMiniDTO;
-import app.chatbox.dto.UserDTO;
-import app.chatbox.dto.UserListDTO;
+import app.chatbox.dto.*;
 import app.chatbox.dto.request.AdminCreateOrUpdateUserReqDTO;
 import app.chatbox.dto.request.LoginReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.RegisterResDTO;
-import app.chatbox.dto.response.UserResDTO;
+import app.chatbox.dto.response.StrangerCardResDTO;
 import app.chatbox.mapper.UserMapper;
 import app.chatbox.model.AppUser;
 import app.chatbox.repository.UserRepository;
@@ -18,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.data.domain.Sort;
 import app.chatbox.util.Util;
 
+import java.time.*;
 import java.util.List;
 
 @Service
@@ -85,17 +84,22 @@ public class UserService {
         return new UserListDTO(userMapper.toAppUserDTOList(users));
     }
 
-    public List<UserResDTO> getAllUsers() {
-        return userRepo.findAll()
-                .stream()
-                .map(userMapper::toUserResDTO)
-                .toList();
-    }
-
-    public UserResDTO getById(Long id) {
+    public UserMiniDTO findMiniById(Long id){
         AppUser user = userRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-        return userMapper.toUserResDTO(user);
+
+        return new UserMiniDTO(user.getId(), user.getEmail(), user.getUsername(), user.getRole());
+    }
+
+
+    public List<StrangerCardResDTO> getAllStrangerCards(Long id) {
+        return userRepo.findAllStrangerCards(id);
+    }
+
+    public StrangerCardResDTO getById(Long id) {
+        AppUser user = userRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userMapper.toStrangerCardResDTO(user);
     }
 
     public UserDTO getUserDataById(Long id) {
@@ -104,7 +108,7 @@ public class UserService {
         return userMapper.toAppUserDTO(user);
     }
 
-    public UserResDTO createUser(AdminCreateOrUpdateUserReqDTO req) {
+    public StrangerCardResDTO createUser(AdminCreateOrUpdateUserReqDTO req) {
         if (userRepo.existsByEmail(req.email())) {
             throw new RuntimeException("Email already exist");
         }
@@ -128,10 +132,10 @@ public class UserService {
         user.setIsLocked(false);
 
         AppUser saved = userRepo.save(user);
-        return userMapper.toUserResDTO(saved);
+        return userMapper.toStrangerCardResDTO(saved);
     }
 
-    public UserResDTO updateUserInfo(Long userId, AdminCreateOrUpdateUserReqDTO req) {
+    public StrangerCardResDTO updateUserInfo(Long userId, AdminCreateOrUpdateUserReqDTO req) {
         AppUser user = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -150,7 +154,7 @@ public class UserService {
         }
 
         AppUser saved = userRepo.save(user);
-        return userMapper.toUserResDTO(saved);
+        return userMapper.toStrangerCardResDTO(saved);
     }
 
     @Transactional
@@ -163,9 +167,6 @@ public class UserService {
     }
 
     public void delete(Long id) {
-        if (!userRepo.existsById(id)) {
-            throw new RuntimeException("User not found with id: " + id);
-        }
         userRepo.deleteById(id);
     }
 
@@ -227,5 +228,47 @@ public class UserService {
                 .toString()
                 .replace("-", "")
                 .substring(0, length);
+    }
+
+    public NewUserListDTO getNewUsers(String username, String email, LocalDate startDate, LocalDate endDate, String order) {
+
+        // 1. Input Validation
+        if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
+            throw new IllegalArgumentException("Start Date cannot be after End Date");
+        }
+
+        // 2. Prepare Regex Strings
+        String usernameRegex = (username != null && !username.isBlank()) ? username.trim() : null;
+        String emailRegex = (email != null && !email.isBlank()) ? email.trim() : null;
+
+        // 3. Prepare Sort Object (Logic for Order)
+        // Default to DESC if null or anything else
+        Sort.Direction direction = "asc".equalsIgnoreCase(order) ? Sort.Direction.ASC : Sort.Direction.DESC;
+
+        // "created_at" must match the actual COLUMN name in your database
+        Sort sortObj = Sort.by(direction, "created_at");
+
+        // 4. Convert Dates
+        Instant startInstant = (startDate != null)
+                ? startDate.atStartOfDay(ZoneId.systemDefault()).toInstant()
+                : null;
+
+        Instant endInstant = (endDate != null)
+                ? endDate.atTime(LocalTime.MAX).atZone(ZoneId.systemDefault()).toInstant()
+                : null;
+
+        // 5. Execute Query with Sort
+        List<AppUser> users = userRepo.findNewUsers(usernameRegex, emailRegex, startInstant, endInstant, sortObj);
+
+        // 6. Map and Return
+        return userMapper.toNewUserListDTO(users);
+    }
+
+    public YearlyGraphDTO getNewUserGraph(Integer year) {
+        int targetYear = (year != null) ? year : Year.now().getValue();
+        List<Object[]> rawData = userRepo.findNewUserCounts(targetYear);
+        List<Long> filledData = Util.mapToMonthlyList(rawData);
+
+        return new YearlyGraphDTO(targetYear, filledData, "New Users");
     }
 }

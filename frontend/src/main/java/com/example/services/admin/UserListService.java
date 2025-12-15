@@ -1,10 +1,15 @@
 package com.example.services.admin;
 
 import com.example.api.admin.UserListApi;
+import com.example.dto.NewUserDTO;
+import com.example.dto.NewUserListDTO;
 import com.example.dto.UserDTO;
+import com.example.dto.YearlyGraphDTO;
 import com.example.dto.request.AdminCreateOrUpdateUserReqDTO;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -42,5 +47,21 @@ public class UserListService {
 
     public void deleteUser(Long id) {
         api.deleteUser(id);
+    }
+
+    public List<NewUserDTO> getNewUsers(String username, String email, LocalDate start, LocalDate end, String order) {
+        // 1. Call API
+        NewUserListDTO response = api.getNewUserList(username, email, start, end, order);
+
+        // 2. Unwrap and Safely Return
+        if (response != null && response.users() != null) {
+            return response.users();
+        }
+
+        return Collections.emptyList();
+    }
+
+    public YearlyGraphDTO getNewUserGraph(Integer year) {
+        return api.getNewUserGraph(year);
     }
 }
