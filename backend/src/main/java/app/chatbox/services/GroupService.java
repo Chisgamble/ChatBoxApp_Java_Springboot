@@ -1,5 +1,6 @@
 package app.chatbox.services;
 
+import app.chatbox.dto.AddMemberCardDTO;
 import app.chatbox.dto.GroupCardDTO;
 import app.chatbox.dto.GroupMemberDTO;
 import app.chatbox.dto.GroupMsgDTO;
@@ -112,6 +113,13 @@ public class GroupService {
         );
     }
 
+    public List<AddMemberCardDTO> getAllFriendsNotInGroup(Long groupId, Long currentUserId){
+        if (!repo.existsById(groupId)) {
+            throw new RuntimeException("Group not found");
+        }
+        return repo.getAllFriendsNotInGroup(groupId, currentUserId);
+    }
+
     @Transactional
     public void addMember(Long groupId, Long requesterId, Long newUserId) {
 
@@ -136,6 +144,35 @@ public class GroupService {
                         .build()
         );
     }
+
+    @Transactional
+    public void addMembers(Long groupId, Long adminId, List<Long> userIds) {
+
+        GroupMember admin = groupMemberRepo
+                .findByGroup_IdAndUser_Id(groupId, adminId)
+                .orElseThrow(() -> new RuntimeException("Not in group"));
+
+        if (!admin.getRole().equals("admin")) {
+            throw new RuntimeException("Only admin can add members");
+        }
+
+        Group group = repo.findById(groupId)
+                .orElseThrow(() -> new RuntimeException("Group not found"));
+
+        List<AppUser> users = userRepo.findAllById(userIds);
+
+        for (AppUser u: users) {
+            if (groupMemberRepo.existsByGroup_IdAndUser_Id(groupId, u.getId())) continue;
+
+            GroupMember m = new GroupMember();
+            m.setGroup(group);
+            m.setUser(u);
+            m.setRole("member");
+
+            groupMemberRepo.save(m);
+        }
+    }
+
 
     @Transactional
     public void removeMember(Long groupId, Long adminId, Long targetUserId) {

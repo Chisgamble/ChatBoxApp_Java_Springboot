@@ -11,6 +11,7 @@ import java.awt.*;
 
 import javax.swing.*;
 
+import com.example.services.GroupService;
 import com.example.services.InboxService;
 import com.example.services.UserService;
 import com.example.util.Utility;
@@ -43,9 +44,10 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     MsgCardList msgList;
 
     UserService userService = new UserService();
+    GroupService groupService = new GroupService();
     
-    boolean isGroup;
-    boolean isAdmin;
+    boolean isGroup = false;
+    boolean isAdmin = false;
     boolean itemSelected = false;
     String cur_option = "Selection";
     String[] inboxOptions = {"Search In Chat", "Create Group With", "Delete All Chat History", "Unfriend", "Report Spam", "Block"};
@@ -61,9 +63,6 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         }else {
             this.friend = friend;
         }
-        
-        this.isGroup = mainFrame.getContext().isGroup();
-        this.isAdmin = mainFrame.getContext().isAdmin();
 
         this.setLayout(new BorderLayout());
         this.setOpaque(false);
@@ -84,7 +83,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 
     }
 
-    void updatePanel(){
+    public void updatePanel(){
         this.removeAll();
         centerContainer.removeAll();
         topContainer.removeAll();
@@ -96,42 +95,6 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         this.add(centerContainer, BorderLayout.CENTER);
         this.revalidate();
         this.repaint();
-    }
-
-    void setupSearchArea(boolean itemSelected){
-        topContainer.removeAll();
-        topContainer.setLayout(new BoxLayout(topContainer, BoxLayout.X_AXIS));
-        topContainer.setBorder(BorderFactory.createEmptyBorder(20,5,20,5));
-        SearchBar sb = new SearchBar(20,5, getWidth() - 100, 30, this);
-        JLabel label = new JLabel(new FlatSVGIcon("assets/arrow-left-solid-full.svg", 24, 24));
-        label.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                cur_option = "Selection";
-                updatePanel();
-            }
-        });
-
-        JLabel deleteBtn = new JLabel(new FlatSVGIcon("assets/trash-solid-full.svg", 24, 24));
-        deleteBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        deleteBtn.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (ConfirmPopup.show(mainFrame, "deleting the message(s)")) {
-                    System.out.println("Delete friend");
-                    updatePanel();
-                }
-            }
-        });
-        deleteBtn.setVisible(itemSelected);
-
-        topContainer.add(Box.createVerticalStrut(20));
-        topContainer.add(label);
-        topContainer.add(Box.createHorizontalStrut(10));
-        topContainer.add(sb);
-        topContainer.add(Box.createHorizontalStrut(10));
-        topContainer.add(deleteBtn);
-        topContainer.add(Box.createVerticalStrut(20));
     }
 
     JPanel setupAvatarWrapper(){
@@ -249,7 +212,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             enterSearchMode();
             return;
         }else if (option.equals("Change Group Name")){
-            if (ChangeGroupNamePopup.show(mainFrame)){
+            if (ChangeGroupNamePopup.show(mainFrame, mainFrame)){
                 System.out.println("Change group name");
             }
             cur_option = "Selection";
@@ -263,15 +226,19 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             cur_option = "Selection";
         }else if (option.equals("Add New Members")){
             try {
-                List<StrangerCardResDTO> users = userService.getAllStrangerCards(mainFrame.getContext().getTargetUser().getId());
+                Long groupId = mainFrame.getCurrentChat().getGroupId();
+                Long currentUserId = mainFrame.getCurrentChat().getThisUser().getId();
+                List<AddMemberCardDTO> users = groupService.getAllFriendsNotInGroup(groupId, currentUserId);
 
                 AddMemberPopup.show(
                         mainFrame,
+                        groupId,
                         users,
                         mainFrame   // callback
                 );
             } catch(Exception ex){
-                JOptionPane.showMessageDialog(this, "Failed to load all users");
+                JOptionPane.showMessageDialog(this, "Failed to load all users: " + ex.getMessage());
+                System.out.println(ex.getMessage());
             }
 
             cur_option = "Selection";
@@ -317,7 +284,8 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         listContainer = new MemberCardList(
                 members,
                 getWidth() - 15,
-                mainFrame.getContext().isAdmin()
+                isAdmin,
+                mainFrame
         );
 
         centerContainer.add(listContainer, BorderLayout.CENTER);
@@ -337,7 +305,8 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         listContainer = new MemberCardList(
                 filteredMembers,
                 getWidth() - 15,
-                mainFrame.getContext().isAdmin()
+                isAdmin,
+                mainFrame
         );
 
         updateSearchHeader();
@@ -411,17 +380,28 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     void deleteSelectedMessages() {
         try{
             JList<BaseMsgDTO> list = msgList.getList();
-            List<BaseMsgDTO> toRemove = list.getSelectedValuesList();
+            List<BaseMsgDTO> selected = list.getSelectedValuesList();
+            Long currentUserId = mainFrame.getCurrentChat().getThisUser().getId();
 
-            filteredMsgs.removeIf(toRemove::contains);
+            List<BaseMsgDTO> deletable = selected.stream()
+                    .filter(m -> m.getSenderId().equals(currentUserId))
+                    .toList();
+
+//            if (deletable.isEmpty()) {
+//                JOptionPane.showMessageDialog(this,
+//                        "You can only delete your own messages");
+//                return;
+//            }
+
+            filteredMsgs.removeIf(deletable::contains);
             msgList.updateList(filteredMsgs);
 
-            List<Long> ids = toRemove.stream()
+            List<Long> ids = deletable.stream()
                     .map(BaseMsgDTO::getId)
                     .toList();
 
             if (isGroup) {
-//                inboxService.deleteGroupMessages(ids);
+                groupService.deleteMessagesBySender(mainFrame.getCurrentChat().getGroupId(), ids);
             } else {
                 inboxService.deleteMessagesBySender(mainFrame.getCurrentChat().getInboxId(), ids);
             }
@@ -431,25 +411,28 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             updateMsgList(filteredMsgs);
 
             mainFrame.reloadCurrentInbox();
+            mainFrame.reloadCurrentGroupChat();
         }catch (Exception ex){
             JOptionPane.showMessageDialog(this, "Failed to delete messages\n" + ex.getMessage());
         }
 
     }
 
-
-    public List<?> searchMessages(String keyword) {
-        if (isGroup && groupMsgs != null) {
-            return groupMsgs.stream()
-                    .filter(m -> m.getContent().toLowerCase().contains(keyword.toLowerCase()))
-                    .toList();
-        } else if (!isGroup && inboxMsgs != null) {
-            return inboxMsgs.stream()
-                    .filter(m -> m.getContent().toLowerCase().contains(keyword.toLowerCase()))
-                    .toList();
-        }
-        return List.of();
+    public void removeMember(Long userId) {
+        allMembers.removeIf(m -> m.getUserId().equals(userId));
+        enterMembersMode();
     }
+
+    public void updateMemberRole(Long userId, String newRole) {
+        for (GroupMemberDTO m : allMembers) {
+            if (m.getUserId().equals(userId)) {
+                m.setRole(newRole);
+                break;
+            }
+        }
+        enterMembersMode();
+    }
+
 
     @Override
     public void onSearchChange(String text) {

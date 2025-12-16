@@ -1,14 +1,14 @@
 package app.chatbox.controller;
 
 import app.chatbox.config.CustomUserDetails;
+import app.chatbox.dto.AddMemberCardDTO;
 import app.chatbox.dto.GroupCardDTO;
 import app.chatbox.dto.GroupMemberDTO;
-import app.chatbox.dto.request.AddGroupMemberReqDTO;
-import app.chatbox.dto.request.ChangeGroupNameReqDTO;
-import app.chatbox.dto.request.CreateGroupReqDTO;
+import app.chatbox.dto.request.*;
 import app.chatbox.dto.response.GeneralResDTO;
 import app.chatbox.dto.response.GroupUserResDTO;
 import app.chatbox.services.GroupMemberService;
+import app.chatbox.services.GroupMsgService;
 import app.chatbox.services.GroupService;
 
 import lombok.RequiredArgsConstructor;
@@ -25,6 +25,7 @@ import java.util.List;
 public class GroupController {
     private final GroupService service;
     private final GroupMemberService groupMemberService;
+    private final GroupMsgService groupMsgService;
 
     @PreAuthorize("isAuthenticated() or hasRole('ADMIN')")
     @GetMapping("/{id}/messages")
@@ -36,7 +37,18 @@ public class GroupController {
     }
 
     @PreAuthorize("isAuthenticated() or hasRole('ADMIN')")
-    @DeleteMapping("/{id}/messages")
+    @DeleteMapping("{id}/messages")
+    public ResponseEntity<GeneralResDTO> deleteGroupMessageBySender(
+            @PathVariable Long id,
+            @RequestBody DeleteMsgsBySenderReq req,
+            @AuthenticationPrincipal CustomUserDetails user) {
+        groupMsgService.deleteMessageBySender(id, req.getMsgIds(), user.getId());
+        return ResponseEntity.ok(new GeneralResDTO("Delete group messages succeed"));
+    }
+
+
+    @PreAuthorize("isAuthenticated() or hasRole('ADMIN')")
+    @DeleteMapping("/{id}/messages/all")
     public ResponseEntity<GeneralResDTO> deleteAllMessages(@PathVariable Long id) {
         service.deleteAllMessages(id);
         return ResponseEntity.ok(
@@ -75,7 +87,17 @@ public class GroupController {
     }
 
     @PreAuthorize("isAuthenticated()")
-    @PostMapping("/{id}/members")
+    @GetMapping("/{id}/available-friends")
+    public ResponseEntity<List<AddMemberCardDTO>> getAllFriendsNotInGroup(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        return ResponseEntity.ok(service.getAllFriendsNotInGroup(id, user.getId()));
+    }
+
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{id}/member")
     public ResponseEntity<GeneralResDTO> addMember(
             @PathVariable Long id,
             @RequestBody AddGroupMemberReqDTO req,
@@ -84,6 +106,17 @@ public class GroupController {
         service.addMember(id, user.getId(), req.getUserId());
         return ResponseEntity.ok(new GeneralResDTO("Member added"));
     }
+
+    @PostMapping("/{groupId}/members")
+    public ResponseEntity<?> addMembers(
+            @PathVariable Long groupId,
+            @RequestBody AddMembersReqDTO req,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        service.addMembers(groupId, user.getId(), req.getUserIds());
+        return ResponseEntity.ok(new GeneralResDTO("Added new members"));
+    }
+
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}/members/{userId}")
@@ -94,6 +127,19 @@ public class GroupController {
     ) {
         service.removeMember(id, admin.getId(), userId);
         return ResponseEntity.ok(new GeneralResDTO("Member removed"));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{groupId}/members/{userId}/promote")
+    public ResponseEntity<GeneralResDTO> promoteMember(
+            @PathVariable Long groupId,
+            @PathVariable Long userId,
+            @AuthenticationPrincipal CustomUserDetails user
+    ) {
+        groupMemberService.promoteToAdmin(groupId, userId, user.getId());
+        return ResponseEntity.ok(
+                new GeneralResDTO("Promoted to admin successfully")
+        );
     }
 
     @PreAuthorize("isAuthenticated()")

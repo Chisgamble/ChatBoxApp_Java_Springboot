@@ -1,16 +1,15 @@
-package app.chatbox.dto.response;
+package com.example.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 @AllArgsConstructor
-public class SendGroupMsgResDTO {
-    private Long id;
+public class SendGroupMsgReqDTO {
     private Long groupId;
-    private Long senderId;
-    private String senderName;
     private String content;
 }

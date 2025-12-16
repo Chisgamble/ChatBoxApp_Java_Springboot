@@ -1,7 +1,6 @@
 package app.chatbox.services;
 
 import app.chatbox.dto.FriendCardDTO;
-import app.chatbox.dto.FriendCardListDTO;
 //import app.chatbox.mapper.FriendMapper;
 import app.chatbox.model.Friend;
 import app.chatbox.repository.FriendRepository;
@@ -28,9 +27,7 @@ public class FriendService {
         friendRepository.delete(friend);
     }
 
-    public List<FriendCardDTO> getAllFriends(Long id){
-        List<Friend> friends = friendRepository.findByUserA_IdOrUserB_Id(id, id);
-        //TODO: add find inbox message between current user and friends then add to FriendCardDTO
+    public List<FriendCardDTO> getAllUserFriends(Long id){
         return friendRepository.getFriendCards(id);
     }
 }

@@ -24,8 +24,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
-import app.chatbox.repository.UserRepository;
-
 import java.util.List;
 
 @RestController
@@ -76,7 +74,7 @@ public class UserController {
     @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")
     @GetMapping("/{id}/friends")
     public ResponseEntity<List<FriendCardDTO>> getAllFriendCards(@PathVariable Long id) {
-        return ResponseEntity.ok(friendService.getAllFriends(id));
+        return ResponseEntity.ok(friendService.getAllUserFriends(id));
     }
 
     @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")

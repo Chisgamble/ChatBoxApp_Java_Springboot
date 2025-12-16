@@ -1,5 +1,6 @@
 package com.example.components.user;
 
+import com.example.listener.GroupMemberActionListener;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.example.components.Avatar;
 import com.example.model.User;
@@ -13,7 +14,7 @@ import java.awt.event.MouseEvent;
 
 public class MemberCard extends JPanel {
 
-    public MemberCard(String initials, String name, int width, boolean isAdmin) {
+    public MemberCard(String initials, String name, Long groupId, Long userId, String role, int width, boolean viewByAdmin, GroupMemberActionListener listener) {
         this.setLayout(new BorderLayout(10, 0));
         this.setOpaque(false);
         this.setPreferredSize(new Dimension(width, 60));
@@ -27,7 +28,7 @@ public class MemberCard extends JPanel {
         Avatar avatar = new Avatar(initials);
 
         JPanel westWrapper = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        westWrapper.setOpaque(false); // optional, to be transparent
+        westWrapper.setOpaque(false);
         westWrapper.add(avatar);
 
         JLabel nameLabel = new JLabel(name);
@@ -47,7 +48,7 @@ public class MemberCard extends JPanel {
         nameLabel.setVerticalTextPosition(SwingConstants.CENTER); // vertically centered
         nameLabel.setIconTextGap(5); // gap between text and icon
 
-        JLabel msgLabel = new JLabel(isAdmin ? "Admin" : "Member");
+        JLabel msgLabel = new JLabel(role.equals("admin") ? "Admin" : "Member");
         msgLabel.setForeground(Color.GRAY);
         msgLabel.setOpaque(false);
         msgLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
@@ -59,13 +60,13 @@ public class MemberCard extends JPanel {
 
         JLabel option = new JLabel(new FlatSVGIcon("assets/ellipsis-solid-full.svg", 30, 30));
         option.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        option.setVisible(isAdmin);
+        option.setVisible(viewByAdmin);
         JPopupMenu popupMenu = new JPopupMenu();
 
         JMenuItem promoteItem = new JMenuItem("Promote to Admin");
-//        promoteItem.addActionListener(e -> listener.onMenuOptionSelected("Promote"));
+        promoteItem.addActionListener(e -> listener.onPromoteMember(groupId, userId));
         JMenuItem removeItem = new JMenuItem("Remove from group");
-//        removeItem.addActionListener(e -> listener.onMenuOptionSelected("Remove From Group"));
+        removeItem.addActionListener(e -> listener.onRemoveMember(groupId, userId));
 
         popupMenu.add(promoteItem);
         popupMenu.add(removeItem);

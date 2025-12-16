@@ -4,6 +4,7 @@ import com.example.components.MyColor;
 import com.example.components.RoundedButton;
 import com.example.components.RoundedDialog;
 import com.example.components.RoundedTextField;
+import com.example.listener.GroupListener;
 
 import java.awt.*;
 import java.awt.event.FocusEvent;
@@ -13,7 +14,7 @@ import javax.swing.*;
 public class ChangeGroupNamePopup{
     static RoundedTextField input = new RoundedTextField(10,10);
 
-    public static boolean show(JFrame parent)  {
+    public static boolean show(JFrame parent, GroupListener listener)  {
         RoundedDialog dialog = new RoundedDialog(parent, "Confirm", 350, 200);
 
         JPanel panel = new JPanel();
@@ -77,6 +78,10 @@ public class ChangeGroupNamePopup{
 
         confirmBtn.addActionListener(e -> {
             confirmed[0] = true;
+            String newName = input.getText().trim();
+            if (!newName.isEmpty() && !newName.equals("New name")) {
+                listener.onGroupNameChanged(newName);
+            }
             dialog.dispose();
         });
 

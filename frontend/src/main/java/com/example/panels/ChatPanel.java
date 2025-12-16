@@ -9,9 +9,12 @@ import javax.swing.border.Border;
 
 import com.example.dto.GroupMsgDTO;
 import com.example.dto.InboxMsgDTO;
+import com.example.dto.request.SendGroupMsgReqDTO;
+import com.example.dto.request.SendInboxMsgReqDTO;
 import com.example.dto.response.GroupUserResDTO;
-import com.example.dto.response.InboxUserResDTO;
 import com.example.services.InboxService;
+import com.example.services.WebSocketManager;
+import com.example.ui.ChatScreen;
 import com.example.util.Utility;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.example.components.MyColor;
@@ -30,7 +33,10 @@ public class ChatPanel extends JPanel{
 
     private Long currentInboxId;
 
-    public ChatPanel(int width, int height){
+    private final ChatScreen mainFrame;
+
+    public ChatPanel(ChatScreen mainFrame, int width, int height){
+        this.mainFrame = mainFrame;
         this.setPreferredSize(new Dimension(width, height));
         this.setLayout(new BorderLayout());
         this.setBorder(border);
@@ -69,13 +75,34 @@ public class ChatPanel extends JPanel{
             @Override
             public void actionPerformed(ActionEvent e) {
                 String message = inputField.getText().trim();
-                if (!message.isEmpty()) {
-                    addMessage(chatArea, message, true, width, "");  // Add the message to the chat
-                    inputField.setText("");  // Clear the input field
-                    chatArea.revalidate();
-                    scrollToBottom(scrollPane);
-                    chatArea.repaint();
+                if (message.isEmpty()) return;
+
+//                addMessage(chatArea, message, true, width, "");  // Add the message to the chat
+                inputField.setText("");// Clear the input field
+
+                if (mainFrame.getCurrentChat().isGroup()){
+                    SendGroupMsgReqDTO req = new SendGroupMsgReqDTO(
+                            mainFrame.getCurrentChat().getGroupId(),
+                            message
+                    );
+
+                    WebSocketManager.getInstance()
+                            .send("/app/chat/group/send", req);
+
+                }else{
+                    SendInboxMsgReqDTO req = new SendInboxMsgReqDTO(
+                            mainFrame.getCurrentChat().getInboxId(),
+                            mainFrame.getCurrentChat().getTargetUser().getFriendId(),
+                            message
+                    );
+
+                    WebSocketManager.getInstance()
+                            .send("/app/chat/inbox/send", req);
                 }
+
+//                chatArea.revalidate();
+//                scrollToBottom(scrollPane);
+//                chatArea.repaint();
             }
         });
 
@@ -145,6 +172,20 @@ public class ChatPanel extends JPanel{
         chatArea.repaint();
     }
 
+    public void appendMessage(String content,
+                              boolean isMe,
+                              String senderName) {
+
+        SwingUtilities.invokeLater(() -> {
+            addMessage(chatArea, content, isMe, getWidth(), Utility.getInitials(senderName));
+
+            chatArea.revalidate();
+            scrollToBottom(scrollPane);
+            chatArea.repaint();
+        });
+    }
+
+
     public void clearChat() {
         // clear UI
         chatArea.removeAll();
@@ -152,25 +193,6 @@ public class ChatPanel extends JPanel{
         chatArea.repaint();
     }
 
-
-    public void loadInbox(Long inboxId, Long currentUserId) {
-        try{
-            if (inboxId == null)
-                return;
-            // prevent reload same inbox
-            if (Objects.equals(currentInboxId, inboxId))
-                return;
-            currentInboxId = inboxId;
-
-            InboxUserResDTO res = inboxService.getInboxWithMessages(inboxId);
-
-            showMessages(res.getMsgs(), currentUserId);
-        }catch (Exception ex){
-            JOptionPane.showMessageDialog(this, "Unable to load inbox: " + ex.getMessage());
-            System.out.println("[ERROR]  " + ex.getMessage());
-        }
-        
-    }
 
 
 }

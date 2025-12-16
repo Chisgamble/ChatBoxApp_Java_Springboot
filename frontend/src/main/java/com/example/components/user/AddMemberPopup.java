@@ -3,8 +3,9 @@ package com.example.components.user;
 import com.example.components.MyColor;
 import com.example.components.RoundedButton;
 import com.example.components.RoundedDialog;
-import com.example.dto.response.StrangerCardResDTO;
+import com.example.dto.AddMemberCardDTO;
 import com.example.listener.CreateGroupListener;
+import com.example.listener.GroupMemberActionListener;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,10 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AddMemberPopup {
-    static List<StrangerCardResDTO> selectedUsers = new ArrayList<>();
+    static List<AddMemberCardDTO> selectedUsers = new ArrayList<>();
     public static void show(JFrame parent,
-                            List<StrangerCardResDTO> allUsersDTOs,
-                            CreateGroupListener callback) {
+                            Long groupId,
+                            List<AddMemberCardDTO> allUsersDTOs,
+                            GroupMemberActionListener callback) {
 
         RoundedDialog dialog = new RoundedDialog(parent, "Create Group", 400, 500);
 
@@ -65,11 +67,17 @@ public class AddMemberPopup {
         addBtn.setFocusPainted(false);
 
         addBtn.addActionListener(e -> {
+            try {
+                List<Long> ids = selectedUsers.stream()
+                        .map(AddMemberCardDTO::getUserId)
+                        .toList();
 
-//            TODO: Call backend to add member
-            System.out.print("added member");
+                callback.onAddMembers(groupId, ids);
 
-            dialog.dispose();
+                dialog.dispose();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, ex.getMessage());
+            }
         });
 
         buttonRow.add(Box.createVerticalStrut(10));
@@ -95,13 +103,13 @@ public class AddMemberPopup {
 
     private static void refreshMemberList(
             JPanel listPanel,
-            List<StrangerCardResDTO> allUsers,
-            List<StrangerCardResDTO> selectedUsers,
+            List<AddMemberCardDTO> allUsers,
+            List<AddMemberCardDTO> selectedUsers,
             String phrase
     ) {
         listPanel.removeAll();
 
-        for (StrangerCardResDTO u : allUsers) {
+        for (AddMemberCardDTO u : allUsers) {
             if (!selectedUsers.contains(u) &&
                     !phrase.isEmpty() && !phrase.equals("Search")
                     && !u.getUsername().toLowerCase().contains(phrase.toLowerCase()))

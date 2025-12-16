@@ -52,7 +52,42 @@
             <optional>true</optional>
         </dependency>
 
-        <!-- Other Swing or utility dependencies if needed -->
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-websocket -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-websocket</artifactId>
+            <version>6.2.12</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.springframework/spring-messaging -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-messaging</artifactId>
+            <version>6.2.11</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/jakarta.websocket/jakarta.websocket-client-api -->
+        <dependency>
+            <groupId>jakarta.websocket</groupId>
+            <artifactId>jakarta.websocket-client-api</artifactId>
+            <version>2.1.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.glassfish.tyrus/tyrus-client -->
+        <dependency>
+            <groupId>org.glassfish.tyrus</groupId>
+            <artifactId>tyrus-client</artifactId>
+            <version>2.1.5</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.glassfish.tyrus/tyrus-container-grizzly-client -->
+        <dependency>
+            <groupId>org.glassfish.tyrus</groupId>
+            <artifactId>tyrus-container-grizzly-client</artifactId>
+            <version>2.1.5</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>

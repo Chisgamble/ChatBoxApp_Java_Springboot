@@ -2,7 +2,6 @@ package app.chatbox.controller;
 
 import app.chatbox.config.CustomUserDetails;
 import app.chatbox.dto.FriendCardDTO;
-import app.chatbox.dto.FriendCardListDTO;
 import app.chatbox.dto.response.GeneralResDTO;
 import app.chatbox.services.FriendService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +21,7 @@ public class FriendController {
     @PreAuthorize("isAuthenticated() or hasRole('ADMIN')")
     @GetMapping("/{id}")
     public List<FriendCardDTO> getAllFriendCards(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user){
-        return friendService.getAllFriends(user.getId());
+        return friendService.getAllUserFriends(user.getId());
     }
 
     @PreAuthorize("isAuthenticated()")

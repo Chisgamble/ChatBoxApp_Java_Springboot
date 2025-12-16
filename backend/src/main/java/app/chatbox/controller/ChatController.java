@@ -5,13 +5,18 @@ import app.chatbox.dto.request.SendGroupMsgReqDTO;
 import app.chatbox.dto.request.SendInboxMsgReqDTO;
 import app.chatbox.dto.response.SendGroupMsgResDTO;
 import app.chatbox.dto.response.SendInboxMsgResDTO;
+import app.chatbox.model.Inbox;
+import app.chatbox.repository.InboxRepository;
+import app.chatbox.repository.UserRepository;
 import app.chatbox.services.ChatService;
 import app.chatbox.services.GroupMemberService;
+import app.chatbox.services.InboxService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 
 import java.security.Principal;
@@ -22,32 +27,61 @@ import java.util.List;
 public class ChatController {
 
     private final ChatService chatService;
-    private final GroupMemberService groupMemberService;
+    private final InboxRepository inboxRepo;
+    private final UserRepository userRepo;
     private final SimpMessagingTemplate messagingTemplate;
 
-    @MessageMapping("/chat/send") // private 1-1 chat
-    public void sendInboxMessage(@Payload SendInboxMsgReqDTO req, Principal principal){
-        Long senderId = ((CustomUserDetails)((Authentication) principal).getPrincipal()).getId();
+    @MessageMapping("/chat/inbox/send") // private 1-1 chat
+    public void sendInboxMessage(
+            @Payload SendInboxMsgReqDTO req,
+            Principal principal){
+        CustomUserDetails user =
+                (CustomUserDetails) ((Authentication) principal).getPrincipal();
+
+        Long senderId = user.getId();
+        System.out.println("Name testing: " + principal.getName() + " - " + req.getInboxId());
 
         SendInboxMsgResDTO msg = chatService.handleSendInboxMessage(senderId, req);
 
+        // lấy 2 user của inbox
+        Inbox inbox = inboxRepo.findById(req.getInboxId())
+                .orElseThrow(()->new RuntimeException("Inbox not found"));
+
+        String userA = userRepo.findEmailById(user.getId());
+        String userB = userRepo.findEmailById(req.getReceiverId());
+
+        // gửi cho user A
         messagingTemplate.convertAndSendToUser(
-                req.getReceiverId().toString(),
-                "/queue/chat",
+                userA,
+                "/queue/inbox." + req.getInboxId(),
+                msg
+        );
+
+        messagingTemplate.convertAndSendToUser(
+                userB,
+                "/queue/inbox." + req.getInboxId(),
                 msg
         );
     }
 
     @MessageMapping("/chat/group/send") // group chat
-    public void sendGroupMessage(@Payload SendGroupMsgReqDTO req, Principal principal){
-        Long senderId = ((CustomUserDetails)((Authentication) principal).getPrincipal()).getId();
+    public void sendGroupMessage(
+            @Payload SendGroupMsgReqDTO req,
+            Principal principal){
+        CustomUserDetails user =
+                (CustomUserDetails) ((Authentication) principal).getPrincipal();
+
+        Long senderId = user.getId();
 
         SendGroupMsgResDTO msg = chatService.handleSendGroupMsg(senderId, req);
 
         // gửi cho tất cả member
-        List<Long> memberIds = groupMemberService.getGroupMemberIds(req.getGroupId());
-        for(Long memberId : memberIds){
-            messagingTemplate.convertAndSendToUser(memberId.toString(), "/queue/group", msg);
-        }
+        String destination = "/topic/group/" + req.getGroupId();
+        messagingTemplate.convertAndSend(
+                "/topic/group." + req.getGroupId(),
+                msg
+        ); // Dùng convertAndSend() cho topic
+
+        // Tất cả client đang mở chat nhóm này và đã đăng ký kênh này sẽ nhận được tin nhắn.
     }
 }

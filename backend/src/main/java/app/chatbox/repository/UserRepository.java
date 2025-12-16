@@ -21,6 +21,13 @@ public interface UserRepository extends JpaRepository<AppUser, Long> {
     boolean existsByEmail(String email);
 
     @Query(value = """
+    select u.email
+    from app_user u
+    where u.id = :id
+    """, nativeQuery = true)
+    String findEmailById(Long id);
+
+    @Query(value = """
         SELECT u.id, u.email, u.username, u.role
         FROM app_user u
         WHERE u.email = :email
@@ -37,6 +44,7 @@ public interface UserRepository extends JpaRepository<AppUser, Long> {
                         ) AS requestSent
                 FROM app_user u
                 WHERE u.id != :userId
+                AND u.is_locked = false
                   AND u.id NOT IN (
                         SELECT CASE
                                 WHEN f.userA = :userId THEN f.userB

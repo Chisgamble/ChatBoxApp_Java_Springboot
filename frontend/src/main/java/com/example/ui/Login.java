@@ -3,6 +3,7 @@ package com.example.ui;
 import com.example.dto.UserMiniDTO;
 import com.example.dto.response.LoginResDTO;
 import com.example.services.AuthService;
+import com.example.services.WebSocketManager;
 import com.example.util.Utility;
 import com.example.components.MyColor;
 import com.example.components.RoundedButton;
@@ -138,7 +139,5 @@ public class Login extends JFrame{
         catch(Throwable e){
             System.out.println("Error");
         }
-
-
     }
 }

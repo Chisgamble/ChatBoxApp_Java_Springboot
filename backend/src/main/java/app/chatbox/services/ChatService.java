@@ -29,17 +29,19 @@ public class ChatService {
                 .orElseThrow(() -> new RuntimeException("Sender not found"));
 
         InboxMsg msg = InboxMsg.builder()
+                .inbox(inbox)
                 .sender(sender)
                 .content(req.getContent())
+                .status("SENT")
                 .build();
 
         InboxMsg inboxMsg = inboxMsgRepo.save(msg);
-        System.out.println("find" + inboxMsg.toString());
-        
-        inbox.setLastMsg(inboxMsg);
+//        System.out.println("find" + inboxMsg.toString());
+//
+//        inbox.setLastMsg(inboxMsg);
         inboxRepo.save(inbox);
 
-        return new SendInboxMsgResDTO(msg.getId(), senderId, req.getReceiverId(), req.getContent());
+        return new SendInboxMsgResDTO(msg.getId(), senderId, sender.getUsername(), req.getReceiverId(), req.getContent());
     }
 
     @Transactional
@@ -58,9 +60,9 @@ public class ChatService {
 
         groupMsgRepo.save(msg);
 
-        group.setLastMsg(msg);
-        // groupRepo.save(group); // if needed
+//        group.setLastMsg(msg);
+//         groupRepo.save(group);
 
-        return new SendGroupMsgResDTO(msg.getId(), req.getGroupId(), senderId, req.getContent());
+        return new SendGroupMsgResDTO(msg.getId(), req.getGroupId(), senderId, sender.getUsername(), req.getContent());
     }
 }
