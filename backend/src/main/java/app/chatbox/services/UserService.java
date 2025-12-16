@@ -164,7 +164,7 @@ public class UserService {
         user.setBirthday(req.birthday()); // Matches SQL 'birthday'
 
         // Defaults
-        user.setRole(req.role() != null ? req.role() : "user");
+        user.setRole(req.role() != null ? req.role().toUpperCase() : "USER");
         user.setIsActive(true);
         user.setIsLocked(false);
 
@@ -180,7 +180,7 @@ public class UserService {
         if (req.name() != null) user.setName(req.name());
         if (req.address() != null) user.setAddress(req.address());
         if (req.gender() != null) user.setGender(req.gender());
-        if (req.role() != null) user.setRole(req.role());
+        if (req.role() != null) user.setRole(req.role().toUpperCase());
         if (req.birthday() != null) user.setBirthday(req.birthday());
         if (req.email() != null) {
             // Optional: check uniqueness if email is changing

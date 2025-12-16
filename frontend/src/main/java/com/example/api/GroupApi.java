@@ -2,6 +2,7 @@ package com.example.api;
 
 import com.example.dto.FriendCardDTO;
 import com.example.dto.GroupCardDTO;
+import com.example.dto.GroupListDataDTO;
 import com.example.dto.GroupMemberDTO;
 import com.example.dto.request.AddGroupMemberReqDTO;
 import com.example.dto.request.ChangeGroupNameReqDTO;
@@ -11,6 +12,8 @@ import com.example.dto.response.GroupUserResDTO;
 import com.example.util.HttpClientUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class GroupApi {
@@ -70,6 +73,48 @@ public class GroupApi {
                 new ChangeGroupNameReqDTO(name),
                 GroupCardDTO.class
         );
+    }
+
+    public GroupListDataDTO getAllGroupData(String nameFilter, String startDate, String endDate, String sortBy, String sortDir) {
+        StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/getall/data?");
+
+        try {
+            if (nameFilter != null && !nameFilter.isEmpty()) {
+                String encodedName = URLEncoder.encode(nameFilter, StandardCharsets.UTF_8.toString());
+                urlBuilder.append("nameFilter=").append(encodedName).append("&");
+            }
+
+            if (startDate != null) {
+                // FIX: Encode the date string to handle spaces and colons
+                String encodedStartDate = URLEncoder.encode(startDate, StandardCharsets.UTF_8.toString());
+                urlBuilder.append("startDate=").append(encodedStartDate).append("&");
+            }
+
+            if (endDate != null) {
+                // FIX: Encode the date string
+                String encodedEndDate = URLEncoder.encode(endDate, StandardCharsets.UTF_8.toString());
+                urlBuilder.append("endDate=").append(encodedEndDate).append("&");
+            }
+
+            if (sortBy != null) {
+                String encodedSortBy = URLEncoder.encode(sortBy, StandardCharsets.UTF_8.toString());
+                urlBuilder.append("sortBy=").append(encodedSortBy).append("&");
+            }
+            if (sortDir != null) {
+                String encodedSortDir = URLEncoder.encode(sortDir, StandardCharsets.UTF_8.toString());
+                urlBuilder.append("sortDir=").append(encodedSortDir).append("&");
+            }
+
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new RuntimeException("URL Encoding failed", e);
+        }
+
+        String finalUrl = urlBuilder.toString();
+        if (finalUrl.endsWith("&")) {
+            finalUrl = finalUrl.substring(0, finalUrl.length() - 1);
+        }
+
+        return HttpClientUtil.get(finalUrl, GroupListDataDTO.class);
     }
 
 }

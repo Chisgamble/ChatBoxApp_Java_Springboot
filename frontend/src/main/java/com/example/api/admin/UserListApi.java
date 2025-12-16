@@ -56,8 +56,9 @@ public class UserListApi {
 
     public void setLockStatus(Long id, boolean locked) {
         String url = BASE_URL + "/lock/" + id + "?locked=" + locked;
-        // Body is null because the backend doesn't expect a @RequestBody
-        HttpClientUtil.putJson(url, null, Void.class);
+
+        // Change Void.class to Map.class so the parser is happy
+        HttpClientUtil.putJson(url, null, java.util.Map.class);
     }
 
     public void deleteUser(Long id) {

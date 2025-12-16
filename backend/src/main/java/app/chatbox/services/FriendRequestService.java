@@ -86,7 +86,6 @@ public class FriendRequestService {
             Friend friend = Friend.builder()
                 .userA(userA)
                 .userB(userB)
-                .lastMsg(null)
                 .createdAt(Instant.now())
                 .updatedAt(Instant.now())
                 .build();

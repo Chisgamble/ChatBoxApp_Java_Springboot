@@ -21,7 +21,11 @@ public class FilterButton extends RoundedTextField {
     public FilterButton(String text) {
         super(30);
         this.placeholderText = text;
-        setColumns(text.length() - 5);
+        if (text.length() - 5 < 0) {
+            setColumns(text.length());
+        } else {
+            setColumns(text.length() - 5);
+        }
         setText(text);
         setForeground(placeholderColor);
         setOpaque(false);
@@ -36,7 +40,11 @@ public class FilterButton extends RoundedTextField {
 
         setText(text);
         setForeground(placeholderColor);
-        setColumns(text.length() - 5);
+        if (text.length() - 5 < 0) {
+            setColumns(text.length());
+        } else {
+            setColumns(text.length() - 5);
+        }
         setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
 

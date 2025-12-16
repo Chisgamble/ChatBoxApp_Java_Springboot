@@ -1,8 +1,6 @@
 package app.chatbox.services;
 
-import app.chatbox.dto.GroupCardDTO;
-import app.chatbox.dto.GroupMemberDTO;
-import app.chatbox.dto.GroupMsgDTO;
+import app.chatbox.dto.*;
 import app.chatbox.dto.request.CreateGroupReqDTO;
 import app.chatbox.dto.response.GroupUserResDTO;
 import app.chatbox.model.AppUser;
@@ -16,7 +14,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static app.chatbox.mapper.SpamReportMapper.FORMATTER;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +31,48 @@ public class GroupService {
 
     private final GroupMemberService groupMemberService;
     private final GroupMsgService groupMsgService;
+
+
+    public GroupListDataDTO getAllGroupData(
+            String nameFilter,
+            String startDate,
+            String endDate,
+            String sortBy,
+            String sortDir
+    ) {
+        String namePattern = (nameFilter != null && !nameFilter.isEmpty()) ? "%" + nameFilter + "%" : null;
+
+        List<Object[]> results = repo.findGroupListDataRaw(
+                namePattern,
+                startDate,
+                endDate,
+                sortBy,
+                sortDir
+        );
+
+        // Map raw results to List<GroupDataDTO> (using String for time)
+        List<GroupDataDTO> groupDataList = results.stream()
+                .map(row -> {
+                    Timestamp timestamp = (Timestamp) row[2];
+                    String createdAtString = null; // Prepare for String output
+
+                    if (timestamp != null) {
+                        // Convert Timestamp to LocalDateTime, then format to String
+                        LocalDateTime localDateTime = timestamp.toLocalDateTime();
+                        createdAtString = localDateTime.format(FORMATTER);
+                    }
+
+                    return new GroupDataDTO(
+                            ((Number) row[0]).longValue(), // id
+                            (String) row[1],               // groupName
+                            createdAtString                // createdAt (Formatted String)
+                    );
+                })
+                .collect(Collectors.toList());
+
+        // Wrap the list in the final wrapper DTO
+        return new GroupListDataDTO(groupDataList);
+    }
 
     public List<GroupCardDTO> getAllGroups(Long userId){
         return repo.getAllCardByUserId(userId);

@@ -5,6 +5,7 @@ import app.chatbox.dto.YearlyGraphDTO;
 import app.chatbox.services.LoginLogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +17,7 @@ public class LoginLogController {
 
     private final LoginLogService loginLogService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/getall")
     public ResponseEntity<LoginLogListDTO> getAll(
             @RequestParam(required = false) List<String> email,
@@ -33,6 +35,7 @@ public class LoginLogController {
         return ResponseEntity.ok((loginLogService.getLogsByEmail(email)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/graph")
     public ResponseEntity<YearlyGraphDTO> getActiveUserGraph(
             @RequestParam(required = false) Integer year

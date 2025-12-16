@@ -2,6 +2,7 @@ package app.chatbox.controller;
 
 import app.chatbox.config.CustomUserDetails;
 import app.chatbox.dto.GroupCardDTO;
+import app.chatbox.dto.GroupListDataDTO;
 import app.chatbox.dto.GroupMemberDTO;
 import app.chatbox.dto.request.AddGroupMemberReqDTO;
 import app.chatbox.dto.request.ChangeGroupNameReqDTO;
@@ -114,6 +115,25 @@ public class GroupController {
             @PathVariable Long groupId
     ) {
         return ResponseEntity.ok(groupMemberService.getAllMembersDTO(groupId));
+    }
+
+    @PreAuthorize("isAuthenticated() or hasRole('ADMIN')")
+    @GetMapping("/getall/data")
+    public ResponseEntity<GroupListDataDTO> getAllGroupData(
+            @RequestParam(required = false) String nameFilter,
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate,
+            @RequestParam(required = false, defaultValue = "name") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String sortDir
+    ) {
+        GroupListDataDTO groups = service.getAllGroupData(
+                nameFilter,
+                startDate,
+                endDate,
+                sortBy,
+                sortDir
+        );
+        return ResponseEntity.ok(groups);
     }
 
 }

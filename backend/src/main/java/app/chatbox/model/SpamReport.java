@@ -41,10 +41,21 @@ public class SpamReport {
     )
     private AppUser reported;
 
+    // Added Status Field
+    @Column(name = "status", length = 50)
+    private String status;
+
     @Column(name = "created_at", updatable = false)
+    @Builder.Default
     private Instant createdAt = Instant.now();
 
     @Column(name = "updated_at")
+    @Builder.Default
     private Instant updatedAt = Instant.now();
 
+    // Lifecycle hook to update timestamp automatically
+    @PreUpdate
+    public void onUpdate() {
+        this.updatedAt = Instant.now();
+    }
 }

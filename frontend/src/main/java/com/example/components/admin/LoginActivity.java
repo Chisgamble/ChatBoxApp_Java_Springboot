@@ -126,6 +126,7 @@ public class LoginActivity extends MainPanel {
                 filterData();
             }
         });
+        filterPanel.add(new JLabel(" | "));
         JLabel orderby = Utility.makeText("Order by time:", ROBOTO, 16f, Font.PLAIN, MyColor.DARK_GRAY, null);
         filterPanel.add(orderby);
         filterPanel.add(asc_des);
@@ -144,7 +145,7 @@ public class LoginActivity extends MainPanel {
                 return false; // Disable editing for ALL cells (Action is via Right-Click)
             }
         };
-
+        table.getTableHeader().setReorderingAllowed(false);
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.setPreferredSize(new Dimension(1850, 640));

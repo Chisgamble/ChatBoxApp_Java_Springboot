@@ -8,12 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
-import com.example.components.user.FriendCard;
+import com.example.components.admin.FriendCard;
+import com.example.dto.FriendCardDTO;
 import com.example.dto.LoginLogDTO;
 import com.example.dto.UserDTO;
 import com.example.dto.request.AdminCreateOrUpdateUserReqDTO;
 import com.example.model.User;
 import com.example.services.AuthService;
+import com.example.services.FriendService;
 import com.example.services.admin.LoginLogService;
 import com.example.util.Utility;
 import com.example.services.admin.UserListService;
@@ -32,6 +34,7 @@ public class UserList extends MainPanel {
     private String order;
     private UserListService userService;
     private LoginLogService loginLogService;
+    private FriendService friendService;
     private AuthService authService;
     private JPanel filterPanel;
     List<UserDTO> users;
@@ -40,6 +43,7 @@ public class UserList extends MainPanel {
         userService = new UserListService();
         loginLogService = new LoginLogService();
         authService = new AuthService();
+        friendService = new FriendService();
         sort = "username";
         order = "asc";
         status = "all";
@@ -58,7 +62,6 @@ public class UserList extends MainPanel {
     protected void setUpTable() {
         // 1. Bỏ header rỗng cuối cùng đi (chỉ còn 7 cột)
         String[] headers = {"Username", "Full name", "Status", "Address", "Date of birth", "Gender", "Email"};
-
         table = new CustomTable(data, headers) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -66,11 +69,19 @@ public class UserList extends MainPanel {
             }
         };
 
+        table.getTableHeader().setReorderingAllowed(false);
         addStatusDots();
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.setPreferredSize(new Dimension(1850, 640));
         add(scroll);
+
+        table.getColumnModel().getColumn(2).setMinWidth(75);
+        table.getColumnModel().getColumn(2).setMaxWidth(75);
+        table.getColumnModel().getColumn(2).setWidth(75);
+        table.getColumnModel().getColumn(5).setMinWidth(75);
+        table.getColumnModel().getColumn(5).setMaxWidth(75);
+        table.getColumnModel().getColumn(5).setWidth(75);
 
 //      Chuot phai
         table.addMouseListener(new MouseAdapter() {
@@ -126,11 +137,8 @@ public class UserList extends MainPanel {
             if (item.equals("Lock")) {
                 if (targetUser.is_locked()) {
                     text = "Unlock";
-                    // Optional: Change color for visibility
-                    // menuItem.setForeground(new Color(0, 150, 0));
                 } else {
                     text = "Lock";
-                    // menuItem.setForeground(Color.RED);
                 }
             }
 
@@ -170,7 +178,7 @@ public class UserList extends MainPanel {
                 });
             }
             else if (item.equals("Friend list")) {
-                menuItem.addActionListener(evt -> userFriendPopup());
+                menuItem.addActionListener(evt -> userFriendPopup(currentEmail));
             }
             else if (item.equals("Update")) {
                 menuItem.addActionListener(evt -> updateUserPopup());
@@ -360,7 +368,7 @@ public class UserList extends MainPanel {
             }
         });
         filterPanel.add(statusBox);
-
+        filterPanel.add(new JLabel(" | "));
         // === SORT DROPDOWN ===
         JLabel orderby = Utility.makeText("Order by:", ROBOTO, 16f, Font.PLAIN, MyColor.DARK_GRAY, null);
         filterPanel.add(orderby);
@@ -781,28 +789,92 @@ public class UserList extends MainPanel {
         dialog.setVisible(true);
     }
 
-    private void userFriendPopup() {
-       JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Friend list", true);
+    private void userFriendPopup(String currentEmail) {
+        // 1. Resolve User ID from the current list based on Email
+        // We do this BEFORE the SwingWorker to ensure we have the ID ready.
+        Long targetUserId;
+        try {
+            targetUserId = users.stream()
+                    .filter(u -> u.email().equals(currentEmail))
+                    .findFirst()
+                    .map(UserDTO::id)
+                    .orElseThrow(() -> new RuntimeException("User not found in list"));
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Error: Could not identify user ID.", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
-       JPanel wrapper = new JPanel();
-       wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.Y_AXIS));
-       for(int i = 0; i < 10; i++){
-           User u = new User("BABA");
-           FriendCard friend = new FriendCard( u, 400);
-           wrapper.add(friend);
-           wrapper.add(Box.createVerticalStrut(20));
-       }
-       JScrollPane scroll = new JScrollPane(wrapper);
-        scroll.setPreferredSize(new Dimension(600, 500));
-        scroll.getVerticalScrollBar().setUnitIncrement(20);
+        // 2. Setup the Dialog
+        JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Friend List", true);
+        dialog.setSize(400, 550);
+        dialog.setLayout(new BorderLayout());
 
-        dialog.add(scroll);
-        dialog.pack();
+        // 3. Container for the list
+        JPanel wrapper = new JPanel();
+        wrapper.setLayout(new BoxLayout(wrapper, BoxLayout.Y_AXIS));
+        wrapper.setBackground(Color.WHITE);
+
+        // 4. Scroll Pane
+        JScrollPane scroll = new JScrollPane(wrapper);
+        scroll.setBorder(null);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        dialog.add(scroll, BorderLayout.CENTER);
+
+        // 5. Loading Indicator
+        JLabel loadingLabel = new JLabel("Loading friends...", SwingConstants.CENTER);
+        loadingLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        wrapper.add(Box.createVerticalStrut(20));
+        wrapper.add(loadingLabel);
+
+        // 6. Fetch Data (Background Thread) using the resolved targetUserId
+        new SwingWorker<List<FriendCardDTO>, Void>() {
+            @Override
+            protected List<FriendCardDTO> doInBackground() {
+                return friendService.getAllById(targetUserId);
+            }
+
+            @Override
+            protected void done() {
+                wrapper.removeAll(); // Clear loading
+
+                try {
+                    List<FriendCardDTO> friends = get();
+
+                    if (friends == null || friends.isEmpty()) {
+                        wrapper.add(Box.createVerticalStrut(50));
+                        JLabel empty = new JLabel("No friends found.");
+                        empty.setAlignmentX(Component.CENTER_ALIGNMENT);
+                        wrapper.add(empty);
+                    } else {
+                        for (FriendCardDTO dto : friends) {
+                            FriendCard card = new FriendCard(dto);
+                            card.setAlignmentX(Component.LEFT_ALIGNMENT);
+                            wrapper.add(card);
+
+                            JSeparator sep = new JSeparator();
+                            sep.setMaximumSize(new Dimension(Short.MAX_VALUE, 1));
+                            sep.setForeground(new Color(240, 240, 240));
+                            wrapper.add(sep);
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    wrapper.add(Box.createVerticalStrut(20));
+                    JLabel error = new JLabel("Failed to load friends.");
+                    error.setForeground(Color.RED);
+                    error.setAlignmentX(Component.CENTER_ALIGNMENT);
+                    wrapper.add(error);
+                }
+
+                wrapper.revalidate();
+                wrapper.repaint();
+            }
+        }.execute();
+
+        // 7. Show Dialog
         dialog.setLocationRelativeTo(null);
         dialog.setVisible(true);
-
     }
-
     private void userLoginPopup(String username, String email) {
         JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), "Login History: " + username, true);
 

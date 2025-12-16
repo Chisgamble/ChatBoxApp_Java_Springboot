@@ -26,7 +26,7 @@ public class HttpClientUtil {
                     .uri(new URI(url))
                     .GET()
                     .build();
-
+            System.out.println("DEBUG URL: " + url);
             HttpResponse<String> response =
                     client.send(request, HttpResponse.BodyHandlers.ofString());
             System.out.println("DEBUG Response Body: " + response.body());

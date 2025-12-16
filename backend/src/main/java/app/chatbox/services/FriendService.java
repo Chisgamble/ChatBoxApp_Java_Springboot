@@ -2,11 +2,15 @@ package app.chatbox.services;
 
 import app.chatbox.dto.FriendCardDTO;
 //import app.chatbox.mapper.FriendMapper;
+import app.chatbox.dto.FriendListDataDTO;
 import app.chatbox.model.Friend;
 import app.chatbox.repository.FriendRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -28,8 +32,50 @@ public class FriendService {
     }
 
     public List<FriendCardDTO> getAllFriends(Long id){
+        System.out.print("THIS IS THE ID" + id);
         List<Friend> friends = friendRepository.findByUserA_IdOrUserB_Id(id, id);
         //TODO: add find inbox message between current user and friends then add to FriendCardDTO
         return friendRepository.getFriendCards(id);
+    }
+
+    public List<FriendListDataDTO> getFriendListData(
+            String username,
+            String sortBy,
+            String sortDir,
+            String fcSymbol,
+            Integer fcVal
+    ) {
+        String usernamePattern = (username != null && !username.isEmpty()) ? "%" + username + "%" : null;
+        String finalSortBy = (sortBy == null || sortBy.isEmpty()) ? "username" : sortBy;
+        String finalSortDir = (sortDir == null || sortDir.isEmpty()) ? "asc" : sortDir;
+
+        List<Object[]> results = friendRepository.findFriendListDataRaw(
+                usernamePattern,
+                fcSymbol,
+                fcVal,
+                finalSortBy,
+                finalSortDir
+        );
+
+        List<FriendListDataDTO> dtos = new ArrayList<>();
+        for (Object[] row : results) {
+            Timestamp timestamp = (Timestamp) row[1];
+            String createdAtString = null;
+
+            if (timestamp != null) {
+                // 1. Convert Timestamp to LocalDateTime (implicitly done via Timestamp.toLocalDateTime() in Java 8+)
+                createdAtString = timestamp.toLocalDateTime()
+                        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")); // Format LocalDateTime without zone
+            }
+
+            dtos.add(FriendListDataDTO.builder()
+                    .username((String) row[0])
+                    .createdAt(createdAtString) // Assign the formatted String
+                    .friendCount(((Number) row[2]).longValue())
+                    .friendOfFriendCount(((Number) row[3]).longValue())
+                    .build());
+        }
+
+        return dtos;
     }
 }

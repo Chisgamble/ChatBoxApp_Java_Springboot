@@ -33,7 +33,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
@@ -76,6 +78,7 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(req));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<StrangerCardResDTO> updateUser(
             @PathVariable Long id,
@@ -84,13 +87,16 @@ public class UserController {
         return ResponseEntity.ok(userService.updateUserInfo(id, req));
     }
 
+    @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")
     @PutMapping("/lock/{id}")
-    public ResponseEntity<Void> setLockStatus(
+    public ResponseEntity<Map<String, String>> setLockStatus(
             @PathVariable Long id,
             @RequestParam boolean locked
     ) {
         userService.updateLockStatus(id, locked);
-        return ResponseEntity.ok().build();
+
+        // Return a real JSON object: {"success": "true"}
+        return ResponseEntity.ok(Collections.singletonMap("status", "success"));
     }
 
 

@@ -32,7 +32,7 @@ public class Login extends JFrame{
             //Sign up
             JLabel login = Utility.makeText("LOGIN", font, 75f, Font.BOLD, MyColor.LIGHT_BLUE, null);
             login.setAlignmentX(0.5f);
-            login.setMaximumSize(new Dimension(login.getMaximumSize().width + 100, 75));
+            login.setMaximumSize(new Dimension(login.getMaximumSize().width + 40, 75));
             // or log in
             JLabel or_signup = Utility.makeText("or signup", font, 20f, Font.PLAIN, MyColor.LIGHT_BLUE, null);
             or_signup.setAlignmentX(0.5f);

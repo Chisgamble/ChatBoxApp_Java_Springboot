@@ -44,13 +44,6 @@ public class Friend {
     )
     private AppUser userB;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(
-        name = "last_msg",
-        foreignKey = @ForeignKey(name = "fk_friend_last_msg")
-    )
-    private InboxMsg lastMsg;
-
     @Column(name = "created_at",updatable = false)
     private Instant createdAt = Instant.now();
 

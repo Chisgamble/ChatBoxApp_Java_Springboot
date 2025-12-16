@@ -26,7 +26,6 @@ public class NewUser extends MainPanel {
     private final UserListService userService;
     private List<NewUserDTO> users;
     private JPanel filterPanel;
-
     private final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public NewUser() {
@@ -168,7 +167,7 @@ public class NewUser extends MainPanel {
                 return false;
             }
         };
-
+        table.getTableHeader().setReorderingAllowed(false);
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.setPreferredSize(new Dimension(1850, 640));

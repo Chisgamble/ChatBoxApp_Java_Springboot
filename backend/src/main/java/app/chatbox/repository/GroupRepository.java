@@ -4,6 +4,7 @@ import app.chatbox.dto.GroupCardDTO;
 import app.chatbox.model.Group;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -27,5 +28,31 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
             ORDER BY g.updated_at DESC
         """, nativeQuery = true)
     List<GroupCardDTO> getAllCardByUserId(Long userId);
+
+    @Query(value = """
+        SELECT
+            g.id,
+            g.group_name,
+            g.created_at
+        FROM chat_group g
+        WHERE
+            (:groupNamePattern IS NULL OR LOWER(g.group_name) LIKE LOWER(:groupNamePattern))
+        AND
+            (:startDate IS NULL OR g.created_at >= CAST(:startDate AS timestamp))
+        AND
+            (:endDate IS NULL OR g.created_at <= CAST(:endDate AS timestamp))
+        ORDER BY
+            CASE WHEN :sortBy = 'name' AND :sortDir = 'asc' THEN g.group_name END ASC,
+            CASE WHEN :sortBy = 'name' AND :sortDir = 'desc' THEN g.group_name END DESC,
+            CASE WHEN :sortBy = 'time' AND :sortDir = 'asc' THEN g.created_at END ASC,
+            CASE WHEN :sortBy = 'time' AND :sortDir = 'desc' THEN g.created_at END DESC
+    """, nativeQuery = true)
+    List<Object[]> findGroupListDataRaw(
+            @Param("groupNamePattern") String groupNamePattern,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("sortBy") String sortBy,
+            @Param("sortDir") String sortDir
+    );
 
 }
