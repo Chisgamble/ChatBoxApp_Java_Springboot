@@ -116,8 +116,9 @@ public class UserController {
 //    }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public GeneralResDTO delete(@PathVariable Long id) {
         userService.delete(id);
+        return new GeneralResDTO("Delete user" + id);
     }
 
     @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")

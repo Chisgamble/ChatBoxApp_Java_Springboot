@@ -4,6 +4,7 @@ import com.example.dto.NewUserListDTO;
 import com.example.dto.UserListDTO;
 import com.example.dto.YearlyGraphDTO;
 import com.example.dto.request.AdminCreateOrUpdateUserReqDTO;
+import com.example.dto.response.GeneralResDTO;
 import com.example.util.HttpClientUtil;
 
 import java.time.LocalDate;
@@ -63,7 +64,7 @@ public class UserListApi {
 
     public void deleteUser(Long id) {
         String url = BASE_URL + "/" + id;
-        HttpClientUtil.deleteJson(url, null, String.class);
+        HttpClientUtil.deleteJson(url, null, GeneralResDTO.class);
     }
 
     public NewUserListDTO getNewUserList(String username, String email, LocalDate start, LocalDate end, String order) {
