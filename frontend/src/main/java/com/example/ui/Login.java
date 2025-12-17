@@ -12,6 +12,8 @@ import com.example.components.RoundedTextField;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.IOException;
 
 public class Login extends JFrame{
@@ -37,6 +39,18 @@ public class Login extends JFrame{
             // or log in
             JLabel or_signup = Utility.makeText("or signup", font, 20f, Font.PLAIN, MyColor.LIGHT_BLUE, null);
             or_signup.setAlignmentX(0.5f);
+            or_signup.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            or_signup.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    try {
+                        Login.this.dispose();
+                        new Signup();
+                    }catch(Exception ex){
+                        JOptionPane.showMessageDialog(Login.this, "Error: " + ex.getMessage());
+                    }
+                }
+            });
 
             // Username
             JLabel usr_label = Utility.makeText("Username/email:", font, 20f, Font.BOLD, MyColor.LIGHT_BLACK, null);

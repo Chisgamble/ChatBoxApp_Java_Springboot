@@ -4,6 +4,7 @@ import com.example.components.Avatar;
 import com.example.components.ConfirmPopup;
 import com.example.components.user.*;
 import com.example.dto.*;
+import com.example.dto.response.InboxUserResDTO;
 import com.example.dto.response.StrangerCardResDTO;
 import com.example.listener.SearchBarListener;
 
@@ -31,6 +32,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     JPanel topContainer = new JPanel();
     JPanel centerContainer = new JPanel();
     Component listContainer = null;
+    SearchBar searchBar;
 
     InboxService inboxService = new InboxService();
 
@@ -45,7 +47,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 
     UserService userService = new UserService();
     GroupService groupService = new GroupService();
-    
+
     boolean isGroup = false;
     boolean isAdmin = false;
     boolean itemSelected = false;
@@ -268,16 +270,6 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         this.filteredMsgs.addAll(messages);
     }
 
-    void updateMsgList(List<? extends BaseMsgDTO> msgs){
-        centerContainer.removeAll();
-
-        listContainer = new MsgCardList(msgs, getWidth() - 25);
-        centerContainer.add(listContainer, BorderLayout.CENTER);
-
-        centerContainer.revalidate();
-        centerContainer.repaint();
-    }
-
     void updateMemberList(List<GroupMemberDTO> members){
         centerContainer.removeAll();
 
@@ -319,6 +311,10 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 
     void enterSearchMode() {
         cur_option = "Search In Chat";
+        centerContainer.removeAll();
+        itemSelected = false;
+
+        reloadMessages();
 
         centerContainer.removeAll();
 
@@ -352,7 +348,9 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             }
         });
 
-        SearchBar sb = new SearchBar(20, 5, getWidth() - 100, 30, this);
+        if (searchBar == null) {
+            searchBar = new SearchBar(20, 5, getWidth() - 100, 30, this);
+        }
 
         JLabel trash = new JLabel(new FlatSVGIcon("assets/trash-solid-full.svg", 24, 24));
         trash.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -369,7 +367,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 
         topContainer.add(back);
         topContainer.add(Box.createHorizontalStrut(10));
-        topContainer.add(sb);
+        topContainer.add(searchBar);
         topContainer.add(Box.createHorizontalStrut(10));
         topContainer.add(trash);
 
@@ -378,7 +376,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
     }
 
     void deleteSelectedMessages() {
-        try{
+        try {
             JList<BaseMsgDTO> list = msgList.getList();
             List<BaseMsgDTO> selected = list.getSelectedValuesList();
             Long currentUserId = mainFrame.getCurrentChat().getThisUser().getId();
@@ -386,12 +384,6 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             List<BaseMsgDTO> deletable = selected.stream()
                     .filter(m -> m.getSenderId().equals(currentUserId))
                     .toList();
-
-//            if (deletable.isEmpty()) {
-//                JOptionPane.showMessageDialog(this,
-//                        "You can only delete your own messages");
-//                return;
-//            }
 
             filteredMsgs.removeIf(deletable::contains);
             msgList.updateList(filteredMsgs);
@@ -407,15 +399,25 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
             }
 
             itemSelected = false;
+//            updateMsgList(filteredMsgs);
             updateSearchHeader();
-            updateMsgList(filteredMsgs);
 
             mainFrame.reloadCurrentInbox();
             mainFrame.reloadCurrentGroupChat();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Failed to delete messages\n" + ex.getMessage());
         }
+    }
 
+    void reloadMessages(){
+        if (mainFrame.getCurrentChat().isGroup()){
+            this.setGroupMessages(groupService.getInfoAndMsgs(
+                    mainFrame.getCurrentChat().getGroupId()).getMsgs());
+        }else{
+            this.setInboxMessages(inboxService.getInboxWithMessages(
+                    mainFrame.getCurrentChat().getInboxId()).getMsgs()
+            );
+        }
     }
 
     public void removeMember(Long userId) {
@@ -439,33 +441,29 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         if (cur_option.equals("Search In Chat")) {
             filteredMsgs.clear();
 
-            System.out.println("Searching for: '" + text + "'");
-
             if (text.isEmpty() || text.equals("Search")) {
                 if (isGroup) {
                     filteredMsgs.addAll(groupMsgs);
-                    System.out.println(filteredMsgs);
                 } else {
                     filteredMsgs.addAll(inboxMsgs);
                 }
             } else {
                 if (isGroup) {
                     for (GroupMsgDTO msg : groupMsgs) {
-                        System.out.println("Checking group message: " + msg.getContent());
                         if (msg.getContent().toLowerCase().contains(text.toLowerCase())) {
                             filteredMsgs.add(msg);
                         }
                     }
                 } else {
                     for (InboxMsgDTO msg : inboxMsgs) {
-                        System.out.println("Checking inbox message: " + msg.getContent());
                         if (msg.getContent().toLowerCase().contains(text.toLowerCase())) {
                             filteredMsgs.add(msg);
                         }
                     }
                 }
             }
-            updateMsgList(filteredMsgs);  // Update the list with the filtered users
+            itemSelected = false;
+            msgList.updateList(filteredMsgs);
         }else if (cur_option.equals("Members")){
             filteredMembers.clear();
             if (text.isEmpty() || text.equals("Search")) {
@@ -503,5 +501,4 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         revalidate();
         repaint();
     }
-
 }

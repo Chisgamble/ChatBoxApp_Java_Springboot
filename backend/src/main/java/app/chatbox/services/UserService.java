@@ -7,12 +7,10 @@ import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.RegisterResDTO;
 import app.chatbox.dto.response.StrangerCardResDTO;
 import app.chatbox.mapper.UserMapper;
+import app.chatbox.model.ActivityLog;
 import app.chatbox.model.AppUser;
 import app.chatbox.model.SpamReport;
-import app.chatbox.repository.GroupMsgRepository;
-import app.chatbox.repository.InboxMsgRepository;
-import app.chatbox.repository.SpamReportRepository;
-import app.chatbox.repository.UserRepository;
+import app.chatbox.repository.*;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,11 +33,11 @@ public class UserService {
     private final SpamReportRepository spamRepo;
     private final InboxMsgRepository inboxMsgRepo;
     private final GroupMsgRepository groupMsgRepo;
+    private final ActivityLogRepository activityLogRepo;
 
     public boolean exist(String email){
         return userRepo.existsByEmail(email);
     }
-
 
     public UserListDTO getAllUsersAndData(
             String sort,
@@ -237,14 +235,14 @@ public class UserService {
         AppUser user = userRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        // 1) Tạo mật khẩu random
+        //Tạo mật khẩu random
         String newPass = generateRandomPassword(10);
 
-        // 2) encode và save
+        //encode và save
         user.setPassword(passwordEncoder.encode(newPass));
         userRepo.save(user);
 
-        // 3) gửi email
+        //gửi email
         emailService.sendMail(email,
                 "Password Reset",
                 "Your new password for ChatBox's account is: " + newPass
@@ -307,5 +305,17 @@ public class UserService {
         List<Long> filledData = Util.mapToMonthlyList(rawData);
 
         return new YearlyGraphDTO(targetYear, filledData, "New Users");
+    }
+
+    public void logActivity(Long userId, String action, boolean isSuccess, String reason) {
+        AppUser user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        ActivityLog log = ActivityLog.builder()
+                .user(user)
+                .action(action)
+                .isSuccess(isSuccess)
+                .reason(reason)
+                .build();
+        activityLogRepo.save(log);
     }
 }

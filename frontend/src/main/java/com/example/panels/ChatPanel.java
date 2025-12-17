@@ -3,16 +3,16 @@ package com.example.panels;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
 import javax.swing.*;
 import javax.swing.border.Border;
 
+import com.example.dto.BaseMsgDTO;
 import com.example.dto.GroupMsgDTO;
 import com.example.dto.InboxMsgDTO;
 import com.example.dto.request.SendGroupMsgReqDTO;
 import com.example.dto.request.SendInboxMsgReqDTO;
-import com.example.dto.response.GroupUserResDTO;
 import com.example.services.InboxService;
+import com.example.services.LLMService;
 import com.example.services.WebSocketManager;
 import com.example.ui.ChatScreen;
 import com.example.util.Utility;
@@ -23,25 +23,27 @@ import com.example.components.RoundedButton;
 import com.example.components.RoundedTextArea;
 
 import java.util.List;
-import java.util.Objects;
 
-public class ChatPanel extends JPanel{
-    Border border = BorderFactory.createLineBorder(Color.black);
-    JScrollPane scrollPane;
-    JPanel chatArea;
-    InboxService inboxService = new InboxService();
+public class ChatPanel extends JPanel {
+    private final Border border = BorderFactory.createLineBorder(Color.black);
+    private final JScrollPane scrollPane;
+    private final JPanel chatArea;
+    private final InboxService inboxService = new InboxService();
+    private final LLMService llmService = new LLMService();
 
-    private Long currentInboxId;
-
+    private List<? extends BaseMsgDTO> currentMessages;
+    private final JPanel suggestionPanel;
+    private final JLabel suggestionLabel;
     private final ChatScreen mainFrame;
 
-    public ChatPanel(ChatScreen mainFrame, int width, int height){
+    public ChatPanel(ChatScreen mainFrame, int width, int height) {
         this.mainFrame = mainFrame;
         this.setPreferredSize(new Dimension(width, height));
         this.setLayout(new BorderLayout());
         this.setBorder(border);
         this.setOpaque(false);
 
+        //Chat Area
         chatArea = new JPanel();
         chatArea.setOpaque(false);
         chatArea.setLayout(new BoxLayout(chatArea, BoxLayout.Y_AXIS));
@@ -49,150 +51,178 @@ public class ChatPanel extends JPanel{
 
         this.scrollPane = new JScrollPane(chatArea);
         this.scrollPane.setOpaque(false);
-        this.scrollPane.setBorder(BorderFactory.createMatteBorder(0,0,1,0, Color.BLACK));
+        this.scrollPane.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
         this.scrollPane.getViewport().setOpaque(false);
         this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        JPanel inputArea = new JPanel(new FlowLayout( FlowLayout.LEFT, 10,5));
+        //Input Area
+        JPanel inputArea = new JPanel(new BorderLayout(10, 0));
         inputArea.setOpaque(false);
-        inputArea.setPreferredSize(new Dimension(width - 10, 50 ));
+        inputArea.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
 
-        JButton LLM = new JButton(new FlatSVGIcon("assets/robot-solid-full.svg", 20,20));
-        LLM.setContentAreaFilled(false);
-        LLM.setBorder(null);
+        RoundedTextArea inputField = new RoundedTextArea(20, 20);
+        inputField.setLineWrap(true);
+        inputField.setWrapStyleWord(true);
+
+        JButton llmBtn = new JButton(new FlatSVGIcon("assets/robot-solid-full.svg", 20, 20));
+        llmBtn.setContentAreaFilled(false);
+        llmBtn.setBorder(null);
+        llmBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
         RoundedButton sendButton = new RoundedButton(20);
         sendButton.setFocusPainted(false);
-        sendButton.setFocusable(false);
-        sendButton.setText("send");
+        sendButton.setText("Send");
         sendButton.setForeground(Color.WHITE);
         sendButton.setBackground(MyColor.LIGHT_BLUE);
 
-        RoundedTextArea inputField = new RoundedTextArea(20, 10);
+        inputArea.add(llmBtn, BorderLayout.WEST);
+        inputArea.add(inputField, BorderLayout.CENTER); // Chiếm diện tích còn lại
+        inputArea.add(sendButton, BorderLayout.EAST);
 
-        sendButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String message = inputField.getText().trim();
-                if (message.isEmpty()) return;
+        //Suggestion Panel
+        suggestionPanel = new JPanel(new BorderLayout(10, 0));
+        suggestionPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        suggestionPanel.setBackground(new Color(240, 248, 255));
+        suggestionPanel.setVisible(false);
 
-//                addMessage(chatArea, message, true, width, "");  // Add the message to the chat
-                inputField.setText("");// Clear the input field
+        suggestionLabel = new JLabel();
+        suggestionLabel.setForeground(Color.DARK_GRAY);
 
-                if (mainFrame.getCurrentChat().isGroup()){
-                    SendGroupMsgReqDTO req = new SendGroupMsgReqDTO(
-                            mainFrame.getCurrentChat().getGroupId(),
-                            message
-                    );
+        RoundedButton replaceBtn = new RoundedButton(15);
+        replaceBtn.setText("Replace");
+        replaceBtn.setBackground(MyColor.LIGHT_BLUE);
+        replaceBtn.setForeground(Color.WHITE);
 
-                    WebSocketManager.getInstance()
-                            .send("/app/chat/group/send", req);
+        suggestionPanel.add(suggestionLabel, BorderLayout.CENTER);
+        suggestionPanel.add(replaceBtn, BorderLayout.EAST);
 
-                }else{
-                    SendInboxMsgReqDTO req = new SendInboxMsgReqDTO(
-                            mainFrame.getCurrentChat().getInboxId(),
-                            mainFrame.getCurrentChat().getTargetUser().getFriendId(),
-                            message
-                    );
+        //South Container
+        JPanel southContainer = new JPanel();
+        southContainer.setLayout(new BoxLayout(southContainer, BoxLayout.Y_AXIS));
+        southContainer.setOpaque(false);
+        southContainer.add(suggestionPanel);
+        southContainer.add(inputArea);
 
-                    WebSocketManager.getInstance()
-                            .send("/app/chat/inbox/send", req);
+        //Logics & Listeners
+        llmBtn.addActionListener(e -> {
+            String currentInput = inputField.getText().trim();
+            List<String> recentMsgs = getLast10Messages();
+            Long inboxId = mainFrame.getCurrentChat().isGroup()
+                    ? mainFrame.getCurrentChat().getGroupId()
+                    : mainFrame.getCurrentChat().getInboxId();
+
+            new SwingWorker<String, Void>() {
+                @Override protected String doInBackground() {
+                    return llmService.getLLMSuggestion(inboxId, currentInput, recentMsgs);
                 }
+                @Override protected void done() {
+                    try {
+                        String suggestion = get();
+                        suggestionLabel.setText(suggestion);
+                        suggestionPanel.setVisible(true);
+                        revalidate();
+                    } catch (Exception ex) { ex.printStackTrace(); }
+                }
+            }.execute();
+        });
 
-//                chatArea.revalidate();
-//                scrollToBottom(scrollPane);
-//                chatArea.repaint();
+        replaceBtn.addActionListener(e -> {
+            inputField.setText(suggestionLabel.getText());
+            suggestionPanel.setVisible(false);
+        });
+
+        sendButton.addActionListener(e -> {
+            String message = inputField.getText().trim();
+            if (message.isEmpty()) return;
+            inputField.setText("");
+
+            if (mainFrame.getCurrentChat().isGroup()) {
+                SendGroupMsgReqDTO req = new SendGroupMsgReqDTO(mainFrame.getCurrentChat().getGroupId(), message);
+                WebSocketManager.getInstance().send("/app/chat/group/send", req);
+            } else {
+                SendInboxMsgReqDTO req = new SendInboxMsgReqDTO(
+                        mainFrame.getCurrentChat().getInboxId(),
+                        mainFrame.getCurrentChat().getTargetUser().getFriendId(),
+                        message);
+                WebSocketManager.getInstance().send("/app/chat/inbox/send", req);
             }
         });
 
-        Dimension buttonSize = sendButton.getPreferredSize();
+        inputField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            private void update() {
+                inputField.autoResize(30, 150); // Giới hạn chiều cao max 150px
+                inputArea.revalidate();
+                southContainer.revalidate();
+                scrollToBottom(scrollPane);
+            }
+            @Override public void insertUpdate(javax.swing.event.DocumentEvent e) { update(); }
+            @Override public void removeUpdate(javax.swing.event.DocumentEvent e) { update(); }
+            @Override public void changedUpdate(javax.swing.event.DocumentEvent e) {}
+        });
 
-        inputField.setPreferredSize(new Dimension(width - buttonSize.width - LLM.getPreferredSize().width - 40, 30));
-//        textArea.setMinimumSize(new Dimension(0, 5));
-//        textArea.setMaximumSize(new Dimension(Integer.MAX_VALUE, 5));
-
-        inputArea.add(LLM);
-        inputArea.add(inputField);
-        inputArea.add(sendButton);
-
-        scrollToBottom(this.scrollPane);
-        this.add(inputArea, BorderLayout.SOUTH);
         this.add(this.scrollPane, BorderLayout.CENTER);
+        this.add(southContainer, BorderLayout.SOUTH);
     }
 
     private void addMessage(JPanel chatPanel, String message, boolean isUser, int chatWidth, String avatarText) {
         JPanel messageWrapper = new JPanel(new FlowLayout(isUser ? FlowLayout.RIGHT : FlowLayout.LEFT));
         messageWrapper.setOpaque(false);
-
         MsgBubble bubble = new MsgBubble(message, isUser, chatWidth, avatarText);
-
         messageWrapper.add(bubble);
-        messageWrapper.validate();
         messageWrapper.setMaximumSize(new Dimension(chatWidth, messageWrapper.getPreferredSize().height));
-
         chatPanel.add(messageWrapper);
     }
 
     private void scrollToBottom(JScrollPane scrollPane) {
-        // Get the vertical scrollbar
         JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
-
-        // Set the value of the scrollbar to its maximum to scroll to the bottom
-        SwingUtilities.invokeLater(() -> {
-            verticalScrollBar.setValue(verticalScrollBar.getMaximum());
-        });
+        SwingUtilities.invokeLater(() -> verticalScrollBar.setValue(verticalScrollBar.getMaximum()));
     }
 
     public void showMessages(List<InboxMsgDTO> msgs, Long myId) {
-        // clear UI
+        this.currentMessages = msgs;
         chatArea.removeAll();
         for (InboxMsgDTO msg : msgs) {
             boolean isMe = msg.getSenderId().equals(myId);
             addMessage(chatArea, msg.getContent(), isMe, getWidth(), Utility.getInitials(msg.getSenderName()));
         }
-
-        chatArea.revalidate();
-        scrollPane.setViewportView(chatArea);
-        scrollToBottom(scrollPane);
-        chatArea.repaint();
+        updateUIState();
     }
 
-    public void showGroupMessages(GroupUserResDTO group, Long myId) {
-        // clear UI
+    public void showGroupMessages(List<GroupMsgDTO> msgs, Long myId) {
+        this.currentMessages = msgs;
         chatArea.removeAll();
-        for (GroupMsgDTO msg : group.getMsgs()) {
+        for (GroupMsgDTO msg : msgs) {
             boolean isMe = msg.getSenderId().equals(myId);
             addMessage(chatArea, msg.getContent(), isMe, getWidth(), Utility.getInitials(msg.getSenderUsername()));
         }
-
-        chatArea.revalidate();
-        scrollPane.setViewportView(chatArea);
-        scrollToBottom(scrollPane);
-        chatArea.repaint();
+        updateUIState();
     }
 
-    public void appendMessage(String content,
-                              boolean isMe,
-                              String senderName) {
-
+    public void appendMessage(String content, boolean isMe, String senderName) {
         SwingUtilities.invokeLater(() -> {
             addMessage(chatArea, content, isMe, getWidth(), Utility.getInitials(senderName));
-
-            chatArea.revalidate();
-            scrollToBottom(scrollPane);
-            chatArea.repaint();
+            updateUIState();
         });
     }
 
+    private void updateUIState() {
+        chatArea.revalidate();
+        chatArea.repaint();
+        scrollToBottom(scrollPane);
+    }
+
+    private List<String> getLast10Messages() {
+        if (currentMessages == null || currentMessages.isEmpty()) return List.of();
+        return currentMessages.stream()
+                .skip(Math.max(0, currentMessages.size() - 10))
+                .map(BaseMsgDTO::getContent)
+                .toList();
+    }
 
     public void clearChat() {
-        // clear UI
         chatArea.removeAll();
         chatArea.revalidate();
         chatArea.repaint();
     }
-
-
-
 }

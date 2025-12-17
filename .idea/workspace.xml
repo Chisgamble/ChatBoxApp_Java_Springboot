@@ -10,6 +10,11 @@
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/UserController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/admin/UserListApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/admin/UserListApi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/ChatPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/ChatPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/Login.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/Login.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,13 +57,14 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;Application.Backend.executor&quot;: &quot;Run&quot;,
     &quot;Application.ChatboxApplication.executor&quot;: &quot;Run&quot;,
     &quot;Application.Main.executor&quot;: &quot;Run&quot;,
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;User__BE&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/school/Nam3 HK1/Jav/ChatBoxApp_Java_Springboot/frontend/src/main/java/com/example/dto&quot;
   }
@@ -69,8 +75,23 @@
       <recent name="D:\school\Nam3 HK1\Jav\ChatBoxApp_Java_Springboot\frontend\src\main\resources\assets" />
     </key>
     <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="com.example.dto.response" />
       <recent name="com.example.dto.request" />
     </key>
+  </component>
+  <component name="RunManager">
+    <configuration name="Backend" type="Application" factoryName="Application">
+      <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../../../../../../Java/jdk-25" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+      <envs>
+        <env name="COHERE_API_KEY" value="jRidd8DUSAiYjioMekjmIMBoBvdShg88L59ftuKs" />
+      </envs>
+      <option name="MAIN_CLASS_NAME" value="app.chatbox.ChatboxApplication" />
+      <module name="chatbox" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
@@ -81,5 +102,16 @@
       <updated>1765597481212</updated>
     </task>
     <servers />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/UserList.java</url>
+          <line>118</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

@@ -145,7 +145,7 @@ public class ChatScreen extends JFrame
         GroupUserResDTO res =
                 groupService.getInfoAndMsgs(currentChat.getGroupId());
 
-        chatPanel.showGroupMessages(res, user.getId());
+        chatPanel.showGroupMessages(res.getMsgs(), user.getId());
         chatUtilPanel.setGroupMessages(res.getMsgs());
     }
 
@@ -162,7 +162,7 @@ public class ChatScreen extends JFrame
         List<GroupMemberDTO> members = groupService.getAllMembers(group.getId());
         chatUtilPanel.setAllMembers(members);
 
-        chatPanel.showGroupMessages(res, user.getId());
+        chatPanel.showGroupMessages(res.getMsgs(), user.getId());
         chatUtilPanel.setGroupMessages(res.getMsgs());
         chatUtilPanel.showGroup(group, res.getUserInGroup().getRole());
 
@@ -211,8 +211,8 @@ public class ChatScreen extends JFrame
             WebSocketManager.getInstance().disconnect();
             AuthService authService = new AuthService();
             authService.logout();
-            this.dispose(); // Close chat window
-            new Login();    // Open Login window
+            this.dispose();
+            new Login();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage());
         }

@@ -57,6 +57,7 @@ public class AuthController {
             new HttpSessionSecurityContextRepository().saveContext(securityContext, http, res);
 
             UserMiniDTO user = userService.login(req);
+            userService.logActivity(user.getId(), "open", true, "Login successful");
             LoginResDTO loginRes = new LoginResDTO(user, "Success");
             return ResponseEntity.ok(loginRes);
         } catch (BadCredentialsException ex) {
