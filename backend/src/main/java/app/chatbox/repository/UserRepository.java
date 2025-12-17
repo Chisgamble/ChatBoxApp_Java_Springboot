@@ -31,39 +31,19 @@ public interface UserRepository extends JpaRepository<AppUser, Long>, JpaSpecifi
     UserMiniDTO findMiniByEmail(String email);
 
     @Query(value = """
-    SELECT *
-    FROM app_user u
-    WHERE
-      (:usernameRegex IS NULL OR LOWER(u.username) ~ :usernameRegex)
-    AND
-      (:nameRegex IS NULL OR LOWER(u.name) ~ :nameRegex)
-    AND
-      (
-        :status IS NULL
-        OR :status = 'all'
-        OR (:status = 'active' AND u.is_active = true)
-        OR (:status = 'offline' AND u.is_active = false)
-      )
-    ORDER BY
-      CASE WHEN :sort = 'username' THEN u.username END ASC,
-      CASE WHEN :sort = 'name' THEN u.name END ASC,
-      CASE WHEN :sort = 'email' THEN u.email END ASC
-    """,
-            nativeQuery = true)
-    List<AppUser> findUsersAsc(
-            @Param("usernameRegex") String usernameRegex,
-            @Param("nameRegex") String nameRegex,
-            @Param("status") String status,
-            @Param("sort") String sort
-    );
-
-    @Query(value = """
         SELECT *
         FROM app_user u
         WHERE
           (:usernameRegex IS NULL OR u.username ~* :usernameRegex)
         AND
           (:nameRegex IS NULL OR u.name ~* :nameRegex)
+        AND
+            (
+                :role IS NULL
+                OR :role = 'all'
+                OR ( LOWER(:role) = 'admin' AND LOWER(u.role) = 'admin')
+                OR ( LOWER(:role) = 'user' AND LOWER(u.role) = 'user')
+            )
         AND
           (
             :status = 'all'
@@ -75,6 +55,7 @@ public interface UserRepository extends JpaRepository<AppUser, Long>, JpaSpecifi
             @Param("usernameRegex") String usernameRegex,
             @Param("nameRegex") String nameRegex,
             @Param("status") String status,
+            @Param("role") String role,
             Sort sort
     );
 

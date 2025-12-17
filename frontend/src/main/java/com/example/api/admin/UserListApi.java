@@ -12,7 +12,7 @@ import java.util.List;
 public class UserListApi {
     private static final String BASE_URL = "http://localhost:8080/api/users";
 
-    public UserListDTO getAllUsers(List<String> username, List<String> name, String status, String sort, String order) {
+    public UserListDTO getAllUsers(List<String> username, List<String> name, String status, String role, String sort, String order) {
         StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/getall/data?");
 
         if (username != null && !username.isEmpty()) {
@@ -25,6 +25,10 @@ public class UserListApi {
 
         if (status != null && !status.isEmpty()) {
             urlBuilder.append("status=").append(status).append("&");
+        }
+
+        if (role != null && !status.isEmpty()) {
+            urlBuilder.append("role=").append(role).append("&");
         }
 
         if (sort != null && !sort.isEmpty()) {

@@ -65,11 +65,12 @@ public class UserController {
             @RequestParam(required = false) String order,
             @RequestParam(required = false) List<String> username,
             @RequestParam(required = false) List<String> name,
+            @RequestParam(required = false) String role,
             @RequestParam(required = false) String status
     ) {
 
         return ResponseEntity.ok(
-                userService.getAllUsersAndData(sort, order, username, name, status)
+                userService.getAllUsersAndData(sort, order, username, name, role, status)
         );
     }
 

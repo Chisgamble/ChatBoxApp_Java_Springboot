@@ -46,6 +46,7 @@ public class UserService {
             String order,
             List<String> usernames,
             List<String> names,
+            String role,
             String status
     ) {
         // 1. Handle Defaults
@@ -86,6 +87,7 @@ public class UserService {
                 usernameRegex,
                 nameRegex,
                 statusInput,
+                role,
                 sortObj
         );
 

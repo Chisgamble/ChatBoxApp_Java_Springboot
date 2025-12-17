@@ -32,12 +32,13 @@ public class UserList extends MainPanel {
     private String status;
     private String sort;
     private String order;
+    private String role;
     private UserListService userService;
     private LoginLogService loginLogService;
     private FriendService friendService;
     private AuthService authService;
     private JPanel filterPanel;
-    List<UserDTO> users;
+    private List<UserDTO> users;
 
     public UserList() {
         userService = new UserListService();
@@ -47,6 +48,7 @@ public class UserList extends MainPanel {
         sort = "username";
         order = "asc";
         status = "all";
+        role = "all";
         usernameFilter = new ArrayList<>();
         nameFilter = new ArrayList<>();
 
@@ -190,7 +192,7 @@ public class UserList extends MainPanel {
                 menuItem.addActionListener(evt -> updatePasswordPopup(currentUsername));
             }
             else if (item.equals("Delete")) {
-                menuItem.setForeground(Color.RED); // Make "Delete" red to indicate danger
+                menuItem.setForeground(Color.RED);
 
                 menuItem.addActionListener(evt -> {
                     // 1. CONFIRMATION DIALOG
@@ -265,6 +267,7 @@ public class UserList extends MainPanel {
                 this.usernameFilter,
                 this.nameFilter,
                 this.status,
+                this.role,
                 this.sort,
                 this.order
         );
@@ -368,6 +371,30 @@ public class UserList extends MainPanel {
             }
         });
         filterPanel.add(statusBox);
+
+        filterPanel.add(new JLabel(" | "));
+
+        JLabel roleFilter = Utility.makeText("Filter by role:", ROBOTO, 16f, Font.PLAIN, MyColor.DARK_GRAY, null);
+        filterPanel.add(roleFilter);
+
+        String[] roleOptions = {"All", "Admin", "User"};
+        RoundedComboBox<String> roleBox = new RoundedComboBox<>(roleOptions);
+        roleBox.setFont(ROBOTO.deriveFont(16f));
+
+        // MEMORY FIX: Set selected item based on current variable
+        if(this.status != null) {
+            String display = this.status.substring(0, 1).toUpperCase() + this.status.substring(1).toLowerCase();
+            roleBox.setSelectedItem(display);
+        }
+
+        roleBox.addActionListener(e -> {
+            String selected = (String) roleBox.getSelectedItem();
+            if (selected != null) {
+                this.role = selected.toLowerCase();
+                filterData(); // Reloads data AND rebuilds panel
+            }
+        });
+        filterPanel.add(roleBox);
         filterPanel.add(new JLabel(" | "));
         // === SORT DROPDOWN ===
         JLabel orderby = Utility.makeText("Order by:", ROBOTO, 16f, Font.PLAIN, MyColor.DARK_GRAY, null);

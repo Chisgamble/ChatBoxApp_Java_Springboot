@@ -16,8 +16,8 @@ import java.util.List;
 public class UserListService {
     private final UserListApi api = new UserListApi();
 
-    public List<UserDTO> getAll (List<String> username, List<String> name, String status, String sort, String order){
-        return api.getAllUsers(username, name, status, sort, order).users();
+    public List<UserDTO> getAll (List<String> username, List<String> name, String status, String role, String sort, String order){
+        return api.getAllUsers(username, name, status, role, sort, order).users();
     }
 
     public List<UserDTO> getAll (){
@@ -26,7 +26,8 @@ public class UserListService {
         String c = "";
         String d = "";
         String e = "";
-        return api.getAllUsers(a,b,c,d,e).users();
+        String f = "";
+        return api.getAllUsers(a,b,c,d,e,f).users();
     }
 
     public void createUser(AdminCreateOrUpdateUserReqDTO req) {

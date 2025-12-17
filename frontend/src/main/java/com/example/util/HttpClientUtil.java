@@ -172,8 +172,12 @@ public class HttpClientUtil {
             System.out.println("DEBUG Response Body: " + response.body());
 
             int status = response.statusCode();
+            String responseBody = response.body();
             if (status < 200 || status >= 300) {
                 throw new RuntimeException("HTTP " + status + ": " + response.body());
+            }
+            if (status == 204 || responseBody == null || responseBody.trim().isEmpty()) {
+                return null;
             }
 
             return JsonUtil.fromJson(response.body(), responseType);
