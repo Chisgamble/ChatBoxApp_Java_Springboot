@@ -5,24 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8d5e9cc1-3ce8-4911-9469-68c6b89fc6eb" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/ChatSuggestController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/request/ChatSuggestReqDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/dto/response/ChatSuggestResDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/LlmService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/ChatApi.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/request/ChatSuggestReqDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/response/ChatSuggestResDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/LLMService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/FriendController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/FriendController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/InboxMsgService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/InboxMsgService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/UserApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/UserApi.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/RoundedTextArea.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/RoundedTextArea.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/AuthController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/AuthController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/UserService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/ChatPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/ChatPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/ChatUtilPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/ChatUtilPanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/ChatScreen.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/ChatScreen.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/Login.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/Login.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

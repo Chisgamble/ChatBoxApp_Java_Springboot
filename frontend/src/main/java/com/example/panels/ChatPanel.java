@@ -43,7 +43,7 @@ public class ChatPanel extends JPanel {
         this.setBorder(border);
         this.setOpaque(false);
 
-        // --- Chat Area ---
+        //Chat Area
         chatArea = new JPanel();
         chatArea.setOpaque(false);
         chatArea.setLayout(new BoxLayout(chatArea, BoxLayout.Y_AXIS));
@@ -56,7 +56,7 @@ public class ChatPanel extends JPanel {
         this.scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         this.scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 
-        // --- Input Area (Dùng BorderLayout để chia cột) ---
+        //Input Area
         JPanel inputArea = new JPanel(new BorderLayout(10, 0));
         inputArea.setOpaque(false);
         inputArea.setBorder(BorderFactory.createEmptyBorder(5, 10, 10, 10));
@@ -76,12 +76,11 @@ public class ChatPanel extends JPanel {
         sendButton.setForeground(Color.WHITE);
         sendButton.setBackground(MyColor.LIGHT_BLUE);
 
-        // Đặt đúng vị trí trong BorderLayout
         inputArea.add(llmBtn, BorderLayout.WEST);
         inputArea.add(inputField, BorderLayout.CENTER); // Chiếm diện tích còn lại
         inputArea.add(sendButton, BorderLayout.EAST);
 
-        // --- Suggestion Panel ---
+        //Suggestion Panel
         suggestionPanel = new JPanel(new BorderLayout(10, 0));
         suggestionPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         suggestionPanel.setBackground(new Color(240, 248, 255));
@@ -98,15 +97,14 @@ public class ChatPanel extends JPanel {
         suggestionPanel.add(suggestionLabel, BorderLayout.CENTER);
         suggestionPanel.add(replaceBtn, BorderLayout.EAST);
 
-        // --- South Container (Gộp Suggestion và Input) ---
+        //South Container
         JPanel southContainer = new JPanel();
         southContainer.setLayout(new BoxLayout(southContainer, BoxLayout.Y_AXIS));
         southContainer.setOpaque(false);
         southContainer.add(suggestionPanel);
         southContainer.add(inputArea);
 
-        // --- Logics & Listeners ---
-
+        //Logics & Listeners
         llmBtn.addActionListener(e -> {
             String currentInput = inputField.getText().trim();
             List<String> recentMsgs = getLast10Messages();
