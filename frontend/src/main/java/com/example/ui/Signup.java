@@ -48,8 +48,8 @@ public class Signup extends JFrame{
                 }
             });
 
-            // Username
-            JLabel usr_label = Utility.makeText("Username/email:", font, 20f, Font.BOLD, MyColor.LIGHT_BLACK, null);
+            // Email
+            JLabel usr_label = Utility.makeText("Email:", font, 20f, Font.BOLD, MyColor.LIGHT_BLACK, null);
             gbc.gridx = 0;
             gbc.gridy = 0;
             gbc.weightx = 0;

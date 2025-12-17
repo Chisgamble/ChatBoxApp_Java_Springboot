@@ -1,7 +1,6 @@
 package com.example.panels;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.*;
@@ -13,19 +12,24 @@ import com.example.dto.*;
 import com.example.dto.response.FriendRequestResDTO;
 import com.example.dto.response.StrangerCardResDTO;
 import com.example.listener.FriendRequestListener;
+import com.example.listener.ProfileListener;
 import com.example.listener.SearchBarListener;
 import com.example.listener.UserMenuListener;
-import com.example.services.AuthService;
 import com.example.services.FriendRequestService;
 import com.example.services.FriendService;
 import com.example.services.UserService;
 import com.example.ui.ChatContext;
 import com.example.ui.ChatScreen;
 import com.example.ui.ProfilePopup;
+import lombok.Getter;
 import lombok.Setter;
 
 @Setter
-public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBarListener, FriendRequestListener {
+@Getter
+public class UserUtilPanel extends JPanel implements UserMenuListener,
+        SearchBarListener,
+        FriendRequestListener,
+        ProfileListener {
     ChatScreen mainFrame;
     JPanel topContainer;
     JPanel centerContainer;
@@ -52,7 +56,11 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
 
     String cur_option;
 
-    public  UserUtilPanel(ChatScreen mainFrame, int width, int height, UserMiniDTO user, List<FriendCardDTO> friends) {
+    public  UserUtilPanel(
+            ChatScreen mainFrame,
+            int width, int height,
+            UserMiniDTO user,
+            List<FriendCardDTO> friends) {
         this.cur_option = "Friends";
         this.mainFrame = mainFrame;
         this.inboxes = null;
@@ -138,7 +146,7 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
             }
             return;
         }else if ("Profile".equals(option)) {
-            ProfilePopup popup = new ProfilePopup(mainFrame);
+            ProfilePopup popup = new ProfilePopup(mainFrame, mainFrame.getUser().getId(), this);
             popup.setVisible(true);
             return;
         }else if("SearchMsg".equals(option)) {
@@ -215,15 +223,12 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
                         new FriendCardList((List<FriendCardDTO>) data, getWidth() - 15, mainFrame);
 
                 friendList.getList().addListSelectionListener(e -> {
-                    System.out.println("Event  ------------------------------");
                     if (!e.getValueIsAdjusting()) {
                         System.out.println(friendList.getList().getSelectedValue());
                         FriendCardDTO selected =
                                 friendList.getList().getSelectedValue();
 
                         if (selected != null) {
-                            mainFrame.getContext().setTargetUser(selected);
-                            mainFrame.getContext().setGroup(false);
                             mainFrame.openInbox(selected);
                         }
                     }
@@ -240,8 +245,6 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
                         new GroupCardList((List<GroupCardDTO>) data,
                                 getWidth() - 15,
                                 (card, group) ->{
-                                    mainFrame.getContext().setTargetGroup(group);
-                                    mainFrame.getContext().setGroup(true);
                                     mainFrame.openGroupChat(group);
                                 });
 
@@ -272,14 +275,15 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
                 data = filterMsgs(msgMaster);
                 renderList(new GlobalMsgCardList(
                         (List<MsgDTO>) data,
-                        getWidth() - 15
+                        getWidth() - 15,
+                        mainFrame
                 ));
                 break;
 
             default:
                 break;
         }
-        SwingUtilities.invokeLater(this::selectFriendFromContext);
+        SwingUtilities.invokeLater(this::selectChatFromContext);
     }
 
     void updateSearchArea(boolean showOnline){
@@ -291,9 +295,9 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     public void onAccept(FriendRequestResDTO friend) {
         try {
             friendRequestService.updateFriendRequest(friend, this.user.getId(), "accepted");
-            JOptionPane.showMessageDialog(this, "You are now friend with " + friend.getSenderUsername());
+            JOptionPane.showMessageDialog(mainFrame, "You are now friend with " + friend.getSenderUsername());
         }catch(Exception e){
-            JOptionPane.showMessageDialog(this, "Failed to accept\n" + e.getMessage());
+            JOptionPane.showMessageDialog(mainFrame, "Failed to accept\n" + e.getMessage());
         }
     }
 
@@ -301,9 +305,9 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     public void onReject(FriendRequestResDTO friend) {
         try {
             friendRequestService.updateFriendRequest(friend, this.user.getId(), "rejected");
-            JOptionPane.showMessageDialog(this, "You have rejected friend request from " + friend.getSenderUsername());
+            JOptionPane.showMessageDialog(mainFrame, "You have rejected friend request from " + friend.getSenderUsername());
         } catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Failed to reject\n" + e.getMessage());
+            JOptionPane.showMessageDialog(mainFrame, "Failed to reject\n" + e.getMessage());
         }
     }
 
@@ -311,28 +315,55 @@ public class UserUtilPanel extends JPanel implements UserMenuListener, SearchBar
     public void onSent (Long receiverId){
         try {
             friendRequestService.create(user.getId(), receiverId);
-            JOptionPane.showMessageDialog(this, "You have sent friend request");
         }catch(Exception e){
             JOptionPane.showMessageDialog(this, "Failed to send friend request\n" + e.getMessage());
         }
     }
 
-    public void selectFriendFromContext() {
-        ChatContext ctx = mainFrame.getContext();
-        if (ctx == null || ctx.getTargetUser() == null) return;
+    @Override
+    public void onProfileUpdated(UserDTO updatedUser) {
+        UserMiniDTO user = new UserMiniDTO(
+                updatedUser.id(),
+                updatedUser.email(),
+                updatedUser.username(),
+                updatedUser.role());
+        this.user = user;
+        mainFrame.setUser(user);
+        mainFrame.getCurrentChat().setThisUser(user);
 
-        String targetUsername = ctx.getTargetUser().getUsername();
+        this.revalidate();
+        this.repaint();
+    }
 
-        if (list instanceof FriendCardList friendList) {
-            JList<FriendCardDTO> jList = friendList.getList();
+    public void switchTab(String option) {
+        this.cur_option = option;
+        this.searchText = "";
+        if (sb != null) sb.setText("");
 
-            ListModel<FriendCardDTO> model = jList.getModel();
-            for (int i = 0; i < model.getSize(); i++) {
-                FriendCardDTO dto = model.getElementAt(i);
-                if (dto.getUsername().equals(targetUsername)) {
-                    jList.setSelectedIndex(i);
-                    jList.ensureIndexIsVisible(i);
-                    break;
+        applyFilters(); //gọi renderList và selectChatFromContext
+    }
+
+    public void selectChatFromContext() {
+        ChatContext ctx = mainFrame.getCurrentChat();
+        if (ctx == null) return;
+
+        if (ctx.isGroup() && ctx.getTargetGroup() != null) {
+            if (this.list instanceof GroupCardList groupCardList) {
+                groupCardList.selectAndScrollToGroup(ctx.getTargetGroup().getId());
+            }
+        }
+        else if (!ctx.isGroup() && ctx.getTargetUser() != null) {
+            if (list instanceof FriendCardList friendList) {
+                JList<FriendCardDTO> jList = friendList.getList();
+                ListModel<FriendCardDTO> model = jList.getModel();
+                Long targetId = ctx.getTargetUser().getInboxId();
+
+                for (int i = 0; i < model.getSize(); i++) {
+                    if (model.getElementAt(i).getInboxId().equals(targetId)) {
+                        jList.setSelectedIndex(i);
+                        jList.ensureIndexIsVisible(i);
+                        break;
+                    }
                 }
             }
         }

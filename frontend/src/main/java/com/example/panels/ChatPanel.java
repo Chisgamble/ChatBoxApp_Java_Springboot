@@ -1,8 +1,6 @@
 package com.example.panels;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import javax.swing.*;
 import javax.swing.border.Border;
 
@@ -165,9 +163,11 @@ public class ChatPanel extends JPanel {
         this.add(southContainer, BorderLayout.SOUTH);
     }
 
-    private void addMessage(JPanel chatPanel, String message, boolean isUser, int chatWidth, String avatarText) {
+    private void addMessage(JPanel chatPanel, String message, boolean isUser, int chatWidth, String avatarText, Long messageId) {
         JPanel messageWrapper = new JPanel(new FlowLayout(isUser ? FlowLayout.RIGHT : FlowLayout.LEFT));
         messageWrapper.setOpaque(false);
+        messageWrapper.setName("msg_" + messageId);
+
         MsgBubble bubble = new MsgBubble(message, isUser, chatWidth, avatarText);
         messageWrapper.add(bubble);
         messageWrapper.setMaximumSize(new Dimension(chatWidth, messageWrapper.getPreferredSize().height));
@@ -179,12 +179,49 @@ public class ChatPanel extends JPanel {
         SwingUtilities.invokeLater(() -> verticalScrollBar.setValue(verticalScrollBar.getMaximum()));
     }
 
+    public void scrollToMessage(Long messageId) {
+        String targetName = "msg_" + messageId;
+        Component[] components = chatArea.getComponents();
+
+        for (Component comp : components) {
+            if (targetName.equals(comp.getName())) {
+                // 1. Đảm bảo UI đã layout xong để lấy tọa độ chính xác
+                SwingUtilities.invokeLater(() -> {
+                    // 2. Tính toán vị trí của tin nhắn đối với chatArea
+                    Rectangle bounds = comp.getBounds();
+
+                    // 3. Cuộn chatArea sao cho vùng bounds đó hiện ra
+                    chatArea.scrollRectToVisible(bounds);
+
+                    // 4. Hiệu ứng nhấp nháy để người dùng dễ nhận biết
+                    blinkMessage(comp);
+                });
+                return;
+            }
+        }
+        // Nếu không tìm thấy (có thể tin nhắn quá cũ chưa load),
+        // bạn có thể thêm logic load thêm tin nhắn cũ ở đây.
+    }
+
+    private void blinkMessage(Component comp) {
+        // Lấy MsgBubble bên trong wrapper để đổi màu nền
+        if (comp instanceof JPanel && ((JPanel) comp).getComponentCount() > 0) {
+            Component bubble = ((JPanel) comp).getComponent(0);
+            Color original = bubble.getBackground();
+            bubble.setBackground(new Color(255, 255, 150)); // Màu highlight
+
+            Timer timer = new Timer(1500, e -> bubble.setBackground(original));
+            timer.setRepeats(false);
+            timer.start();
+        }
+    }
+
     public void showMessages(List<InboxMsgDTO> msgs, Long myId) {
         this.currentMessages = msgs;
         chatArea.removeAll();
         for (InboxMsgDTO msg : msgs) {
             boolean isMe = msg.getSenderId().equals(myId);
-            addMessage(chatArea, msg.getContent(), isMe, getWidth(), Utility.getInitials(msg.getSenderName()));
+            addMessage(chatArea, msg.getContent(), isMe, getWidth(), Utility.getInitials(msg.getSenderName()), msg.getId());
         }
         updateUIState();
     }
@@ -194,14 +231,14 @@ public class ChatPanel extends JPanel {
         chatArea.removeAll();
         for (GroupMsgDTO msg : msgs) {
             boolean isMe = msg.getSenderId().equals(myId);
-            addMessage(chatArea, msg.getContent(), isMe, getWidth(), Utility.getInitials(msg.getSenderUsername()));
+            addMessage(chatArea, msg.getContent(), isMe, getWidth(), Utility.getInitials(msg.getSenderUsername()), msg.getId());
         }
         updateUIState();
     }
 
-    public void appendMessage(String content, boolean isMe, String senderName) {
+    public void appendMessage(Long msgId, String content, boolean isMe, String senderName) {
         SwingUtilities.invokeLater(() -> {
-            addMessage(chatArea, content, isMe, getWidth(), Utility.getInitials(senderName));
+            addMessage(chatArea, content, isMe, getWidth(), Utility.getInitials(senderName), msgId);
             updateUIState();
         });
     }

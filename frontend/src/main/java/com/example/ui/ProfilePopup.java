@@ -2,26 +2,41 @@ package com.example.ui;
 
 import com.example.components.MyColor;
 import com.example.components.RoundedButton;
+import com.example.dto.UserDTO;
+import com.example.dto.UserMiniDTO;
+import com.example.dto.request.AdminCreateOrUpdateUserReqDTO;
 import com.example.dto.request.ChangePasswordReqDTO;
 import com.example.dto.response.GeneralResDTO;
+import com.example.listener.GroupListener;
+import com.example.listener.ProfileListener;
 import com.example.model.User;
 import com.example.services.AuthService;
+import com.example.services.UserService;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class ProfilePopup extends JDialog {
-    User user;
+    UserDTO user;
     JPanel content = new JPanel();
     JLabel title = new JLabel();
     JFrame parent;
-    static final AuthService authService = new AuthService();
 
-    public ProfilePopup(JFrame parent) {
+    static final AuthService authService = new AuthService();
+    private final UserService userService = new UserService();
+
+    private ProfileListener updateListener;
+
+    private JTextField txtUsername, txtName, txtBirthday, txtAddress, txtEmail;
+    private JComboBox<String> comboGender;
+
+    public ProfilePopup(JFrame parent, Long userId, ProfileListener listener) {
         super(parent, "Profile", true); // true = modal
         this.parent = parent;
+        this.user = userService.getInfo(userId);
+        System.out.println("Test user:" + user.toString());
+        this.updateListener = listener;
 
-        user = new User();
         showProfile();
         this.setLocationRelativeTo(parent);
     }
@@ -56,20 +71,23 @@ public class ProfilePopup extends JDialog {
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
         int row = 0;
+        txtUsername = new JTextField(user.username(), 20);
+        txtName = new JTextField(user.name(), 20);
+        txtAddress = new JTextField(user.address(), 20);
+        txtBirthday = new JTextField(user.dob(), 20); // user.dob() trả về String
+        txtEmail = new JTextField(user.email(), 20);
 
-        addField(gbc, row++, "Username:", new JTextField(user.getName(), 20));
-        addField(gbc, row++, "Name:", new JTextField(user.getName(), 20));
+        comboGender = new JComboBox<>(new String[]{"Male", "Female", "Other"});
+        comboGender.setSelectedItem(user.gender());
+        comboGender.setBackground(Color.WHITE);
+        ((JComponent)comboGender.getRenderer()).setBackground(Color.WHITE);
 
-        JComboBox<String> genderCombo = new JComboBox<>(new String[]{"Male", "Female", "Other"});
-        genderCombo.setSelectedItem(user.getGender());
-        genderCombo.setBackground(Color.WHITE);        // the closed combo
-
-        ((JComponent)genderCombo.getRenderer()).setBackground(Color.WHITE);
-
-        addField(gbc, row++, "Gender:", genderCombo);
-        addField(gbc, row++, "BirthDay:", new JTextField(user.getBirthDay(), 20));
-        addField(gbc, row++, "Address:", new JTextField(user.getAddress(), 20));
-        addField(gbc, row++, "Email", new JTextField(user.getEmail(), 20) );
+        addField(gbc, row++, "Username:", txtUsername);
+        addField(gbc, row++, "Name:", txtName);
+        addField(gbc, row++, "Gender:", comboGender);
+        addField(gbc, row++, "BirthDay:", txtBirthday);
+        addField(gbc, row++, "Address:", txtAddress);
+        addField(gbc, row++, "Email:", txtEmail);
 
         RoundedButton changePass = new RoundedButton(10);
         changePass.setBackground(MyColor.LIGHT_BLUE);
@@ -84,6 +102,7 @@ public class ProfilePopup extends JDialog {
         confirm.setBackground(MyColor.LIGHT_BLUE);
         confirm.setForeground(Color.WHITE);
 
+        confirm.addActionListener(e -> handleUpdateProfile());
 
         gbc.gridx = 1;
         gbc.gridy = row;
@@ -212,5 +231,42 @@ public class ProfilePopup extends JDialog {
         this.repaint();
     }
 
+    private void handleUpdateProfile() {
+        AdminCreateOrUpdateUserReqDTO req = new AdminCreateOrUpdateUserReqDTO(
+                txtUsername.getText().trim(),
+                txtName.getText().trim(),
+                null,
+                (String) comboGender.getSelectedItem(),
+                txtAddress.getText().trim(),
+                txtEmail.getText().trim(),
+                txtBirthday.getText().trim(),
+                null
+        );
+
+        SwingWorker<UserDTO, Void> worker = new SwingWorker<>() {
+            @Override
+            protected UserDTO doInBackground() throws Exception {
+                return userService.updateProfile(user.id(), req);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    UserDTO updatedUser = get();
+                    JOptionPane.showMessageDialog(ProfilePopup.this, "Profile updated!");
+
+                    // GỌI LISTENER TẠI ĐÂY
+                    if (updateListener != null) {
+                        updateListener.onProfileUpdated(updatedUser);
+                    }
+
+                    dispose();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(ProfilePopup.this, "Error: " + ex.getMessage());
+                }
+            }
+        };
+        worker.execute();
+    }
 
 }

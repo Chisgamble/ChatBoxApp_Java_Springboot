@@ -8,34 +8,33 @@ import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
-public class SearchBar extends RoundedTextField implements FocusListener, DocumentListener {
+public class SearchBar extends RoundedTextField implements DocumentListener {
     private SearchBarListener sbListener;
 
     public SearchBar(int radius, int pad, int width, int height, SearchBarListener sbListener) {
         super(radius, pad);
         this.sbListener = sbListener;
         this.setPreferredSize(new Dimension(width, height));
-        this.setForeground(Color.GRAY);
-        this.setText("Search");
-        this.addFocusListener(this);
+        this.setForeground(Color.BLACK);
+//        this.addFocusListener(this);
         this.getDocument().addDocumentListener(this);
     }
 
-    @Override
-    public void focusGained(FocusEvent e) {
-        if (this.getText().equals("Search")) {
-            this.setText("");
-            this.setForeground(Color.BLACK);
-        }
-    }
-
-    @Override
-    public void focusLost(FocusEvent e) {
-        if (this.getText().isEmpty()) {
-            this.setForeground(Color.GRAY);
-            this.setText("Search");
-        }
-    }
+//    @Override
+//    public void focusGained(FocusEvent e) {
+//        if (this.getText().equals("Search")) {
+//            this.setText("");
+//            this.setForeground(Color.BLACK);
+//        }
+//    }
+//
+//    @Override
+//    public void focusLost(FocusEvent e) {
+//        if (this.getText().isEmpty()) {
+//            this.setForeground(Color.GRAY);
+//            this.setText("Search");
+//        }
+//    }
 
     @Override
     public void insertUpdate (javax.swing.event.DocumentEvent e){

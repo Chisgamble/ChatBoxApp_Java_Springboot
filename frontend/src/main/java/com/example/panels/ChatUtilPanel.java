@@ -319,7 +319,31 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
         centerContainer.removeAll();
 
         msgList = new MsgCardList(filteredMsgs, getWidth() - 25);
-        JList<?> list = msgList.getList();
+        JList<BaseMsgDTO> list = msgList.getList();
+
+        list.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    int index = list.locationToIndex(e.getPoint());
+                    list.setSelectedIndex(index);
+
+                    JPopupMenu popup = new JPopupMenu();
+                    JMenuItem jumpItem = new JMenuItem("Jump to");
+
+                    jumpItem.addActionListener(event -> {
+                        BaseMsgDTO selectedMsg = list.getSelectedValue();
+                        if (selectedMsg != null) {
+                            // Gọi mainFrame để điều hướng tới tin nhắn
+                            mainFrame.jumpToMessage(selectedMsg.getId());
+                        }
+                    });
+
+                    popup.add(jumpItem);
+                    popup.show(list, e.getX(), e.getY());
+                }
+            }
+        });
 
         list.addListSelectionListener(e -> {
             itemSelected = list.getSelectedIndices().length > 0;

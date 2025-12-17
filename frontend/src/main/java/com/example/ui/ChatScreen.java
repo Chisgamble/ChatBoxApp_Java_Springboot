@@ -13,8 +13,10 @@ import com.example.panels.ChatUtilPanel;
 import com.example.panels.UserUtilPanel;
 import com.example.services.*;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 public class ChatScreen extends JFrame
         implements CreateGroupListener,
         LogoutListener,
@@ -22,7 +24,7 @@ public class ChatScreen extends JFrame
         GroupMemberActionListener,
         GroupListener {
 
-    private final UserMiniDTO user;
+    private UserMiniDTO user;
     List<InboxDTO> inboxes;
     private List<FriendCardDTO> friends;
 
@@ -58,7 +60,7 @@ public class ChatScreen extends JFrame
         try {  
             friends = friendService.getAll(user.getId());
             InboxUserResDTO initialInbox = null;
-            FriendCardDTO initialFriend = null;
+            FriendCardDTO initialFriend;
             UserMiniDTO friend = null;
             ChatContext ctx = new ChatContext();
 
@@ -89,7 +91,7 @@ public class ChatScreen extends JFrame
                 final InboxUserResDTO inbox = initialInbox;
                 SwingUtilities.invokeLater(() -> {
                     chatPanel.showMessages(inbox.getMsgs(), user.getId());
-                    userUtilPanel.selectFriendFromContext();
+                    userUtilPanel.selectChatFromContext();
                 });
             }
         } catch (Exception ex) {
@@ -98,12 +100,13 @@ public class ChatScreen extends JFrame
         }
     }
 
-    public ChatContext getContext(){
-        return currentChat;
-    }
-
     public void openInbox(FriendCardDTO friend) {
         try {
+            if (currentChat.getInboxId() != null &&
+                    currentChat.getInboxId().equals(friend.getInboxId())) {
+                return;
+            }
+
             InboxUserResDTO inbox =
                     inboxService.getInboxWithMessages(friend.getInboxId());
 
@@ -115,10 +118,13 @@ public class ChatScreen extends JFrame
             chatUtilPanel.setInboxMessages(inbox.getMsgs());
             chatUtilPanel.showUser(inbox.getFriend());
 
+            userUtilPanel.switchTab("Friends");
+
             WebSocketManager.getInstance()
                 .subscribeInbox(friend.getInboxId(), msg -> {
                     SwingUtilities.invokeLater(() -> {
                         chatPanel.appendMessage(
+                                msg.getId(),
                             msg.getContent(),
                                 msg.getSenderId() == currentChat.getThisUser().getId(),
                             msg.getSenderName());
@@ -150,33 +156,87 @@ public class ChatScreen extends JFrame
     }
 
     public void openGroupChat(GroupCardDTO group) {
+        try {
+            if (currentChat.getGroupId() != null &&
+                    currentChat.getInboxId().equals(group.getId())) {
+                return;
+            }
 
-        GroupUserResDTO res =
-                groupService.getInfoAndMsgs(group.getId());
+            GroupUserResDTO res =
+                    groupService.getInfoAndMsgs(group.getId());
 
-        currentChat.setGroup(true);
-        currentChat.setGroupId(group.getId());
-        currentChat.setTargetGroup(group);
-        currentChat.setUserInGroup(res.getUserInGroup());
+            currentChat.setGroup(true);
+            currentChat.setGroupId(group.getId());
+            currentChat.setTargetGroup(group);
+            currentChat.setUserInGroup(res.getUserInGroup());
 
-        List<GroupMemberDTO> members = groupService.getAllMembers(group.getId());
-        chatUtilPanel.setAllMembers(members);
+            List<GroupMemberDTO> members = groupService.getAllMembers(group.getId());
+            chatUtilPanel.setAllMembers(members);
 
-        chatPanel.showGroupMessages(res.getMsgs(), user.getId());
-        chatUtilPanel.setGroupMessages(res.getMsgs());
-        chatUtilPanel.showGroup(group, res.getUserInGroup().getRole());
+            chatPanel.showGroupMessages(res.getMsgs(), user.getId());
+            chatUtilPanel.setGroupMessages(res.getMsgs());
+            chatUtilPanel.showGroup(group, res.getUserInGroup().getRole());
 
-        WebSocketManager.getInstance()
-            .subscribeGroup(group.getId(), msg -> {
-                SwingUtilities.invokeLater(() -> {
-                    chatPanel.appendMessage(
-                        msg.getContent(),
-                        msg.getSenderId() == currentChat.getThisUser().getId(),
-                        msg.getSenderName());
-                });
-            });
+            userUtilPanel.switchTab("Groups");
+
+            WebSocketManager.getInstance()
+                    .subscribeGroup(group.getId(), msg -> {
+                        SwingUtilities.invokeLater(() -> {
+                            chatPanel.appendMessage(
+                                    msg.getId(),
+                                    msg.getContent(),
+                                    msg.getSenderId() == currentChat.getThisUser().getId(),
+                                    msg.getSenderName());
+                        });
+                    });
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(this, "Unable to load group: " + ex.getMessage());
+        }
     }
 
+    public void jumpToGlobalMessage(MsgDTO msg) {
+        if (msg == null) return;
+
+        if (msg.getType() == MsgType.GROUP) {
+            List<GroupCardDTO> groups = userService.getAllGroups(user.getId());
+
+            GroupCardDTO targetGroup = groups.stream()
+                    .filter(g -> g.getId().equals(msg.getGroupId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (targetGroup != null) {
+                this.openGroupChat(targetGroup);
+            } else {
+                JOptionPane.showMessageDialog(this, "Group no longer exists or you are not a member.");
+                return;
+            }
+        } else {
+            List<FriendCardDTO> friends = userService.getAllFriends(user.getId());
+
+            FriendCardDTO targetFriend = friends.stream()
+                    .filter(f -> f.getInboxId() != null && f.getInboxId().equals(msg.getInboxId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (targetFriend != null) {
+                this.openInbox(targetFriend);
+            } else {
+                JOptionPane.showMessageDialog(this, "Conversation not found.");
+                return;
+            }
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            jumpToMessage(msg.getId());
+        });
+    }
+
+    public void jumpToMessage(Long messageId) {
+        if (this.chatPanel != null) {
+            this.chatPanel.scrollToMessage(messageId);
+        }
+    }
 
     @Override
     public void onGroupCreated(String groupName, List<Long> memberIds) {
@@ -199,11 +259,6 @@ public class ChatScreen extends JFrame
         }
     }
 
-    public void reloadGroups() {
-        System.out.println("[ChatScreen] refreshing groups...");
-        // later: call backend → update UI list
-    }
-
     @Override
     public void onLogout(){
         try{
@@ -224,7 +279,6 @@ public class ChatScreen extends JFrame
     }
 
     public void handleConfirmedOption(String option) {
-
         ChatContext ctx = this.currentChat;
 
         try {

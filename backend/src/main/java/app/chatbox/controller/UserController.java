@@ -1,12 +1,7 @@
 package app.chatbox.controller;
 
 import app.chatbox.config.CustomUserDetails;
-import app.chatbox.dto.FriendCardDTO;
-import app.chatbox.dto.NewUserListDTO;
-import app.chatbox.dto.GroupCardDTO;
-import app.chatbox.dto.MsgDTO;
-import app.chatbox.dto.UserListDTO;
-import app.chatbox.dto.YearlyGraphDTO;
+import app.chatbox.dto.*;
 import app.chatbox.dto.request.AdminCreateOrUpdateUserReqDTO;
 import app.chatbox.dto.request.RegisterReqDTO;
 import app.chatbox.dto.response.FriendRequestResDTO;
@@ -78,13 +73,22 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(req));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")
     @PutMapping("/update/{id}")
     public ResponseEntity<StrangerCardResDTO> updateUser(
             @PathVariable Long id,
             @RequestBody AdminCreateOrUpdateUserReqDTO req
     ) {
         return ResponseEntity.ok(userService.updateUserInfo(id, req));
+    }
+
+    @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")
+    @PutMapping("{id}/update")
+    public ResponseEntity<UserDTO> updateUserProfile(
+            @PathVariable Long id,
+            @RequestBody AdminCreateOrUpdateUserReqDTO req
+    ) {
+        return ResponseEntity.ok(userService.updateUserProfile(id, req));
     }
 
     @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")
@@ -99,6 +103,10 @@ public class UserController {
         return ResponseEntity.ok(Collections.singletonMap("status", "success"));
     }
 
+    @GetMapping("/{id}/info")
+    public ResponseEntity<UserDTO> getFullInfo(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.findUserDTO(id));
+    }
 
     @GetMapping("/{id}")
     public StrangerCardResDTO getById(@PathVariable Long id) {

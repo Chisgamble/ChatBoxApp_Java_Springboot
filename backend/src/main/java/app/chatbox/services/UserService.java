@@ -39,6 +39,31 @@ public class UserService {
         return userRepo.existsByEmail(email);
     }
 
+    public UserDTO findUserDTO (Long id){
+        AppUser user = userRepo.findById(id)
+                .orElseThrow(()-> new RuntimeException("User not found"));
+
+        LocalDate createdAtDate = null;
+        if (user.getCreatedAt() != null) {
+            createdAtDate = user.getCreatedAt()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+        }
+
+        return new UserDTO(
+                user.getId(),
+                user.getUsername(),
+                user.getName(),
+                user.getEmail(),
+                user.getGender(),
+                user.getAddress(),
+                createdAtDate,
+                null,
+                user.getIsActive(),
+                user.getIsLocked(),
+                user.getRole());
+    }
+
     public UserListDTO getAllUsersAndData(
             String sort,
             String order,
@@ -95,7 +120,11 @@ public class UserService {
         AppUser user = userRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        return new UserMiniDTO(user.getId(), user.getEmail(), user.getUsername(), user.getRole());
+        return new UserMiniDTO(
+                user.getId(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getRole());
     }
 
 
@@ -190,6 +219,28 @@ public class UserService {
 
         AppUser saved = userRepo.save(user);
         return userMapper.toStrangerCardResDTO(saved);
+    }
+
+    public UserDTO updateUserProfile(Long userId, AdminCreateOrUpdateUserReqDTO req) {
+        AppUser user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (req.username() != null) user.setUsername(req.username());
+        if (req.name() != null) user.setName(req.name());
+        if (req.address() != null) user.setAddress(req.address());
+        if (req.gender() != null) user.setGender(req.gender());
+        if (req.role() != null) user.setRole(req.role().toUpperCase());
+        if (req.birthday() != null) user.setBirthday(req.birthday());
+        if (req.email() != null) {
+            // Optional: check uniqueness if email is changing
+            if (!user.getEmail().equals(req.email()) && userRepo.existsByEmail(req.email())) {
+                throw new RuntimeException("Email already in use");
+            }
+            user.setEmail(req.email());
+        }
+
+        AppUser saved = userRepo.save(user);
+        return userMapper.toAppUserDTO(saved);
     }
 
     @Transactional
