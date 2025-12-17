@@ -3,10 +3,7 @@ package com.example.api;
 import com.example.dto.FriendCardDTO;
 import com.example.dto.GroupCardDTO;
 import com.example.dto.MsgDTO;
-import com.example.dto.response.FriendRequestResDTO;
-import com.example.dto.response.GeneralResDTO;
-import com.example.dto.response.StrangerCardResDTO;
-import com.example.dto.response.UserCardResDTO;
+import com.example.dto.response.*;
 import com.example.util.HttpClientUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 

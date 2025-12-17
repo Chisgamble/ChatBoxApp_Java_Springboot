@@ -36,4 +36,20 @@ public class RoundedTextArea extends JTextArea {
         g2.dispose();
     }
 
+    public void autoResize(int minHeight, int maxHeight) {
+        int lines = getLineCount();
+        FontMetrics fm = getFontMetrics(getFont());
+        int lineHeight = fm.getHeight();
+
+        int newHeight = lines * lineHeight + getInsets().top + getInsets().bottom;
+
+        newHeight = Math.max(minHeight, Math.min(maxHeight, newHeight));
+
+        Dimension size = getPreferredSize();
+        size.height = newHeight;
+        setPreferredSize(size);
+
+        revalidate();
+    }
+
 }

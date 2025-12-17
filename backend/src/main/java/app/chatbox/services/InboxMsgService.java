@@ -34,6 +34,7 @@ public class InboxMsgService {
     public void deleteMessagesBySenderId(Long inboxId, DeleteMsgsBySenderReq req, Long authUserId) {
 
         repo.deleteByIdInAndSender_Id(req.getMsgIds(), authUserId);
+        repo.flush();
 
         // Update last_msg
         Inbox inbox = inboxRepo.findById(inboxId)
@@ -43,5 +44,6 @@ public class InboxMsgService {
                 .orElse(null);
 
         inbox.setLastMsg(latestMsg);
+        inboxRepo.save(inbox);
     }
 }
