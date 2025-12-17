@@ -8,9 +8,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface GroupMsgRepository extends JpaRepository<GroupMsg, Long> {
+    Optional<GroupMsg> findTopByGroup_IdOrderByCreatedAtDesc(Long groupId);
+
     @Query(
             value = """
             SELECT 
@@ -51,4 +54,6 @@ public interface GroupMsgRepository extends JpaRepository<GroupMsg, Long> {
 //        nativeQuery = true
 //    )
     void deleteAllByGroup_Id(Long groupId);
+    void deleteByIdAndSender_Id(Long id, Long senderId);
+    void deleteAllByIdInAndSender_Id(List<Long> msgIds, Long senderId);
 }

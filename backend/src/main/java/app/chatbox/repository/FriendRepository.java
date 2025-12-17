@@ -34,6 +34,7 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
                     WHEN f.userA = :currentUserId THEN f.userB 
                     ELSE f.userA 
                 END) = u.id
+            AND u.is_locked = false
         LEFT JOIN inbox i 
             ON (
                 (i.userA = :currentUserId AND i.userB = u.id) OR

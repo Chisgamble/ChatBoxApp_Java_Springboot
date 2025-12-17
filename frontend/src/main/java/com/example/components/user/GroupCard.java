@@ -2,10 +2,7 @@ package com.example.components.user;
 
 import com.example.components.Avatar;
 import com.example.dto.GroupCardDTO;
-import com.example.dto.response.FriendRequestResDTO;
-import com.example.listener.FriendRequestListener;
 import com.example.listener.GroupCardListener;
-import com.example.listener.GroupListener;
 import com.example.util.Utility;
 
 import javax.swing.*;
@@ -18,6 +15,7 @@ import java.awt.event.MouseEvent;
 public class GroupCard extends JPanel {
     private boolean selected = false;
     private final GroupCardDTO group;
+    private JLabel nameLabel;
 
     public GroupCard(
             GroupCardDTO group,
@@ -40,7 +38,7 @@ public class GroupCard extends JPanel {
         westWrapper.setOpaque(false); // optional, to be transparent
         westWrapper.add(avatar);
 
-        JLabel nameLabel = new JLabel(group.getGroupname());
+        nameLabel = new JLabel(group.getGroupname());
         nameLabel.setFont(nameLabel.getFont().deriveFont(Font.BOLD,16f));
 
         JLabel MsgLabel = new JLabel();
@@ -88,6 +86,11 @@ public class GroupCard extends JPanel {
     public void setSelected(boolean value) {
         this.selected = value;
         setBackground(value ? new Color(0xDDEAFF) : Color.WHITE);
+        repaint();
+    }
+
+    public void refresh() {
+        nameLabel.setText(group.getGroupname());
         repaint();
     }
 }

@@ -6,7 +6,6 @@ import com.example.dto.FriendCardDTO;
 import com.example.dto.FriendListDataDTO;
 import com.example.dto.response.GeneralResDTO;
 
-
 import java.util.List;
 
 public class FriendService {

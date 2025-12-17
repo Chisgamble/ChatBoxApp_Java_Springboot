@@ -22,7 +22,7 @@ public class FriendController {
     @PreAuthorize("isAuthenticated() or hasRole('ADMIN')")
     @GetMapping("/{id}")
     public List<FriendCardDTO> getAllFriendCards(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user){
-        return friendService.getAllFriends(user.getId());
+        return friendService.getAllUserFriends(user.getId());
     }
 
     @PreAuthorize("isAuthenticated() or hasRole('ADMIN')")

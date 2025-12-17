@@ -1,12 +1,11 @@
 package com.example.api;
 
+import com.example.dto.AddMemberCardDTO;
 import com.example.dto.FriendCardDTO;
 import com.example.dto.GroupCardDTO;
 import com.example.dto.GroupListDataDTO;
 import com.example.dto.GroupMemberDTO;
-import com.example.dto.request.AddGroupMemberReqDTO;
-import com.example.dto.request.ChangeGroupNameReqDTO;
-import com.example.dto.request.CreateGroupReqDTO;
+import com.example.dto.request.*;
 import com.example.dto.response.GeneralResDTO;
 import com.example.dto.response.GroupUserResDTO;
 import com.example.util.HttpClientUtil;
@@ -26,8 +25,13 @@ public class GroupApi {
     }
 
     public GeneralResDTO deleteAllMessages(Long groupId) {
-        String url = BASE_URL + "/" + groupId.toString() + "/messages";
+        String url = BASE_URL + "/" + groupId.toString() + "/messages/all";
         return HttpClientUtil.deleteJson(url, null, GeneralResDTO.class);
+    }
+
+    public GeneralResDTO deleteMessagesBySender(Long groupId, DeleteMsgsBySenderReq req){
+        String url = BASE_URL + "/" + groupId + "/messages";
+        return HttpClientUtil.deleteJson(url, req, GeneralResDTO.class);
     }
 
     public GeneralResDTO leaveGroup(Long groupId) {
@@ -51,10 +55,23 @@ public class GroupApi {
         return HttpClientUtil.get(url,  new TypeReference<List<GroupMemberDTO>>() {});
     }
 
+    public List<AddMemberCardDTO> getAllFriendsNotInGroup (Long groupId, Long currentUserId){
+        String url = BASE_URL + "/" + groupId + "/available-friends";
+        return HttpClientUtil.get(url,  new TypeReference<List<AddMemberCardDTO>>() {});
+    }
+
     public GeneralResDTO addMember(Long groupId, Long userId) {
         return HttpClientUtil.postJson(
-                BASE_URL + "/" + groupId + "/members",
+                BASE_URL + "/" + groupId + "/member",
                 new AddGroupMemberReqDTO(userId),
+                GeneralResDTO.class
+        );
+    }
+
+    public GeneralResDTO addMembers(Long groupId, AddMembersReqDTO req, Long currentUserId){
+        return HttpClientUtil.postJson(
+                BASE_URL + "/" + groupId + "/members",
+                req,
                 GeneralResDTO.class
         );
     }
@@ -62,6 +79,14 @@ public class GroupApi {
     public GeneralResDTO removeMember(Long groupId, Long userId) {
         return HttpClientUtil.deleteJson(
                 BASE_URL + "/" + groupId + "/members/" + userId,
+                null,
+                GeneralResDTO.class
+        );
+    }
+
+    public GeneralResDTO promoteMember(Long groupId, Long targetUserId){
+        return HttpClientUtil.putJson(
+                BASE_URL + "/" + groupId + "/members/" + targetUserId + "/promote",
                 null,
                 GeneralResDTO.class
         );

@@ -31,10 +31,7 @@ public class FriendService {
         friendRepository.delete(friend);
     }
 
-    public List<FriendCardDTO> getAllFriends(Long id){
-        System.out.print("THIS IS THE ID" + id);
-        List<Friend> friends = friendRepository.findByUserA_IdOrUserB_Id(id, id);
-        //TODO: add find inbox message between current user and friends then add to FriendCardDTO
+    public List<FriendCardDTO> getAllUserFriends(Long id){
         return friendRepository.getFriendCards(id);
     }
 

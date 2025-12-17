@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> {
     Optional<GroupMember> findByGroup_IdAndUser_Id(Long groupId, Long userId);
     boolean existsByGroup_IdAndUser_Id(Long groupId, Long newUserId);
+    boolean existsByGroup_IdAndUser_IdAndRole(Long groupId, Long userId, String role);
 
     @Query(value = """
     SELECT gm.user_id

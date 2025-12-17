@@ -2,9 +2,9 @@
 
     import com.example.dto.GroupCardDTO;
     import com.example.listener.GroupCardListener;
-    import com.example.listener.GroupListener;
 
     import javax.swing.*;
+    import java.awt.*;
     import java.util.List;
 
     public class GroupCardList extends JScrollPane {
@@ -42,6 +42,17 @@
             }
             selectedCard = card;
             selectedCard.setSelected(true);
+        }
+
+        public void selectGroupById(Long groupId) {
+            for (Component c : listPanel.getComponents()) {
+                if (c instanceof GroupCard card) {
+                    if (card.getGroup().getId().equals(groupId)) {
+                        select(card);
+                        break;
+                    }
+                }
+            }
         }
 
         // helper method để xóa item khỏi UI

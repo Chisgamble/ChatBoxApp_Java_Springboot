@@ -123,7 +123,7 @@ public class UserController {
     @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")
     @GetMapping("/{id}/friends")
     public ResponseEntity<List<FriendCardDTO>> getAllFriendCards(@PathVariable Long id) {
-        return ResponseEntity.ok(friendService.getAllFriends(id));
+        return ResponseEntity.ok(friendService.getAllUserFriends(id));
     }
 
     @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")

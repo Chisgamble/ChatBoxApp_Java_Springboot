@@ -5,14 +5,9 @@ import java.awt.*;
 import java.util.List;
 
 import com.example.dto.*;
-import com.example.dto.request.CreateGroupReqDTO;
 import com.example.dto.response.GroupUserResDTO;
 import com.example.dto.response.InboxUserResDTO;
-import com.example.dto.response.LoginResDTO;
-import com.example.listener.CreateGroupListener;
-import com.example.listener.FriendCardListener;
-import com.example.listener.LogoutListener;
-import com.example.model.Group;
+import com.example.listener.*;
 import com.example.panels.ChatPanel;
 import com.example.panels.ChatUtilPanel;
 import com.example.panels.UserUtilPanel;
@@ -20,10 +15,17 @@ import com.example.services.*;
 import lombok.Getter;
 
 @Getter
-public class ChatScreen extends JFrame implements CreateGroupListener, LogoutListener, FriendCardListener {
-    UserMiniDTO user;
+public class ChatScreen extends JFrame
+        implements CreateGroupListener,
+        LogoutListener,
+        FriendCardListener,
+        GroupMemberActionListener,
+        GroupListener {
+
+    private final UserMiniDTO user;
     List<InboxDTO> inboxes;
     private List<FriendCardDTO> friends;
+
     UserService userService = new UserService();
     FriendService friendService = new FriendService();
     InboxService inboxService = new InboxService();
@@ -37,6 +39,12 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
 
     public ChatScreen(UserMiniDTO user){
         this.user = user;
+        try {
+            WebSocketManager.getInstance().connect();
+        }catch(Exception ex){
+            JOptionPane.showMessageDialog(this, "Failed to connect websocket: " + ex.getMessage());
+            System.out.println("[ERROR] Failed to connect websocket::  " + ex.getMessage());
+        }
 
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -49,20 +57,27 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
         int height = screen.height;
         try {  
             friends = friendService.getAll(user.getId());
-            FriendCardDTO initialFriend = friends.get(0);
-            InboxUserResDTO initialInbox = inboxService.getInboxWithMessages(initialFriend.getInboxId());
-
+            InboxUserResDTO initialInbox = null;
+            FriendCardDTO initialFriend = null;
+            UserMiniDTO friend = null;
             ChatContext ctx = new ChatContext();
+
             ctx.setGroup(false);
-            ctx.setAdmin(false);
-            ctx.setInboxId(initialFriend.getInboxId());
-            ctx.setTargetUser(initialFriend);
+
+            if (!friends.isEmpty()){
+                initialFriend = friends.get(0);
+                initialInbox = inboxService.getInboxWithMessages(initialFriend.getInboxId());
+                friend = initialInbox.getFriend();
+                ctx.setInboxId(initialFriend.getInboxId());
+                ctx.setTargetUser(initialFriend);
+            }
+
             ctx.setThisUser(user);
-
             this.currentChat = ctx;
+            System.out.println(currentChat.getThisUser().getUsername());
 
-            chatPanel = new ChatPanel(width * 5, height);
-            chatUtilPanel = new ChatUtilPanel(this, width * 2, height, initialInbox.getFriend());
+            chatPanel = new ChatPanel(this,width * 5, height);
+            chatUtilPanel = new ChatUtilPanel(this, width * 2, height, friend);
             userUtilPanel = new UserUtilPanel(this,width * 2, height, user, friends);
             this.add(chatPanel, BorderLayout.CENTER);
             this.add(chatUtilPanel, BorderLayout.EAST);
@@ -70,13 +85,16 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
 
             this.setVisible(true);
 
-            SwingUtilities.invokeLater(() -> {
-                chatPanel.showMessages(initialInbox.getMsgs(), user.getId());
-                userUtilPanel.selectFriendFromContext();
-            });
+            if (initialInbox != null) {
+                final InboxUserResDTO inbox = initialInbox;
+                SwingUtilities.invokeLater(() -> {
+                    chatPanel.showMessages(inbox.getMsgs(), user.getId());
+                    userUtilPanel.selectFriendFromContext();
+                });
+            }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Unable to load inbox: " + ex.getMessage());
-            System.out.println("[ERROR]  " + ex.getMessage());
+            System.out.println("[ERROR] Inbox in ChatScreen failed:  " + ex.getMessage());
         }
     }
 
@@ -89,16 +107,23 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
             InboxUserResDTO inbox =
                     inboxService.getInboxWithMessages(friend.getInboxId());
 
-            ChatContext ctx = new ChatContext();
-            ctx.setGroup(false);
-            ctx.setInboxId(friend.getInboxId());
-            ctx.setTargetUser(friend);
-
-            this.currentChat = ctx;
+            currentChat.setGroup(false);
+            currentChat.setInboxId(friend.getInboxId());
+            currentChat.setTargetUser(friend);
 
             chatPanel.showMessages(inbox.getMsgs(), user.getId());
             chatUtilPanel.setInboxMessages(inbox.getMsgs());
             chatUtilPanel.showUser(inbox.getFriend());
+
+            WebSocketManager.getInstance()
+                .subscribeInbox(friend.getInboxId(), msg -> {
+                    SwingUtilities.invokeLater(() -> {
+                        chatPanel.appendMessage(
+                            msg.getContent(),
+                                msg.getSenderId() == currentChat.getThisUser().getId(),
+                            msg.getSenderName());
+                    });
+                });
         }catch(Exception ex){
             JOptionPane.showMessageDialog(this, "Unable to load inbox: " + ex.getMessage());
         }
@@ -114,18 +139,25 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
         chatUtilPanel.setInboxMessages(inbox.getMsgs());
     }
 
+    public void reloadCurrentGroupChat() {
+        if (currentChat == null || !currentChat.isGroup()) return;
+
+        GroupUserResDTO res =
+                groupService.getInfoAndMsgs(currentChat.getGroupId());
+
+        chatPanel.showGroupMessages(res, user.getId());
+        chatUtilPanel.setGroupMessages(res.getMsgs());
+    }
 
     public void openGroupChat(GroupCardDTO group) {
 
         GroupUserResDTO res =
                 groupService.getInfoAndMsgs(group.getId());
 
-        ChatContext ctx = new ChatContext();
-        ctx.setGroup(true);
-        ctx.setGroupId(group.getId());
-        ctx.setTargetGroup(group);
-
-        this.currentChat = ctx;
+        currentChat.setGroup(true);
+        currentChat.setGroupId(group.getId());
+        currentChat.setTargetGroup(group);
+        currentChat.setUserInGroup(res.getUserInGroup());
 
         List<GroupMemberDTO> members = groupService.getAllMembers(group.getId());
         chatUtilPanel.setAllMembers(members);
@@ -133,6 +165,16 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
         chatPanel.showGroupMessages(res, user.getId());
         chatUtilPanel.setGroupMessages(res.getMsgs());
         chatUtilPanel.showGroup(group, res.getUserInGroup().getRole());
+
+        WebSocketManager.getInstance()
+            .subscribeGroup(group.getId(), msg -> {
+                SwingUtilities.invokeLater(() -> {
+                    chatPanel.appendMessage(
+                        msg.getContent(),
+                        msg.getSenderId() == currentChat.getThisUser().getId(),
+                        msg.getSenderName());
+                });
+            });
     }
 
 
@@ -143,12 +185,9 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
             GroupCardDTO res = groupService.createGroup(groupName, memberIds);
             List<GroupMemberDTO> mems = groupService.getAllMembers(res.getId());
 
-            ChatContext ctx = new ChatContext();
-            ctx.setGroup(true);
-            ctx.setGroupId(res.getId());
-            ctx.setTargetGroup(res);
-
-            this.currentChat = ctx;
+            currentChat.setGroup(true);
+            currentChat.setGroupId(res.getId());
+            currentChat.setTargetGroup(res);
 
             chatPanel.clearChat();
             chatUtilPanel.setAllMembers(mems);
@@ -169,6 +208,9 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
     public void onLogout(){
         try{
             JOptionPane.showMessageDialog(this, "Logout successfully!");
+            WebSocketManager.getInstance().disconnect();
+            AuthService authService = new AuthService();
+            authService.logout();
             this.dispose(); // Close chat window
             new Login();    // Open Login window
         } catch (Exception ex) {
@@ -218,12 +260,14 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
                     groupService.leaveGroup(ctx.getGroupId());
                     userUtilPanel.removeGroup(ctx.getGroupId());
                     chatPanel.clearChat();
+                    chatUtilPanel.clear();
                 }
 
                 case "Delete Group" -> {
                     try{
                         groupService.deleteGroup(ctx.getGroupId());
                         userUtilPanel.removeGroup(ctx.getGroupId());
+                        chatUtilPanel.clear();
                         chatPanel.clearChat();
                     }catch (Exception e){
                         JOptionPane.showMessageDialog(this, "Failed to delete group\n" + e.getMessage());
@@ -243,6 +287,68 @@ public class ChatScreen extends JFrame implements CreateGroupListener, LogoutLis
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
+        }
+    }
+
+    @Override
+    public void onRemoveMember(Long groupId, Long userId) {
+        try {
+            groupService.removeMember(groupId, userId);
+
+            SwingUtilities.invokeLater(() -> {
+                chatUtilPanel.removeMember(userId);
+            });
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Remove member failed: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onPromoteMember(Long groupId, Long userId) {
+        try {
+            groupService.promoteMember(groupId, userId);
+
+            SwingUtilities.invokeLater(() -> {
+                chatUtilPanel.updateMemberRole(userId, "admin");
+            });
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Promote member failed: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void onAddMembers(Long groupId, List<Long> userIds) {
+        try {
+            groupService.addMembers(groupId, userIds, currentChat.getThisUser().getId());
+
+            List<GroupMemberDTO> members =
+                    groupService.getAllMembers(groupId);
+
+            chatUtilPanel.setAllMembers(members);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+    }
+
+    @Override
+    public void onGroupNameChanged(String newName) {
+        try {
+            GroupCardDTO updated =
+                    groupService.changeGroupName(currentChat.getGroupId(), newName);
+
+            currentChat.getTargetGroup().setGroupname(updated.getGroupname());
+
+            // update UI đồng bộ
+            chatUtilPanel.showGroup(updated, currentChat.getUserInGroup().getRole());
+            userUtilPanel.updateGroupName(updated.getId(), updated.getGroupname());
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                    "Failed to change group name");
         }
     }
 

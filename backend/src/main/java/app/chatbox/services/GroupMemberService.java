@@ -6,7 +6,9 @@ import app.chatbox.repository.GroupMemberRepository;
 import app.chatbox.repository.GroupRepository;
 import app.chatbox.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -35,5 +37,28 @@ public class GroupMemberService {
 
     public List<GroupMemberDTO> getAllMembersDTO(Long groupId) {
         return repo.findAllMembersByGroupId(groupId);
+    }
+
+    @Transactional
+    public void promoteToAdmin(
+            Long groupId,
+            Long targetUserId,
+            Long currentUserId
+    ) {
+        //Check current user is ADMIN
+        boolean isAdmin = repo.existsByGroup_IdAndUser_IdAndRole(
+                groupId, currentUserId, "admin"
+        );
+        if (!isAdmin) {
+            throw new AccessDeniedException("Only admin can promote members");
+        }
+
+        //Get target member
+        GroupMember member = repo.findByGroup_IdAndUser_Id(groupId, targetUserId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Target user not in group"));
+
+        //Promote
+        member.setRole("admin");
     }
 }
