@@ -3,6 +3,8 @@ package com.example.api;
 import com.example.dto.FriendCardDTO;
 import com.example.dto.GroupCardDTO;
 import com.example.dto.MsgDTO;
+import com.example.dto.UserDTO;
+import com.example.dto.request.AdminCreateOrUpdateUserReqDTO;
 import com.example.dto.response.*;
 import com.example.util.HttpClientUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -16,6 +18,18 @@ public class UserApi {
         String url = BASE_URL + "/" + userId.toString() + "/friends";
         List<FriendCardDTO> response = HttpClientUtil.get(url, new TypeReference<List<FriendCardDTO>>() {});
         return response;
+    }
+
+    public UserDTO getInfo (Long userId){
+        return HttpClientUtil.get(
+                BASE_URL + "/" + userId + "/info",
+                UserDTO.class
+        );
+    }
+
+    public UserDTO updateUser(Long id, AdminCreateOrUpdateUserReqDTO req) {
+        String url = BASE_URL + "/" + id + "/update";
+        return HttpClientUtil.putJson(url, req, UserDTO.class);
     }
 
     public List<GroupCardDTO> getAllGroups(Long userId){

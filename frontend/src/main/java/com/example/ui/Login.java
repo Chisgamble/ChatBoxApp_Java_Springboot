@@ -1,5 +1,6 @@
 package com.example.ui;
 
+import com.example.components.user.ResetPasswordPopup;
 import com.example.dto.UserMiniDTO;
 import com.example.dto.response.LoginResDTO;
 import com.example.services.AuthService;
@@ -52,8 +53,8 @@ public class Login extends JFrame{
                 }
             });
 
-            // Username
-            JLabel usr_label = Utility.makeText("Username/email:", font, 20f, Font.BOLD, MyColor.LIGHT_BLACK, null);
+            // Email
+            JLabel usr_label = Utility.makeText("Email:", font, 20f, Font.BOLD, MyColor.LIGHT_BLACK, null);
             gbc.gridx = 0;
             gbc.gridy = 0;
             gbc.weightx = 0;
@@ -101,6 +102,16 @@ public class Login extends JFrame{
             forgot_password.setForeground(new Color(0xa2a2a2));
             forgot_password.setAlignmentX(0.5f);
             forgot_password.setBackground(MyColor.LIGHT_BLACK);
+
+            forgot_password.setCursor(new Cursor(Cursor.HAND_CURSOR)); // Hiển thị hình bàn tay khi di chuột vào
+
+            forgot_password.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    ResetPasswordPopup.show(Login.this);
+                }
+            });
+
             gbc.gridx = 0;
             gbc.gridy = 2;
             panel.add(forgot_password, gbc);

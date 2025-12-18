@@ -112,6 +112,7 @@ public class FriendRequestService {
                 .orElseThrow(() -> new RuntimeException("Sender not found"));
             res = new UpdateFriendRequestResDTO(friendRequest.getId(), sender.getId(), sender.getUsername(), null);
         }
+        repo.delete(friendRequest);
         return res;
     }
 }

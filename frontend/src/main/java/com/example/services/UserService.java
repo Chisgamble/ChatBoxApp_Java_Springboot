@@ -4,14 +4,21 @@ import com.example.api.UserApi;
 import com.example.dto.FriendCardDTO;
 import com.example.dto.GroupCardDTO;
 import com.example.dto.MsgDTO;
+import com.example.dto.UserDTO;
+import com.example.dto.request.AdminCreateOrUpdateUserReqDTO;
 import com.example.dto.response.FriendRequestResDTO;
 import com.example.dto.response.StrangerCardResDTO;
-import com.example.dto.response.UserCardResDTO;
 
 import java.util.List;
 
 public class UserService {
     private final UserApi api = new UserApi();
+
+    public UserDTO getInfo (Long userId) {return api.getInfo(userId);}
+
+    public UserDTO updateProfile(Long userId, AdminCreateOrUpdateUserReqDTO req){
+        return api.updateUser(userId, req);
+    }
 
     public List<FriendCardDTO> getAllFriends (Long userId){
         return api.getAllFriends(userId);

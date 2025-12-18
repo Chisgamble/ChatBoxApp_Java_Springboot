@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="8d5e9cc1-3ce8-4911-9469-68c6b89fc6eb" name="Changes" comment="Merge branch 'main' of https://github.com/Chisgamble/ChatBoxApp_Java_Springboot&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml">
+    <list default="true" id="8d5e9cc1-3ce8-4911-9469-68c6b89fc6eb" name="Changes" comment="Merge branch 'main' of https://github.com/Chisgamble/ChatBoxApp_Java_Springboot&#10;&#10;# Conflicts:&#10;#&#9;.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/UserController.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/ActivityLogRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/ActivityLogRepository.java" afterDir="false" />
@@ -16,6 +16,26 @@
       <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/Spam.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/Spam.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/UserList.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/UserList.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/admin/UserListService.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/admin/UserListService.java" afterDir="false" />
+    <list default="true" id="8d5e9cc1-3ce8-4911-9469-68c6b89fc6eb" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/ResetPasswordPopup.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/listener/ProfileListener.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/UserController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/FriendRequestService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/FriendRequestService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/UserApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/UserApi.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/GlobalMsgCardList.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/GlobalMsgCardList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/GroupCardList.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/GroupCardList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/SearchBar.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/user/SearchBar.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/ChatPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/ChatPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/ChatUtilPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/ChatUtilPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/UserUtilPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/UserUtilPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/ChatScreen.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/ChatScreen.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/Login.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/Login.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/ProfilePopup.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/ProfilePopup.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/Signup.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/Signup.java" afterDir="false" />
+>>>>>>> 65788a0a636a76c420d804ed27d6fe808ff6e49d
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,6 +64,9 @@
     &quot;accountId&quot;: &quot;ae59ed8d-8930-440d-9418-10ce35c84e53&quot;
   }
 }</component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/frontend/src/main/java/com/example/ui/ChatScreen.java" root0="FORCE_HIGHLIGHTING" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
   &quot;associatedIndex&quot;: 7
@@ -68,8 +91,22 @@
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;D:/school/Nam3 HK1/Jav/ChatBoxApp_Java_Springboot/frontend/src/main/java/com/example/dto&quot;
+  </component>
+    <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Backend.executor": "Run",
+    "Application.ChatboxApplication.executor": "Run",
+    "Application.Main.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/school/Nam3 HK1/Jav/ChatBoxApp_Java_Springboot/frontend/src/main/java/com/example/dto"
+>>>>>>> 65788a0a636a76c420d804ed27d6fe808ff6e49d
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\school\Nam3 HK1\Jav\ChatBoxApp_Java_Springboot\frontend\src\main\java\com\example\dto" />
@@ -80,7 +117,7 @@
       <recent name="com.example.dto.request" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Application.Main">
     <configuration name="Backend" type="Application" factoryName="Application">
       <option name="ALTERNATIVE_JRE_PATH" value="$PROJECT_DIR$/../../../../../../../Java/jdk-25" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
@@ -93,6 +130,24 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="com.example.Main" />
+      <module name="frontend" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="com.example.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Application.Main" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
