@@ -32,6 +32,7 @@ public class UserList extends MainPanel {
     private String status;
     private String sort;
     private String order;
+    private String role;
     private UserListService userService;
     private LoginLogService loginLogService;
     private FriendService friendService;
@@ -47,6 +48,7 @@ public class UserList extends MainPanel {
         sort = "username";
         order = "asc";
         status = "all";
+        role = "all";
         usernameFilter = new ArrayList<>();
         nameFilter = new ArrayList<>();
 
@@ -149,24 +151,17 @@ public class UserList extends MainPanel {
             if (item.equals("Lock")) {
                 menuItem.addActionListener(evt -> {
                     try {
+                        JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(UserList.this);
                         if (targetUser.is_locked()) {
                             // Logic: UNLOCK
-                            int confirm = JOptionPane.showConfirmDialog(null,
-                                    "Are you sure you want to UNLOCK this user?",
-                                    "Confirm Unlock", JOptionPane.YES_NO_OPTION);
-
-                            if (confirm == JOptionPane.YES_OPTION) {
+                            if (ConfirmPopup.show(parentFrame, "unlock this user")) {
                                 userService.unlockUser(targetUser.id());
                                 JOptionPane.showMessageDialog(null, "User unlocked successfully.");
                                 filterData(); // Refresh from Server
                             }
                         } else {
                             // Logic: LOCK
-                            int confirm = JOptionPane.showConfirmDialog(null,
-                                    "Are you sure you want to LOCK this user?\nThey will not be able to log in.",
-                                    "Confirm Lock", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-
-                            if (confirm == JOptionPane.YES_OPTION) {
+                            if (ConfirmPopup.show(parentFrame, "lock this user")) {
                                 userService.lockUser(targetUser.id());
                                 JOptionPane.showMessageDialog(null, "User locked successfully.");
                                 filterData(); // Refresh from Server
@@ -193,20 +188,11 @@ public class UserList extends MainPanel {
                 menuItem.setForeground(Color.RED); // Make "Delete" red to indicate danger
 
                 menuItem.addActionListener(evt -> {
-                    // 1. CONFIRMATION DIALOG
-                    int confirm = JOptionPane.showConfirmDialog(
-                            null, // Use 'this' (UserList panel) as parent, not null
-                            "Are you sure you want to PERMANENTLY delete this user?\n"
-                                    + "User: " + currentUsername + "\n"
-                                    + "This action cannot be undone.",
-                            "Confirm Delete",
-                            JOptionPane.YES_NO_OPTION,
-                            JOptionPane.ERROR_MESSAGE // Red 'X' icon
-                    );
-
-                    // 2. CALL SERVICE & REFRESH
-                    if (confirm == JOptionPane.YES_OPTION) {
+                    JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(UserList.this);
+                    // 1. CONFIRMATION POPUP
+                    if (ConfirmPopup.show(parentFrame, "permanently delete user: " + currentUsername)) {
                         try {
+                            // 2. CALL SERVICE & REFRESH
                             userService.deleteUser(targetUser.id());
 
                             JOptionPane.showMessageDialog(null, "User deleted successfully.");
@@ -226,19 +212,11 @@ public class UserList extends MainPanel {
 
             else if (item.equals("Refresh password")) {
                 menuItem.addActionListener(evt -> {
-                    // 1. CONFIRMATION DIALOG
-                    int confirm = JOptionPane.showConfirmDialog(
-                            null, // Parent component
-                            "Are you sure you want to reset the password for user: " + currentUsername + "?\n"
-                                    + "A randomly generated password will be sent to " + currentEmail + ".",
-                            "Confirm Password Reset",
-                            JOptionPane.YES_NO_OPTION,
-                            JOptionPane.QUESTION_MESSAGE
-                    );
-
-                    // 2. CALL SERVICE
-                    if (confirm == JOptionPane.YES_OPTION) {
+                    JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(UserList.this);
+                    // 1. CONFIRMATION POPUP
+                    if (ConfirmPopup.show(parentFrame, "reset the password for user: " + currentUsername)) {
                         try {
+                            // 2. CALL SERVICE
                             // Assuming userService has the resetPassword method you defined earlier
                             authService.resetPassword(currentEmail);
 
@@ -265,6 +243,7 @@ public class UserList extends MainPanel {
                 this.usernameFilter,
                 this.nameFilter,
                 this.status,
+                this.role,
                 this.sort,
                 this.order
         );
@@ -368,6 +347,29 @@ public class UserList extends MainPanel {
             }
         });
         filterPanel.add(statusBox);
+
+
+        JLabel roleFilter = Utility.makeText("Filter by role:", ROBOTO, 16f, Font.PLAIN, MyColor.DARK_GRAY, null);
+        filterPanel.add(roleFilter);
+
+        String[] roleOptions = {"All", "Admin", "User"};
+        RoundedComboBox<String> roleBox = new RoundedComboBox<>(roleOptions);
+        roleBox.setFont(ROBOTO.deriveFont(16f));
+
+        // MEMORY FIX: Set selected item based on current variable
+        if(this.role != null) {
+            String display = this.status.substring(0, 1).toUpperCase() + this.role.substring(1).toLowerCase();
+            roleBox.setSelectedItem(display);
+        }
+
+        roleBox.addActionListener(e -> {
+            String selected = (String) roleBox.getSelectedItem();
+            if (selected != null) {
+                this.role = selected.toLowerCase();
+                filterData(); // Reloads data AND rebuilds panel
+            }
+        });
+        filterPanel.add(roleBox);
         filterPanel.add(new JLabel(" | "));
         // === SORT DROPDOWN ===
         JLabel orderby = Utility.makeText("Order by:", ROBOTO, 16f, Font.PLAIN, MyColor.DARK_GRAY, null);
@@ -730,15 +732,9 @@ public class UserList extends MainPanel {
 
         // --- UPDATE ACTION ---
         updateBtn.addActionListener(e -> {
-            int response = JOptionPane.showConfirmDialog(
-                    dialog,
-                    "Are you sure you want to update this user's information?",
-                    "Confirm Update",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE
-            );
+            JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(UserList.this);
 
-            if (response == JOptionPane.YES_OPTION) {
+            if (ConfirmPopup.show(parentFrame, "update this user's information")) {
                 try {
                     // Extract Values
                     String username = ((JTextField) inputs.get("Username")).getText();

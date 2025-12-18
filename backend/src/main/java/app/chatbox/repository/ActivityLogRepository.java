@@ -76,8 +76,8 @@ public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> 
             CASE WHEN :sortBy = 'username' AND :sortDir = 'asc' THEN ua.username END ASC,
             CASE WHEN :sortBy = 'username' AND :sortDir = 'desc' THEN ua.username END DESC,
             -- Account Age (created_at) -> Sorting by time ASC or DESC
-            CASE WHEN :sortBy = 'age' AND :sortDir = 'asc' THEN ua.account_created_at END ASC,
-            CASE WHEN :sortBy = 'age' AND :sortDir = 'desc' THEN ua.account_created_at END DESC
+            CASE WHEN :sortBy = 'age' AND :sortDir = 'asc' THEN ua.account_created_at END DESC,
+            CASE WHEN :sortBy = 'age' AND :sortDir = 'desc' THEN ua.account_created_at END ASC
         """, nativeQuery = true)
     List<Object[]> findUserActivityDataRaw(
             @Param("usernamePattern") String usernamePattern,
