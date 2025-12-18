@@ -1,5 +1,6 @@
 package com.example.components.admin;
 
+import com.example.components.ConfirmPopup; // Import the custom popup
 import com.example.components.MyColor;
 import com.example.components.RoundedButton;
 import com.example.components.RoundedComboBox;
@@ -189,22 +190,20 @@ public class Spam extends MainPanel {
                     statusBtn.setToolTipText("Click to mark as DONE");
 
                     statusBtn.addActionListener(e -> {
-                        // 1. Ask for confirmation
-                        int choice = JOptionPane.showConfirmDialog(this,
-                                "Mark this report as 'Done'?",
-                                "Confirm Status Update",
-                                JOptionPane.YES_NO_OPTION);
+                        // 1. Get Parent for Custom Popup
+                        JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(Spam.this);
 
-                        if (choice == JOptionPane.YES_OPTION) {
+                        // 2. Use Custom ConfirmPopup
+                        if (ConfirmPopup.show(parentFrame, "mark this report as 'Done'")) {
                             try {
-                                // 2. Call the service
+                                // 3. Call the service
                                 // specific 'reportId' comes from the loop context above
                                 spamService.updateStatus(reportId, "done");
 
-                                // 3. Show success
+                                // 4. Show success
                                 JOptionPane.showMessageDialog(this, "Report marked as Done successfully.");
 
-                                // 4. Refresh the table to show the new Green button
+                                // 5. Refresh the table to show the new Green button
                                 filterData();
 
                             } catch (Exception ex) {
@@ -250,25 +249,24 @@ public class Spam extends MainPanel {
                     // 1. Define action name for the dialog
                     String action = isLocked ? "Unlock" : "Lock";
 
-                    // 2. Confirmation Dialog
-                    int confirm = JOptionPane.showConfirmDialog(this,
-                            "Are you sure you want to " + action.toLowerCase() + " user " + username + "?",
-                            "Confirm " + action,
-                            JOptionPane.YES_NO_OPTION);
+                    // 2. Get Parent for Custom Popup
+                    JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(Spam.this);
 
-                    if (confirm == JOptionPane.YES_OPTION) {
+                    // 3. Custom Confirmation Popup
+                    // Text becomes: "Are you sure that you want to unlock user [username] ?"
+                    if (ConfirmPopup.show(parentFrame, action.toLowerCase() + " user " + username)) {
                         try {
-                            // 3. Call Service based on current state
+                            // 4. Call Service based on current state
                             if (isLocked) {
                                 userService.unlockUser(userId);
                             } else {
                                 userService.lockUser(userId);
                             }
 
-                            // 4. Show Success
+                            // 5. Show Success
                             JOptionPane.showMessageDialog(this, "User " + action + "ed successfully.");
 
-                            // 5. Refresh to update UI
+                            // 6. Refresh to update UI
                             filterData();
 
                         } catch (Exception ex) {

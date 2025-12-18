@@ -137,7 +137,7 @@ public class ChatGroupList extends MainPanel {
         RoundedButton btn = new RoundedButton(10);
         btn.setText(btnText);
         btn.addActionListener(e -> {
-            String input = JOptionPane.showInputDialog(this,
+            String input = JOptionPane.showInputDialog(null,
                     "Enter date (yyyy-MM-dd):",
                     currentDate != null ? currentDate.format(dateFormatter) : ""
             );
@@ -288,7 +288,7 @@ public class ChatGroupList extends MainPanel {
     // This method remains the same, using the row index to access the correct group ID
     private void openParticipantsDialog(int row) {
         if (groups == null || row < 0 || row >= groups.size()) {
-            JOptionPane.showMessageDialog(this, "Group data not available.", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Group data not available.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 

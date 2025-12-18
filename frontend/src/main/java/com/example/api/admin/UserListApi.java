@@ -4,6 +4,7 @@ import com.example.dto.NewUserListDTO;
 import com.example.dto.UserListDTO;
 import com.example.dto.YearlyGraphDTO;
 import com.example.dto.request.AdminCreateOrUpdateUserReqDTO;
+import com.example.dto.response.GeneralResDTO;
 import com.example.util.HttpClientUtil;
 
 import java.time.LocalDate;
@@ -12,7 +13,7 @@ import java.util.List;
 public class UserListApi {
     private static final String BASE_URL = "http://localhost:8080/api/users";
 
-    public UserListDTO getAllUsers(List<String> username, List<String> name, String status, String sort, String order) {
+    public UserListDTO getAllUsers(List<String> username, List<String> name, String status, String role, String sort, String order) {
         StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/getall/data?");
 
         if (username != null && !username.isEmpty()) {
@@ -25,6 +26,10 @@ public class UserListApi {
 
         if (status != null && !status.isEmpty()) {
             urlBuilder.append("status=").append(status).append("&");
+        }
+
+        if (role != null && !role.isEmpty()) {
+            urlBuilder.append("role=").append(role).append("&");
         }
 
         if (sort != null && !sort.isEmpty()) {
@@ -63,7 +68,7 @@ public class UserListApi {
 
     public void deleteUser(Long id) {
         String url = BASE_URL + "/" + id;
-        HttpClientUtil.deleteJson(url, null, String.class);
+        HttpClientUtil.deleteJson(url, null, GeneralResDTO.class);
     }
 
     public NewUserListDTO getNewUserList(String username, String email, LocalDate start, LocalDate end, String order) {

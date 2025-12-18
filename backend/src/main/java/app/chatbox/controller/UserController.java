@@ -60,11 +60,12 @@ public class UserController {
             @RequestParam(required = false) String order,
             @RequestParam(required = false) List<String> username,
             @RequestParam(required = false) List<String> name,
-            @RequestParam(required = false) String status
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String role
     ) {
 
         return ResponseEntity.ok(
-                userService.getAllUsersAndData(sort, order, username, name, status)
+                userService.getAllUsersAndData(sort, order, username, name, status, role)
         );
     }
 
@@ -124,8 +125,9 @@ public class UserController {
 //    }
 
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public GeneralResDTO delete(@PathVariable Long id) {
         userService.delete(id);
+        return new GeneralResDTO("Delete user" + id);
     }
 
     @PreAuthorize("@authz.isCurrentUser(#id) or hasRole('ADMIN')")

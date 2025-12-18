@@ -69,12 +69,14 @@ public class UserService {
             String order,
             List<String> usernames,
             List<String> names,
-            String status
+            String status,
+            String role
     ) {
         // 1. Handle Defaults
         String sortInput = (sort == null || sort.isEmpty()) ? "username" : sort;
         String orderInput = (order == null || order.isEmpty()) ? "asc" : order;
         String statusInput = (status == null || status.isEmpty()) ? "all" : status;
+        String roleInput = (status == null || role.isEmpty()) ? "all" : role;
 
         // 2. Build Regex for filtering
         String usernameRegex = Util.buildRegexPattern(usernames);
@@ -109,6 +111,7 @@ public class UserService {
                 usernameRegex,
                 nameRegex,
                 statusInput,
+                roleInput,
                 sortObj
         );
 

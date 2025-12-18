@@ -77,11 +77,18 @@ public interface UserRepository extends JpaRepository<AppUser, Long>, JpaSpecifi
             OR (:status = 'active' AND u.is_active = true)
             OR (:status = 'offline' AND u.is_active = false)
           )
+        AND
+            (
+            :role = 'all'
+            OR (LOWER(:role) = 'admin' AND LOWER(u.role) = 'admin')
+            OR (LOWER(:role) = 'user' AND LOWER(u.role) = 'user')
+            )
         """, nativeQuery = true)
     List<AppUser> searchUsers(
             @Param("usernameRegex") String usernameRegex,
             @Param("nameRegex") String nameRegex,
             @Param("status") String status,
+            @Param("role") String role,
             Sort sort
     );
 
