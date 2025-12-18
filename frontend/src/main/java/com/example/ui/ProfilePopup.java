@@ -75,7 +75,7 @@ public class ProfilePopup extends JDialog {
         txtUsername = new JTextField(user.username(), 20);
         txtName = new JTextField(user.name(), 20);
         txtAddress = new JTextField(user.address(), 20);
-        txtBirthday = new JTextField(user.dob(), 20); // user.dob() trả về String
+        txtBirthday = new JTextField(user.dob(), 20);
         txtEmail = new JTextField(user.email(), 20);
 
         comboGender = new JComboBox<>(new String[]{"Male", "Female", "Other"});

@@ -113,6 +113,7 @@ public class ChatScreen extends JFrame
             currentChat.setGroup(false);
             currentChat.setInboxId(friend.getInboxId());
             currentChat.setTargetUser(friend);
+            currentChat.setGroupId(null);
 
             chatPanel.showMessages(inbox.getMsgs(), user.getId());
             chatUtilPanel.setInboxMessages(inbox.getMsgs());
@@ -159,7 +160,7 @@ public class ChatScreen extends JFrame
     public void openGroupChat(GroupCardDTO group) {
         try {
             if (currentChat.getGroupId() != null &&
-                    currentChat.getInboxId().equals(group.getId())) {
+                    currentChat.getGroupId().equals(group.getId())) {
                 return;
             }
 
@@ -170,6 +171,7 @@ public class ChatScreen extends JFrame
             currentChat.setGroupId(group.getId());
             currentChat.setTargetGroup(group);
             currentChat.setUserInGroup(res.getUserInGroup());
+            currentChat.setInboxId(null);
 
             List<GroupMemberDTO> members = groupService.getAllMembers(group.getId());
             chatUtilPanel.setAllMembers(members);
@@ -219,7 +221,6 @@ public class ChatScreen extends JFrame
                     .filter(f -> f.getInboxId() != null && f.getInboxId().equals(msg.getInboxId()))
                     .findFirst()
                     .orElse(null);
-
             if (targetFriend != null) {
                 this.openInbox(targetFriend);
             } else {

@@ -71,10 +71,4 @@ public class GroupCardList extends JScrollPane {
         }
     }
 
-    // helper method để xóa item khỏi UI
-    public void removeCard(GroupCard card) {
-        listPanel.remove(card);
-        listPanel.revalidate();
-        listPanel.repaint();
-    }
 }

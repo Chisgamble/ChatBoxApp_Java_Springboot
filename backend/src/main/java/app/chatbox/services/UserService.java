@@ -57,7 +57,7 @@ public class UserService {
                 user.getEmail(),
                 user.getGender(),
                 user.getAddress(),
-                createdAtDate,
+                user.getBirthday(),
                 null,
                 user.getIsActive(),
                 user.getIsLocked(),

@@ -36,7 +36,7 @@ public class GroupMsg {
     @Column(length = 500)
     private String content;
 
-    @Column(name = "created_at", updatable = false)
+    @Column(name = "created_at", insertable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
     @Column(name = "updated_at")
