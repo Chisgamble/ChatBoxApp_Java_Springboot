@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1e757acd-938b-4e12-99ee-8aa438fb8e9b" name="Changes" comment="" />
+    <list default="true" id="1e757acd-938b-4e12-99ee-8aa438fb8e9b" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/model/ActivityLog.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/model/ActivityLog.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -50,11 +53,15 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Application.Backend.executor": "Run",
-    "git-widget-placeholder": "main"
+    "Application.Main.executor": "Run",
+    "git-widget-placeholder": "main",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/school/Nam3 HK1/Jav/ChatBoxApp_Java_Springboot"
   }
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\school\Nam3 HK1\Jav\ChatBoxApp_Java_Springboot" />
       <recent name="D:\school\Nam3 HK1\Jav\ChatBoxApp_Java_Springboot\frontend\src\main\java\com\example\dto" />
       <recent name="D:\school\Nam3 HK1\Jav\ChatBoxApp_Java_Springboot\frontend\src\main\resources\assets" />
     </key>
@@ -97,7 +104,7 @@
   </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="8d5e9cc1-3ce8-4911-9469-68c6b89fc6eb" name="Changes" comment="" />
+      <changelist id="1e757acd-938b-4e12-99ee-8aa438fb8e9b" name="Changes" comment="" />
       <created>1765597481212</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
