@@ -61,6 +61,7 @@ CREATE TABLE login_log(
 	updated_at timeStamp DEFAULT CURRENT_TIMESTAMP,
 
 	foreign key (email) references app_user (email) ON DELETE CASCADE
+	ON UPDATE CASCADE
 );
 
 CREATE TABLE activity_log(
@@ -68,6 +69,7 @@ CREATE TABLE activity_log(
 	user_id bigint,
 	isSuccess boolean,
 	reason varchar(100),
+	"action" varchar(50),
 
 	created_at timeStamp DEFAULT CURRENT_TIMESTAMP,
 	updated_at timeStamp DEFAULT CURRENT_TIMESTAMP,
@@ -164,6 +166,8 @@ CREATE TABLE spam_report(
 	ID BigSerial primary key,
 	reporter_id bigint,
 	reported_id bigint,
+	is_locked boolean,
+	status varchar(50),
 	CONSTRAINT uq_report_pair UNIQUE (reporter_id, reported_id),
 	
 	created_at timeStamp DEFAULT CURRENT_TIMESTAMP,
