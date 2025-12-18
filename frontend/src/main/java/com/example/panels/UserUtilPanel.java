@@ -35,6 +35,7 @@ public class UserUtilPanel extends JPanel implements UserMenuListener,
     JPanel centerContainer;
     RoundedComboBox<String> comboBox;
     SearchBar sb;
+    JLabel lblUsername;
     Component list = null;
 
     UserService userService = new UserService();
@@ -77,6 +78,11 @@ public class UserUtilPanel extends JPanel implements UserMenuListener,
         topContainer.setBorder(BorderFactory.createMatteBorder(0,0,1,0,Color.BLACK));
 //        topContainer.setBackground(Color.YELLOW);
 
+        lblUsername = new JLabel(user.getUsername());
+        lblUsername.setFont(new Font("Roboto", Font.BOLD, 20));
+        lblUsername.setForeground(MyColor.LIGHT_BLUE);
+        lblUsername.setBorder(BorderFactory.createEmptyBorder(0, 5, 2, 0));
+
         String[] options = {"Default", "Online"};
         comboBox = new RoundedComboBox<>(options);
         comboBox.setForeground(MyColor.DARK_GRAY);
@@ -94,6 +100,7 @@ public class UserUtilPanel extends JPanel implements UserMenuListener,
         searchArea.add(comboBox, BorderLayout.EAST);
 
         topContainer.add(new UserMenu(20, 20, this));
+        topContainer.add(lblUsername);
         topContainer.add(searchArea);
 
         centerContainer = new JPanel(new BorderLayout());
@@ -328,6 +335,10 @@ public class UserUtilPanel extends JPanel implements UserMenuListener,
                 updatedUser.username(),
                 updatedUser.role());
         this.user = user;
+        if (lblUsername != null) {
+            lblUsername.setText(user.getUsername());
+        }
+
         mainFrame.setUser(user);
         mainFrame.getCurrentChat().setThisUser(user);
 

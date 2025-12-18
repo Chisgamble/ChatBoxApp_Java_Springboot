@@ -5,17 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8d5e9cc1-3ce8-4911-9469-68c6b89fc6eb" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/UserController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/UserController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/ActivityLogRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/ActivityLogRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/repository/UserRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/services/UserService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/controller/ChatController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/model/ActivityLog.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/app/chatbox/model/ActivityLog.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/test/java/app/chatbox/ChatboxApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/test/java/app/chatbox/ChatboxApplicationTests.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/admin/UserListApi.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/api/admin/UserListApi.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/ChatGroupList.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/ChatGroupList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/Spam.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/Spam.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/UserList.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/components/admin/UserList.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/admin/UserListService.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/services/admin/UserListService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/request/ChangeGroupNameReqDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/dto/request/ChangeGroupNameReqDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/UserUtilPanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/panels/UserUtilPanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/ChatScreen.java" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main/java/com/example/ui/ChatScreen.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/script.sql" beforeDir="false" afterPath="$PROJECT_DIR$/script.sql" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,6 +64,9 @@
     "Application.Backend.executor": "Run",
     "Application.ChatboxApplication.executor": "Run",
     "Application.Main.executor": "Run",
+    "Maven.app [clean,package].executor": "Run",
+    "Maven.app [help:effective-pom,>...].executor": "Run",
+    "Maven.frontend [clean,package].executor": "Run",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
@@ -82,6 +85,12 @@
       <recent name="com.example.dto.response" />
       <recent name="com.example.dto.request" />
     </key>
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="mvn help:effective-pom &gt; effective-pom.xml" />
+      <command value="mvn clean package" />
+    </option>
   </component>
   <component name="RunManager" selected="Application.Main">
     <configuration name="Backend" type="Application" factoryName="Application">

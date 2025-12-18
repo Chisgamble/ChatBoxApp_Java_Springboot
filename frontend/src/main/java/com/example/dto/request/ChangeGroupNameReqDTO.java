@@ -8,7 +8,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class ChangeGroupNameReqDTO {
     private String newName;
+
+    public ChangeGroupNameReqDTO(String newName) {
+        this.newName = newName;
+    }
 }
