@@ -4,6 +4,7 @@ import com.example.components.*;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
@@ -607,7 +608,7 @@ public class UserList extends MainPanel {
                 // 3. Create DTO & Call Service
                 // Note: role.toLowerCase() ensures "User" becomes "user" for backend
                 AdminCreateOrUpdateUserReqDTO req = new AdminCreateOrUpdateUserReqDTO(
-                        username, name, password, gender, address, email, dob, role.toLowerCase()
+                        username, name, password, gender, address, email, LocalDate.parse(dob), role.toLowerCase()
                 );
 
                 userService.createUser(req);
@@ -757,7 +758,7 @@ public class UserList extends MainPanel {
                             gender,
                             address,
                             email,
-                            dob,
+                            LocalDate.parse(dob),
                             role != null ? role.toLowerCase() : "user"
                     );
 

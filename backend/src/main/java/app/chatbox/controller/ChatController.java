@@ -15,6 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.user.SimpUser;
+import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -29,7 +31,9 @@ public class ChatController {
     private final ChatService chatService;
     private final InboxRepository inboxRepo;
     private final UserRepository userRepo;
+
     private final SimpMessagingTemplate messagingTemplate;
+    private final SimpUserRegistry simpUserRegistry;
 
     @MessageMapping("/chat/inbox/send") // private 1-1 chat
     public void sendInboxMessage(
@@ -51,17 +55,25 @@ public class ChatController {
         String userB = userRepo.findEmailById(req.getReceiverId());
 
         // gửi cho user A
-        messagingTemplate.convertAndSendToUser(
-                userA,
-                "/queue/inbox." + req.getInboxId(),
-                msg
-        );
+        System.out.println("Sending to userA: " + userA);
+        SimpUser userASession = simpUserRegistry.getUser(userA);
+        if (userASession != null){
+            messagingTemplate.convertAndSendToUser(
+                    userA,
+                    "/queue/inbox." + req.getInboxId(),
+                    msg
+            );
+        }
 
-        messagingTemplate.convertAndSendToUser(
-                userB,
-                "/queue/inbox." + req.getInboxId(),
-                msg
-        );
+        SimpUser userBSession = simpUserRegistry.getUser(userB);
+        if (userBSession != null) {
+            System.out.println("Sending to userB: " + userB);
+            messagingTemplate.convertAndSendToUser(
+                    userB,
+                    "/queue/inbox." + req.getInboxId(),
+                    msg
+            );
+        }
     }
 
     @MessageMapping("/chat/group/send") // group chat

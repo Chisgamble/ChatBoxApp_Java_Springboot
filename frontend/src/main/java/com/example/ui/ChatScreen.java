@@ -123,6 +123,7 @@ public class ChatScreen extends JFrame
             WebSocketManager.getInstance()
                 .subscribeInbox(friend.getInboxId(), msg -> {
                     SwingUtilities.invokeLater(() -> {
+                        System.out.println(msg.getContent());
                         chatPanel.appendMessage(
                                 msg.getId(),
                             msg.getContent(),

@@ -15,6 +15,7 @@ import com.example.services.UserService;
 
 import javax.swing.*;
 import java.awt.*;
+import java.time.LocalDate;
 
 public class ProfilePopup extends JDialog {
     UserDTO user;
@@ -239,7 +240,7 @@ public class ProfilePopup extends JDialog {
                 (String) comboGender.getSelectedItem(),
                 txtAddress.getText().trim(),
                 txtEmail.getText().trim(),
-                txtBirthday.getText().trim(),
+                LocalDate.parse(txtBirthday.getText().trim()),
                 null
         );
 

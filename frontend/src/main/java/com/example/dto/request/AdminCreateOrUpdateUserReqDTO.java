@@ -10,6 +10,6 @@ public record AdminCreateOrUpdateUserReqDTO(
         String gender,
         String address,
         String email,
-        String birthday,
+        LocalDate birthday,
         String role
 ) {}

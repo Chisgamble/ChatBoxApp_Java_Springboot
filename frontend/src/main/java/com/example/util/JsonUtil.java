@@ -3,12 +3,23 @@ package com.example.util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.util.List;
 
 public class JsonUtil {
 
     private static final ObjectMapper mapper = new ObjectMapper();
+
+    static {
+        // 1. Register the module to handle LocalDate/LocalDateTime
+        mapper.registerModule(new JavaTimeModule());
+
+        // 2. IMPORTANT: Force it to write dates as "2025-12-18" strings
+        // instead of an array of numbers like [2025, 12, 18]
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+    }
 
     /** Serialize object to JSON string */
     public static String toJson(Object obj) {
