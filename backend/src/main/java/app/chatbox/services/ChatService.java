@@ -47,7 +47,7 @@ public class ChatService {
     @Transactional
     public SendGroupMsgResDTO handleSendGroupMsg(Long senderId, SendGroupMsgReqDTO req){
         Group group = new Group();
-        group.setId(req.getGroupId()); // load from repo if needed
+        group.setId(req.getGroupId());
 
         AppUser sender = userRepo.findById(senderId)
                 .orElseThrow(() -> new RuntimeException("Sender not found"));
@@ -59,9 +59,6 @@ public class ChatService {
                 .build();
 
         groupMsgRepo.save(msg);
-
-//        group.setLastMsg(msg);
-//         groupRepo.save(group);
 
         return new SendGroupMsgResDTO(msg.getId(), req.getGroupId(), senderId, sender.getUsername(), req.getContent());
     }

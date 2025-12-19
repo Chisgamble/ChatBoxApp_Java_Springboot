@@ -89,8 +89,4 @@ public class GroupCard extends JPanel {
         repaint();
     }
 
-    public void refresh() {
-        nameLabel.setText(group.getGroupname());
-        repaint();
-    }
 }

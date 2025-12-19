@@ -13,11 +13,8 @@ public class JsonUtil {
     private static final ObjectMapper mapper = new ObjectMapper();
 
     static {
-        // 1. Register the module to handle LocalDate/LocalDateTime
         mapper.registerModule(new JavaTimeModule());
 
-        // 2. IMPORTANT: Force it to write dates as "2025-12-18" strings
-        // instead of an array of numbers like [2025, 12, 18]
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 

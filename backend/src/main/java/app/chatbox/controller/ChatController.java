@@ -92,7 +92,7 @@ public class ChatController {
         messagingTemplate.convertAndSend(
                 "/topic/group." + req.getGroupId(),
                 msg
-        ); // Dùng convertAndSend() cho topic
+        );
 
         // Tất cả client đang mở chat nhóm này và đã đăng ký kênh này sẽ nhận được tin nhắn.
     }
