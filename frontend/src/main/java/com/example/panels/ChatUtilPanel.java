@@ -245,10 +245,6 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 
             cur_option = "Selection";
         }else if (option.equals("Members")){
-            System.out.println("test members");
-            for (GroupMemberDTO m : allMembers){
-                System.out.println(m.getUsername());
-            }
             enterMembersMode();
             return;
         }
@@ -288,6 +284,7 @@ public class ChatUtilPanel extends JPanel implements SearchBarListener {
 
     void enterMembersMode(){
         cur_option = "Members";
+        itemSelected = false;
 
         centerContainer.removeAll();
 
