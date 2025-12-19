@@ -178,11 +178,9 @@ public class NewUser extends MainPanel {
 
     protected void filterData() {
         // 1. Prepare Arguments
-        String userQuery = usernameFilter.isEmpty() ? null : String.join("|", usernameFilter);
-        String emailQuery = emailFilter.isEmpty() ? null : String.join("|", emailFilter);
 
         // 2. Call Service (You need to add this method to UserListService)
-        users = userService.getNewUsers(userQuery, emailQuery, startDate, endDate, order);
+        users = userService.getNewUsers(usernameFilter, emailFilter, startDate, endDate, order);
 
         // 3. Map to Table Data
         if (users != null) {

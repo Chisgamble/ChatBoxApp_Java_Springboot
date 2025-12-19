@@ -93,7 +93,7 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
         FROM app_user u
     ) AS stats
     
-    WHERE (:usernamePattern IS NULL OR stats.username LIKE :usernamePattern)
+    WHERE (:usernameRegex IS NULL OR LOWER(stats.username) ~* LOWER(:usernameRegex))
     
     -- Filter by Friend Count using logic gates on the calculated value
     AND (
@@ -110,7 +110,7 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
         CASE WHEN :sortBy = 'accountAge' AND :sortDir = 'desc' THEN stats.createdAt END ASC
 """, nativeQuery = true)
     List<Object[]> findFriendListDataRaw(
-            @Param("usernamePattern") String usernamePattern,
+            @Param("usernameRegex") String usernameRegex,
             @Param("symbol") String symbol,
             @Param("val") Integer val,
             @Param("sortBy") String sortBy,

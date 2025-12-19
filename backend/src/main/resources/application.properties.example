@@ -1,6 +1,6 @@
 DB_URL=jdbc:postgresql://localhost:5432/ChatBoxDB
 DB_USERNAME=postgres
-DB_PASSWORD=your_password_here
+DB_PASSWORD=pppppggggg123
 
 MAIL_USERNAME=your_email@gmail.com
 MAIL_PASSWORD=your_email_password

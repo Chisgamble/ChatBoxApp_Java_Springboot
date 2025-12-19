@@ -18,9 +18,6 @@ public class ActivityLogService {
             String sortBy,
             String sortDir
     ) {
-        // Business logic: Prepare the username filter string
-        // Assuming the backend expects a single string pattern, we take the first filter.
-        String usernameQuery = usernameFilters.isEmpty() ? null : usernameFilters.get(0);
 
         // Ensure comparison and count are null if the filter is inactive.
         if (activityType == null || activityType.isEmpty() || comparison == null || comparison.isEmpty() || count == null || count.isEmpty()) {
@@ -31,7 +28,7 @@ public class ActivityLogService {
 
         try {
             ActivityListDTO wrapper = api.getAllUserActivity(
-                    usernameQuery,
+                    usernameFilters,
                     activityType,
                     comparison,
                     count,

@@ -90,13 +90,13 @@ public class Spam extends MainPanel {
         // --- STATUS FILTER ---
         JLabel statusLabel = Utility.makeText("Status:", ROBOTO, 16f, Font.PLAIN, MyColor.DARK_GRAY, null);
         filterPanel.add(statusLabel);
-        String[] statuses = {"All", "Pending", "Done"};
+        String[] statuses = {"All", "Pending", "Resolved"};
         RoundedComboBox<String> statusBox = new RoundedComboBox<>(statuses);
         statusBox.setFont(ROBOTO.deriveFont(16f));
 
         // Restore selection
         if ("pending".equalsIgnoreCase(statusFilter)) statusBox.setSelectedItem("Pending");
-        else if ("done".equalsIgnoreCase(statusFilter)) statusBox.setSelectedItem("Done");
+        else if ("Resolved".equalsIgnoreCase(statusFilter)) statusBox.setSelectedItem("Resolved");
         else statusBox.setSelectedItem("All");
 
         statusBox.addActionListener(e -> {
@@ -187,21 +187,21 @@ public class Spam extends MainPanel {
                 if ("pending".equalsIgnoreCase(status)) {
                     statusBtn.setBackground(new Color(255, 193, 7)); // Yellow
                     statusBtn.setForeground(Color.BLACK); // Black text is easier to read on Yellow
-                    statusBtn.setToolTipText("Click to mark as DONE");
+                    statusBtn.setToolTipText("Click to mark as Resolved");
 
                     statusBtn.addActionListener(e -> {
                         // 1. Get Parent for Custom Popup
                         JFrame parentFrame = (JFrame) SwingUtilities.getWindowAncestor(Spam.this);
 
                         // 2. Use Custom ConfirmPopup
-                        if (ConfirmPopup.show(parentFrame, "mark this report as 'Done'")) {
+                        if (ConfirmPopup.show(parentFrame, "mark this report as 'Resolved'")) {
                             try {
                                 // 3. Call the service
                                 // specific 'reportId' comes from the loop context above
-                                spamService.updateStatus(reportId, "done");
+                                spamService.updateStatus(reportId, "Resolved");
 
                                 // 4. Show success
-                                JOptionPane.showMessageDialog(this, "Report marked as Done successfully.");
+                                JOptionPane.showMessageDialog(this, "Report marked as Resolved successfully.");
 
                                 // 5. Refresh the table to show the new Green button
                                 filterData();
@@ -220,7 +220,7 @@ public class Spam extends MainPanel {
                     // Already Done
                     statusBtn.setBackground(MyColor.DARK_GRAY); // Green
                     statusBtn.setForeground(Color.WHITE);
-                    statusBtn.setText("Done"); // Force text to be clear
+                    statusBtn.setText("Resolved"); // Force text to be clear
                     statusBtn.setEnabled(false); // Disable button
                 }
 
@@ -295,11 +295,9 @@ public class Spam extends MainPanel {
     protected void filterData() {
         // 1. Prepare Arguments
         // Convert List<String> to single String for backend compatibility
-        String uFilter = nameFilter.isEmpty() ? null : nameFilter.get(0);
-        String eFilter = emailFilter.isEmpty() ? null : emailFilter.get(0);
 
         // 2. Fetch Data
-        List<List<String>> rawData = spamService.getAll(eFilter, uFilter, startDate, endDate, statusFilter, orderBy, orderDir);
+        List<List<String>> rawData = spamService.getAll(emailFilter, nameFilter, startDate, endDate, statusFilter, orderBy, orderDir);
 
         this.data = new ArrayList<>();
         if (rawData != null) {

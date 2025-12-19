@@ -199,16 +199,10 @@ public class Friend extends MainPanel {
     }
 
     protected void filterData() {
-        // 1. Prepare Arguments
-        // Join username filters with a pipe for backend OR logic, or handle list in service
-        String userQuery = usernameFilter.isEmpty() ? null : usernameFilter.get(0);
-        // Note: Your backend logic currently takes a single string pattern.
-        // If you want multiple distinct name matches, you might need to adjust logic.
-        // For now, let's take the first one or join them if the backend supports "tom|john".
 
         // 2. Call Service
         friends = friendService.getFriendListData(
-                userQuery,
+                usernameFilter,
                 sortBy,
                 sortDir,
                 comparatorSymbol,

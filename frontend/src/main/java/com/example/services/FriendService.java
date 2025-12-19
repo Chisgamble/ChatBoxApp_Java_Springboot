@@ -23,7 +23,7 @@ public class FriendService {
         return api.deleteFriend(friendId).message();
     }
 
-    public List<FriendListDataDTO> getFriendListData(String username, String sortBy, String sortDir, String fcSymbol, Integer fcVal) {
+    public List<FriendListDataDTO> getFriendListData(List<String> username, String sortBy, String sortDir, String fcSymbol, Integer fcVal) {
         return api.getFriendListData(username, sortBy, sortDir, fcSymbol, fcVal);
     }
 }

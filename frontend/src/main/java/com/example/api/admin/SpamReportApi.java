@@ -4,6 +4,7 @@ import com.example.dto.SpamReportListDTO;
 import com.example.util.HttpClientUtil;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 
 public class SpamReportApi {
@@ -12,8 +13,8 @@ public class SpamReportApi {
 
     // GET ALL with Filters
     public SpamReportListDTO getAll(
-            String email,
-            String username,
+            List<String> email,
+            List<String> username,
             LocalDate startDate,
             LocalDate endDate,
             String status,
@@ -22,11 +23,11 @@ public class SpamReportApi {
     ) {
         StringBuilder url = new StringBuilder(BASE_URL + "/getall?");
 
-        if (email != null && !email.isBlank()) {
-            url.append("email=").append(email).append("&");
+        if (email != null && !email.isEmpty()) {
+            url.append("email=").append(String.join(",", email)).append("&");
         }
-        if (username != null && !username.isBlank()) {
-            url.append("username=").append(username).append("&");
+        if (username != null && !username.isEmpty()) {
+            url.append("username=").append(String.join(",", username)).append("&");
         }
         if (startDate != null) {
             url.append("startDate=").append(startDate).append("&");

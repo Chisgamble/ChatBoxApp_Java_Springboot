@@ -14,6 +14,7 @@ import app.chatbox.repository.GroupMemberRepository;
 import app.chatbox.repository.GroupMsgRepository;
 import app.chatbox.repository.GroupRepository;
 import app.chatbox.repository.UserRepository;
+import app.chatbox.util.Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,16 +39,16 @@ public class GroupService {
 
 
     public GroupListDataDTO getAllGroupData(
-            String nameFilter,
+            List<String> nameFilter,
             String startDate,
             String endDate,
             String sortBy,
             String sortDir
     ) {
-        String namePattern = (nameFilter != null && !nameFilter.isEmpty()) ? "%" + nameFilter + "%" : null;
+        String nameRegex = Util.buildRegexPattern(nameFilter);
 
         List<Object[]> results = repo.findGroupListDataRaw(
-                namePattern,
+                nameRegex,
                 startDate,
                 endDate,
                 sortBy,

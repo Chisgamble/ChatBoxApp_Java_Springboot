@@ -71,15 +71,15 @@ public class UserListApi {
         HttpClientUtil.deleteJson(url, null, GeneralResDTO.class);
     }
 
-    public NewUserListDTO getNewUserList(String username, String email, LocalDate start, LocalDate end, String order) {
+    public NewUserListDTO getNewUserList(List<String> username, List<String> email, LocalDate start, LocalDate end, String order) {
         StringBuilder url = new StringBuilder(BASE_URL + "/new-list?");
 
         // Append filters if they exist
         if (username != null && !username.isEmpty()) {
-            url.append("username=").append(username).append("&");
+            url.append("username=").append(String.join(",", username)).append("&");
         }
         if (email != null && !email.isEmpty()) {
-            url.append("email=").append(email).append("&");
+            url.append("email=").append(String.join(",", email)).append("&");
         }
         if (start != null) {
             url.append("startDate=").append(start.toString()).append("&");

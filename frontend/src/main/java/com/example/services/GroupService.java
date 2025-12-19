@@ -86,8 +86,6 @@ public class GroupService {
             String sortDir
     ) {
         // 1. Prepare Parameters (Business Logic)
-        // We use only the first element if multiple name filters are present
-        String nameQuery = nameFilters.isEmpty() ? null : nameFilters.get(0);
 
         String startStr = (startDate != null) ? startDate : null;
         String endStr = (endDate != null) ? endDate : null;
@@ -95,7 +93,7 @@ public class GroupService {
         try {
             // 2. Call API Client
             GroupListDataDTO wrapper = api.getAllGroupData(
-                    nameQuery,
+                    nameFilters,
                     startStr,
                     endStr,
                     sortBy,

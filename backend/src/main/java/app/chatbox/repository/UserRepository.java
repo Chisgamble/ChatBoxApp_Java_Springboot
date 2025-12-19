@@ -122,7 +122,7 @@ public interface UserRepository extends JpaRepository<AppUser, Long>, JpaSpecifi
     @Query(value = """
         SELECT * FROM app_user u
         WHERE
-          (:username IS NULL OR u.username ~* :username)
+          (:username IS NULL OR LOWER(u.username) ~* LOWER(:username))
         AND
           (:email IS NULL OR u.email ~* :email)
         AND
@@ -136,7 +136,7 @@ public interface UserRepository extends JpaRepository<AppUser, Long>, JpaSpecifi
             @Param("email") String email,
             @Param("startDate") java.time.Instant startDate,
             @Param("endDate") java.time.Instant endDate,
-            Sort sort // <--- Add this parameter
+            Sort sort
     );
 
     // 1. FOR NEW USERS

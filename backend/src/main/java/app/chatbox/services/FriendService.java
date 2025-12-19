@@ -5,6 +5,7 @@ import app.chatbox.dto.FriendCardDTO;
 import app.chatbox.dto.FriendListDataDTO;
 import app.chatbox.model.Friend;
 import app.chatbox.repository.FriendRepository;
+import app.chatbox.util.Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,18 +37,18 @@ public class FriendService {
     }
 
     public List<FriendListDataDTO> getFriendListData(
-            String username,
+            List<String> username,
             String sortBy,
             String sortDir,
             String fcSymbol,
             Integer fcVal
     ) {
-        String usernamePattern = (username != null && !username.isEmpty()) ? "%" + username + "%" : null;
+        String usernameRegex = Util.buildRegexPattern(username);
         String finalSortBy = (sortBy == null || sortBy.isEmpty()) ? "username" : sortBy;
         String finalSortDir = (sortDir == null || sortDir.isEmpty()) ? "asc" : sortDir;
 
         List<Object[]> results = friendRepository.findFriendListDataRaw(
-                usernamePattern,
+                usernameRegex,
                 fcSymbol,
                 fcVal,
                 finalSortBy,

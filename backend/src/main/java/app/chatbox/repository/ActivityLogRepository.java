@@ -37,7 +37,7 @@ public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> 
         FROM UserActivity ua
         WHERE
             -- Username filter
-            (:usernamePattern IS NULL OR ua.username ILIKE :usernamePattern)
+            (:usernameRegex IS NULL OR LOWER(ua.username) ~* LOWER(:usernameRegex))
             AND
             -- Activity count filter logic (Safely handles comparison operators)
             (
@@ -80,7 +80,7 @@ public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> 
             CASE WHEN :sortBy = 'age' AND :sortDir = 'desc' THEN ua.account_created_at END ASC
         """, nativeQuery = true)
     List<Object[]> findUserActivityDataRaw(
-            @Param("usernamePattern") String usernamePattern,
+            @Param("usernameRegex") String usernameRegex,
             @Param("activityType") String activityType,
             @Param("comparison") String comparison,
             @Param("count") String count,

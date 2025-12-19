@@ -48,7 +48,7 @@ public class FriendController {
     @PreAuthorize("isAuthenticated() or hasRole('ADMIN')")
     @GetMapping("/getall/data")
     public ResponseEntity<List<FriendListDataDTO>> getFriendListData(
-            @RequestParam(required = false) String username,
+            @RequestParam(required = false) List<String> username,
             @RequestParam(required = false, defaultValue = "username") String sortBy,
             @RequestParam(required = false, defaultValue = "asc") String sortDir,
             @RequestParam(required = false) String fcSymbol,
