@@ -4,6 +4,7 @@ import app.chatbox.dto.ActivityDTO;
 import app.chatbox.dto.ActivityListDTO;
 import app.chatbox.model.ActivityLog;
 import app.chatbox.repository.ActivityLogRepository;
+import app.chatbox.util.Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,17 +23,17 @@ public class ActivityLogService {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public ActivityListDTO getUserActivityData(
-            String usernameFilter,
+            List<String> usernameFilter,
             String activityType,
             String comparison,
             String count,
             String sortBy,
             String sortDir
     ) {
-        String usernamePattern = (usernameFilter != null && !usernameFilter.isEmpty()) ? "%" + usernameFilter + "%" : null;
+        String usernameRegex = Util.buildRegexPattern(usernameFilter);
 
         List<Object[]> results = repo.findUserActivityDataRaw(
-                usernamePattern,
+                usernameRegex,
                 activityType,
                 comparison,
                 count,

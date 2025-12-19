@@ -103,14 +103,14 @@ public class ChatGroupList extends MainPanel {
         filterPanel.add(orderby);
 
         // Sort Field (Name vs Time)
-        String[] options = {"Group Name", "Time Created"};
+        String[] options = {"Group Name", "Group Age"};
         RoundedComboBox<String> sortFieldBox = new RoundedComboBox<>(options);
         sortFieldBox.setFont(roboto);
 
-        sortFieldBox.setSelectedItem("time".equals(this.sortBy) ? "Time Created" : "Group Name");
+        sortFieldBox.setSelectedItem("time".equals(this.sortBy) ? "Group Age" : "Group Name");
         sortFieldBox.addActionListener(e -> {
             String selected = (String) sortFieldBox.getSelectedItem();
-            this.sortBy = "Time Created".equals(selected) ? "time" : "name";
+            this.sortBy = "Group Age".equals(selected) ? "time" : "name";
             filterData();
         });
         filterPanel.add(sortFieldBox);

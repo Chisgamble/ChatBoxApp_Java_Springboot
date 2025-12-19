@@ -57,7 +57,7 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
             g.created_at
         FROM chat_group g
         WHERE
-            (:groupNamePattern IS NULL OR LOWER(g.group_name) LIKE LOWER(:groupNamePattern))
+            (:groupNameRegex IS NULL OR CAST(g.group_name AS text) ~*  LOWER(:groupNameRegex))
         AND
             (:startDate IS NULL OR g.created_at >= CAST(:startDate AS timestamp))
         AND
@@ -65,11 +65,11 @@ public interface GroupRepository extends JpaRepository<Group, Long> {
         ORDER BY
             CASE WHEN :sortBy = 'name' AND :sortDir = 'asc' THEN g.group_name END ASC,
             CASE WHEN :sortBy = 'name' AND :sortDir = 'desc' THEN g.group_name END DESC,
-            CASE WHEN :sortBy = 'time' AND :sortDir = 'asc' THEN g.created_at END ASC,
-            CASE WHEN :sortBy = 'time' AND :sortDir = 'desc' THEN g.created_at END DESC
+            CASE WHEN :sortBy = 'time' AND :sortDir = 'asc' THEN g.created_at END DESC,
+            CASE WHEN :sortBy = 'time' AND :sortDir = 'desc' THEN g.created_at END ASC
     """, nativeQuery = true)
     List<Object[]> findGroupListDataRaw(
-            @Param("groupNamePattern") String groupNamePattern,
+            @Param("groupNameRegex") String groupNameRegex,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate,
             @Param("sortBy") String sortBy,

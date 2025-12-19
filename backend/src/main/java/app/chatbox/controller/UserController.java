@@ -188,8 +188,8 @@ public class UserController {
 
     @GetMapping("/new-list")
     public ResponseEntity<?> getNewUserList(
-            @RequestParam(required = false) String username,
-            @RequestParam(required = false) String email,
+            @RequestParam(required = false) List<String> username,
+            @RequestParam(required = false) List<String> email,
             @RequestParam(required = false) LocalDate startDate,
             @RequestParam(required = false) LocalDate endDate,
             @RequestParam(required = false) String order

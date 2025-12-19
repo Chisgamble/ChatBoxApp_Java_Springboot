@@ -359,7 +359,7 @@ public class UserList extends MainPanel {
 
         // MEMORY FIX: Set selected item based on current variable
         if(this.role != null) {
-            String display = this.status.substring(0, 1).toUpperCase() + this.role.substring(1).toLowerCase();
+            String display = this.role.substring(0, 1).toUpperCase() + this.role.substring(1).toLowerCase();
             roleBox.setSelectedItem(display);
         }
 

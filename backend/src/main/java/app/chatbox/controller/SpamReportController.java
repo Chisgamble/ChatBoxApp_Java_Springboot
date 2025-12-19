@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -22,8 +23,8 @@ public class SpamReportController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/getall")
     public ResponseEntity<SpamReportListDTO> getAll(
-            @RequestParam(required = false) String email,
-            @RequestParam(required = false) String username,
+            @RequestParam(required = false) List<String> email,
+            @RequestParam(required = false) List<String> username,
 
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
@@ -31,7 +32,7 @@ public class SpamReportController {
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
 
-            @RequestParam(required = false) String status, // Filter param
+            @RequestParam(required = false) String status,
 
             @RequestParam(defaultValue = "time") String sort,
             @RequestParam(defaultValue = "desc") String order

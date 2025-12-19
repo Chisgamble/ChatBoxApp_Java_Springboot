@@ -13,23 +13,23 @@ import java.util.List;
 @Repository
 public interface SpamReportRepository extends JpaRepository<SpamReport, Long> {
 
-    @Query("""
-        SELECT r FROM SpamReport r
-        JOIN r.reported u
-        WHERE 
-            (:email IS NULL OR u.email LIKE :email)
-        AND 
-            (:username IS NULL OR u.username LIKE :username)
-        AND 
-            (cast(:start as timestamp) IS NULL OR r.createdAt >= :start)
-        AND 
-            (cast(:end as timestamp) IS NULL OR r.createdAt <= :end)
-        AND
-            (:status IS NULL OR r.status = :status)
-        """)
+    @Query(value = """
+    SELECT r.* FROM spam_report r
+    JOIN app_user u ON r.reported_id = u.id
+    WHERE 
+        (:emailRegex IS NULL OR CAST(u.email AS text) ~* :emailRegex)
+    AND 
+        (:usernameRegex IS NULL OR CAST(u.username AS text) ~* :usernameRegex)
+    AND 
+        (CAST(:start AS TIMESTAMP) IS NULL OR r.created_at >= CAST(:start AS TIMESTAMP))
+    AND 
+        (CAST(:end AS TIMESTAMP) IS NULL OR r.created_at <= CAST(:end AS TIMESTAMP))
+    AND
+        (:status IS NULL OR LOWER(r.status) = LOWER(:status))
+    """, nativeQuery = true)
     List<SpamReport> searchReports(
-            @Param("email") String email,       // Expecting "%abc%" or NULL
-            @Param("username") String username, // Expecting "%abc%" or NULL
+            @Param("emailRegex") String emailRegex,       // Pass "gmail|yahoo"
+            @Param("usernameRegex") String usernameRegex, // Pass "admin|root"
             @Param("start") Instant start,
             @Param("end") Instant end,
             @Param("status") String status,

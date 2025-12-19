@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/activity")
 @RequiredArgsConstructor
@@ -19,7 +21,7 @@ public class ActivityLogController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/getall/data")
     public ResponseEntity<ActivityListDTO> getAllUserActivity(
-            @RequestParam(required = false) String usernameFilter,
+            @RequestParam(required = false) List<String> usernameFilter,
             @RequestParam(required = false) String activityType, // e.g., "open", "with-one"
             @RequestParam(required = false) String comparison,   // e.g., "<", ">", "="
             @RequestParam(required = false) String count,        // e.g., "10"

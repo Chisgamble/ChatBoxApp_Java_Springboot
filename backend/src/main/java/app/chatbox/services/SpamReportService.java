@@ -5,6 +5,7 @@ import app.chatbox.dto.SpamReportListDTO;
 import app.chatbox.mapper.SpamReportMapper;
 import app.chatbox.model.SpamReport;
 import app.chatbox.repository.SpamReportRepository;
+import app.chatbox.util.Util;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -24,8 +25,8 @@ public class SpamReportService {
     private final SpamReportMapper mapper;
 
     public SpamReportListDTO getAllReports(
-            String email,
-            String username,
+            List<String> email,
+            List<String> username,
             LocalDate startDate,
             LocalDate endDate,
             String status,
@@ -43,12 +44,12 @@ public class SpamReportService {
                 : null;
 
         // --- FIX: Add Wildcards here instead of inside SQL ---
-        String emailPattern = (email != null && !email.isBlank()) ? "%" + email + "%" : null;
-        String usernamePattern = (username != null && !username.isBlank()) ? "%" + username + "%" : null;
+        String usernameRegex = Util.buildRegexPattern(username);
+        String emailRegex = Util.buildRegexPattern(email);
         String statusFilter = (status != null && !status.isBlank()) ? status : null;
 
         // Sort Logic
-        String sortField = "createdAt";
+        String sortField = "created_at";
         if ("username".equalsIgnoreCase(sortBy)) {
             sortField = "reported.username";
         }
@@ -61,8 +62,8 @@ public class SpamReportService {
 
         // Execute Search
         List<SpamReport> reports = reportRepo.searchReports(
-                emailPattern,    // Passed with %
-                usernamePattern, // Passed with %
+                emailRegex,
+                usernameRegex,
                 startInstant,
                 endInstant,
                 statusFilter,

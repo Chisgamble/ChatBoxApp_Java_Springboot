@@ -50,7 +50,7 @@ public class UserListService {
         api.deleteUser(id);
     }
 
-    public List<NewUserDTO> getNewUsers(String username, String email, LocalDate start, LocalDate end, String order) {
+    public List<NewUserDTO> getNewUsers(List<String> username, List<String> email, LocalDate start, LocalDate end, String order) {
         // 1. Call API
         NewUserListDTO response = api.getNewUserList(username, email, start, end, order);
 

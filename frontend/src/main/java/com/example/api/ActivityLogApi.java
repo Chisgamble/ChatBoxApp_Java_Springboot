@@ -5,12 +5,13 @@ import com.example.util.HttpClientUtil;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 public class ActivityLogApi {
     private static final String BASE_URL = "http://localhost:8080/api/activity";
 
     public ActivityListDTO getAllUserActivity(
-            String usernameFilter,
+            List<String> usernameFilter,
             String activityType,
             String comparison,
             String count,
@@ -21,11 +22,12 @@ public class ActivityLogApi {
 
         try {
             if (usernameFilter != null && !usernameFilter.isEmpty()) {
-                String encodedUsername = URLEncoder.encode(usernameFilter, StandardCharsets.UTF_8.toString());
+                String joinedNames = String.join(",", usernameFilter);
+                String encodedUsername = URLEncoder.encode(joinedNames, StandardCharsets.UTF_8);
                 urlBuilder.append("usernameFilter=").append(encodedUsername).append("&");
             }
             if (activityType != null && !activityType.isEmpty()) {
-                String encodedActivityType = URLEncoder.encode(activityType, StandardCharsets.UTF_8.toString());
+                String encodedActivityType = URLEncoder.encode(activityType, StandardCharsets.UTF_8);
                 urlBuilder.append("activityType=").append(encodedActivityType).append("&");
             }
             if (comparison != null && !comparison.isEmpty()) {

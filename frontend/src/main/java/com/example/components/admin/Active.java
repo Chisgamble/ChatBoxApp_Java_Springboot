@@ -105,8 +105,8 @@ public class Active extends MainPanel {
 
         // 3. Count Input (RoundedTextField)
         RoundedTextField countField = new RoundedTextField(5);
-        countField.setPreferredSize(new Dimension(100, 30));
-        countField.setFont(roboto);
+        countField.setPreferredSize(new Dimension(100, 35));
+        countField.setFont(roboto.deriveFont(14f));
         countField.setText(this.count == null ? "" : this.count);
 
         ActionListener countListener = e -> {
@@ -216,12 +216,8 @@ public class Active extends MainPanel {
     }
 
     protected void filterData() {
-        // 1. Prepare Arguments
-        String usernameQuery = nameFilter.isEmpty() ? null : nameFilter.get(0);
-
-        // 2. Call Service
         activityData = service.getAllUserActivity(
-                nameFilter,
+                this.nameFilter,
                 this.activityType,
                 this.comparison,
                 this.count,

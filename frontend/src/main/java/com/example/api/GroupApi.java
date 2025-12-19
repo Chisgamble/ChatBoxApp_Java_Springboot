@@ -100,17 +100,19 @@ public class GroupApi {
         );
     }
 
-    public GroupListDataDTO getAllGroupData(String nameFilter, String startDate, String endDate, String sortBy, String sortDir) {
+    public GroupListDataDTO getAllGroupData(List<String> nameFilter, String startDate, String endDate, String sortBy, String sortDir) {
         StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/getall/data?");
 
         try {
             if (nameFilter != null && !nameFilter.isEmpty()) {
-                String encodedName = URLEncoder.encode(nameFilter, StandardCharsets.UTF_8.toString());
+                String joinedNames = String.join(",", nameFilter);
+
+                String encodedName = URLEncoder.encode(joinedNames, StandardCharsets.UTF_8.toString());
+
                 urlBuilder.append("nameFilter=").append(encodedName).append("&");
             }
 
             if (startDate != null) {
-                // FIX: Encode the date string to handle spaces and colons
                 String encodedStartDate = URLEncoder.encode(startDate, StandardCharsets.UTF_8.toString());
                 urlBuilder.append("startDate=").append(encodedStartDate).append("&");
             }

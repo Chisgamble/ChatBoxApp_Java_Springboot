@@ -319,7 +319,7 @@ public class UserService {
                 .substring(0, length);
     }
 
-    public NewUserListDTO getNewUsers(String username, String email, LocalDate startDate, LocalDate endDate, String order) {
+    public NewUserListDTO getNewUsers(List<String> username, List<String> email, LocalDate startDate, LocalDate endDate, String order) {
 
         // 1. Input Validation
         if (startDate != null && endDate != null && startDate.isAfter(endDate)) {
@@ -327,8 +327,8 @@ public class UserService {
         }
 
         // 2. Prepare Regex Strings
-        String usernameRegex = (username != null && !username.isBlank()) ? username.trim() : null;
-        String emailRegex = (email != null && !email.isBlank()) ? email.trim() : null;
+        String usernameRegex = Util.buildRegexPattern(username);
+        String emailRegex = Util.buildRegexPattern(email);
 
         // 3. Prepare Sort Object (Logic for Order)
         // Default to DESC if null or anything else

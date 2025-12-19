@@ -166,7 +166,7 @@ public class GroupController {
     @PreAuthorize("isAuthenticated() or hasRole('ADMIN')")
     @GetMapping("/getall/data")
     public ResponseEntity<GroupListDataDTO> getAllGroupData(
-            @RequestParam(required = false) String nameFilter,
+            @RequestParam(required = false) List<String> nameFilter,
             @RequestParam(required = false) String startDate,
             @RequestParam(required = false) String endDate,
             @RequestParam(required = false, defaultValue = "name") String sortBy,

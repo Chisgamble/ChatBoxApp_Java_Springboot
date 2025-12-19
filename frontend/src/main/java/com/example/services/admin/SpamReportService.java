@@ -17,8 +17,8 @@ public class SpamReportService {
     }
 
     public List<List<String>> getAll(
-            String email,
-            String username,
+            List<String> email,
+            List<String> username,
             LocalDate startDate,
             LocalDate endDate,
             String status,

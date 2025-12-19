@@ -30,11 +30,11 @@ public class FriendApi {
         return HttpClientUtil.deleteJson(url, null, GeneralResDTO.class);
     }
 
-    public List<FriendListDataDTO> getFriendListData(String username, String sortBy, String sortDir, String fcSymbol, Integer fcVal) {
+    public List<FriendListDataDTO> getFriendListData(List<String> username, String sortBy, String sortDir, String fcSymbol, Integer fcVal) {
         StringBuilder urlBuilder = new StringBuilder(BASE_URL + "/getall/data?");
 
         if (username != null && !username.isEmpty()) {
-            urlBuilder.append("username=").append(username).append("&");
+            urlBuilder.append("username=").append(String.join(",", username)).append("&");
         }
 
         if (sortBy != null && !sortBy.isEmpty()) {
